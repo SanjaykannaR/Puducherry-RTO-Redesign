@@ -56,7 +56,7 @@ router.get('/', (_req: Request, res: Response) => {
 // ── GET /api/directory/:id ──
 // Returns details for a single office by its numeric ID
 router.get('/:id', (req: Request, res: Response) => {
-  const office = offices.find((o) => o.id === parseInt(req.params.id));
+  const office = offices.find((o) => o.id === parseInt(req.params.id as string));
   if (!office) {
     res.status(404).json({ error: 'Office not found' });
     return;
