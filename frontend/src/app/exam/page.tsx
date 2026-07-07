@@ -1,3 +1,10 @@
+// ── ExamPage: AI-proctored driving exam with a 3-state state machine:
+//     1. INTRO (examStarted=false) — shows rules, camera permission prompt, and Start button.
+//     2. PROCTORING (examStarted=true, examDone=false) — runs the quiz with live face detection,
+//        tab-switch/fullscreen monitoring, and a violation counter that terminates at the limit.
+//     3. RESULT (examDone=true) — displays pass/fail with score.
+//     The proctoring loop captures frames every 3s, sends them to an AI service for face/confidence
+//     checks, and accumulates violations for no-face, multiple-faces, tab switches, or fullscreen exit. ──
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,33 +16,43 @@ import RequireAuth from '@/components/auth/RequireAuth';
 import { AlertTriangle, Camera, XCircle, Shield, Monitor } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
+// ── AI Proctoring Config: endpoint for face-detection service, max violations before auto-fail,
+//     and how often (ms) a frame is captured and analysed ──
 const AI_URL = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
 const VIOLATION_LIMIT = 5;
 const CAPTURE_INTERVAL = 3000;
+// ── Question Shape: each question has an id, the question text (q), and an array of options ──
 interface Question {
   id: number; q: string; options: string[];
 }
 export default function ExamPage() {
+  // ── Auth & Router ──
   const { user, loading } = useAuth();
   const router = useRouter();
+  // ── Camera Refs: video element for preview, MediaStream for cleanup, interval for capture loop ──
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const intervalRef = useRef<number | null>(null);
+  // ── Exam State Machine: questions list, current index, answers map, and phase flags ──
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [examStarted, setExamStarted] = useState(false);
   const [examDone, setExamDone] = useState(false);
   const [examResult, setExamResult] = useState<{ score: number; total: number; passed: boolean } | null>(null);
+  // ── Proctoring State: violations counter, camera status, face-detection flags ──
   const [violations, setViolations] = useState(0);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraError, setCameraError] = useState('');
   const [statusMsg, setStatusMsg] = useState('');
   const [faceDetected, setFaceDetected] = useState(true);
   const [consecutiveNoFace, setConsecutiveNoFace] = useState(0);
+  // ── Auth Guard Effect: redirect to login if the user is not authenticated ──
   useEffect(() => {
     if (!loading && !user) router.push('/login');
   }, [user, loading, router]);
+  // ── startCamera: requests webcam access via getUserMedia. Stores the stream for later cleanup.
+  //     On failure, sets cameraError so the UI can show a permission warning. ──
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -47,6 +64,10 @@ export default function ExamPage() {
       setCameraError('Camera access denied.');
     }
   }, []);
+  // ── captureFrame: draws the current video frame to a canvas, converts to JPEG, and sends it
+  //     to the AI face-detection service. If no face or low confidence is detected for 3+ consecutive
+  //     frames, a +2 violation is recorded. Multiple faces in frame adds a +3 violation.
+  //     All violations are capped at VIOLATION_LIMIT. ──
   const captureFrame = useCallback(async () => {
     if (!videoRef.current || !streamRef.current) return;
     const canvas = document.createElement('canvas');
@@ -83,6 +104,8 @@ export default function ExamPage() {
       } catch {}
     }, 'image/jpeg', 0.8);
   }, []);
+  // ── Capture Interval Effect: starts a periodic timer (every 3s) that runs captureFrame.
+  //     Only active when the exam is running and the camera is on. Cleans up on unmount or stop. ──
   useEffect(() => {
     if (!examStarted || !cameraOn) return;
     intervalRef.current = window.setInterval(captureFrame, CAPTURE_INTERVAL);
@@ -90,6 +113,9 @@ export default function ExamPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [examStarted, cameraOn, captureFrame]);
+  // ── Security Monitoring Effect: listens for tab switches (visibilitychange) and fullscreen
+  //     exits. Each event adds +3 violations as a deterrent against cheating.
+  //     Only active while the exam is in progress. ──
   useEffect(() => {
     if (!examStarted) return;
     function onVisibility() {
@@ -117,6 +143,8 @@ export default function ExamPage() {
       document.removeEventListener('fullscreenchange', onFullscreen);
     };
   }, [examStarted]);
+  // ── startExam: initialises camera, fetches questions from the API, then enters fullscreen.
+  //     Sets examStarted=true which triggers the interval and security effects. ──
   async function startExam() {
     await startCamera();
     try {
@@ -128,9 +156,12 @@ export default function ExamPage() {
       setStatusMsg('Failed to start exam');
     }
   }
+  // ── answer: records the selected option index for a given question ID ──
   function answer(qId: number, optIdx: number) {
     setAnswers((prev) => ({ ...prev, [qId]: optIdx }));
   }
+  // ── submitExam: stops camera + interval, exits fullscreen, sends answers to the API,
+  //     and transitions to the RESULT state (examDone=true). ──
   async function submitExam() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
@@ -143,7 +174,11 @@ export default function ExamPage() {
       setStatusMsg('Failed to submit exam');
     }
   }
+  // ── Loading state: don't render anything while auth status is being determined ──
   if (loading) return null;
+
+  // ── STATE 3: RESULT — shows final score (pass/fail) with a green or red card.
+  //     Score display, PASSED/FAILED badge, and a button to go back to dashboard. ──
   if (examDone) {
     return (
       <RequireAuth>
@@ -176,6 +211,9 @@ export default function ExamPage() {
       </RequireAuth>
     );
   }
+
+  // ── STATE 1: INTRO — shows exam rules, camera permission check, and a Start button.
+  //     If camera permission was denied, an error banner is displayed. ──
   if (!examStarted) {
     return (
       <RequireAuth>
@@ -218,12 +256,18 @@ export default function ExamPage() {
       </RequireAuth>
     );
   }
+  // ── STATE 2: PROCTORING — the live exam. Shows a top bar with camera preview, face-detection
+  //     status, violation count, and live status messages. If violations hit the limit, the exam
+  //     is terminated and a failure card is shown. Otherwise the question card renders with radio
+  //     options, Previous/Next navigation, and a Submit button on the last question.
+  //     All questions must be answered before submission is allowed. ──
   const q = questions[currentQ];
   return (
     <RequireAuth>
       <>
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-6">
+          {/* ── Proctoring Bar: camera feed thumbnail, face-detection indicator, violation badge ── */}
           <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
               <Camera className={'h-5 w-5 ' + (cameraOn ? 'text-green-500' : 'text-destructive')} />
@@ -240,6 +284,8 @@ export default function ExamPage() {
               )}
             </div>
           </div>
+
+          {/* ── Violation Limit Reached: exam terminated card ── */}
           {violations >= VIOLATION_LIMIT ? (
             <Card className="border-0 shadow-xl overflow-hidden border-l-4 border-l-destructive">
               <CardHeader>
@@ -254,6 +300,7 @@ export default function ExamPage() {
             </Card>
           ) : (
             <>
+              {/* ── Progress Bar: current question number and count of answered questions ── */}
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-muted-foreground bg-white px-3 py-1.5 rounded-lg shadow-sm">
                   Question {currentQ + 1} of {questions.length}
@@ -262,6 +309,8 @@ export default function ExamPage() {
                   Answered: {Object.keys(answers).length}/{questions.length}
                 </span>
               </div>
+              {/* ── Question Card: displays the current question text and radio-button options.
+                   Selected option gets highlighted with a primary border/background. ── */}
               <Card className="border-0 shadow-xl overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
                 <CardHeader>
@@ -283,6 +332,9 @@ export default function ExamPage() {
                   ))}
                 </CardContent>
               </Card>
+              {/* ── Navigation: Previous/Next buttons to move between questions.
+                   Next is disabled until an answer is selected for the current question.
+                   On the last question, "Submit Exam" appears instead of "Next". ── */}
               <div className="flex items-center justify-between mt-6">
                 <Button variant="outline" disabled={currentQ === 0}
                   onClick={() => setCurrentQ((p) => p - 1)}>Previous</Button>

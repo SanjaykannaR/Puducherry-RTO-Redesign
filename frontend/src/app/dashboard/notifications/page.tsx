@@ -1,11 +1,16 @@
 'use client';
 
+// ── Local state for tracking read/unread status ──
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
+// ── Icon per type helps users triage urgency without reading the full message ──
 import { Bell, AlertTriangle, Info, CheckCheck } from 'lucide-react';
 
+// ── Seed notifications ──
+// Each notification carries a type (WARNING, ALERT, INFO) that controls icon, border,
+// and background colour. The `isRead` flag toggles visual prominence and the "Mark Read" action.
 const initialNotifs = [
   { id: '1', title: 'Insurance Expiring Soon', message: 'Your vehicle PY-01-AB-1234 insurance expires in 15 days.', type: 'WARNING', isRead: false, date: '2026-07-01' },
   { id: '2', title: 'License Renewal Due', message: 'Your driving license expires on 2026-09-15. Please renew.', type: 'INFO', isRead: false, date: '2026-06-28' },
@@ -13,12 +18,16 @@ const initialNotifs = [
 ];
 
 export default function NotificationsPage() {
+  // ── State: notification list (allows local mark-as-read without a server round-trip) ──
   const [notifs, setNotifs] = useState(initialNotifs);
 
   function markRead(id: string) {
     setNotifs((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
   }
 
+  // ── Visual mapping per notification type ──
+  // Each type gets an icon, a background/border combo, and a text colour so severity
+  // is communicated through multiple visual channels (not colour alone).
   const typeIcon: Record<string, React.ReactNode> = {
     WARNING: <AlertTriangle className="h-5 w-5 text-amber-500" />,
     ALERT: <AlertTriangle className="h-5 w-5 text-destructive" />,
@@ -40,12 +49,17 @@ export default function NotificationsPage() {
   return (
     <RequireAuth>
       <>
+        {/* ── Hero banner ── */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <h1 className="text-3xl font-bold text-white">Notifications</h1>
           <p className="text-blue-200 mt-1">View alerts and notices</p>
         </div>
       </section>
+        {/* ── Notification feed ── */}
+        {/* Each notification card uses a type-specific gradient bar, icon, and badge.
+            Read notifications are dimmed (opacity-60) to visually deprioritise them,
+            while unread ones keep full opacity and show a "Mark Read" button. */}
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-3xl mx-auto px-4 py-10">
           <div className="space-y-4">

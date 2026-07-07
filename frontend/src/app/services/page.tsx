@@ -1,3 +1,4 @@
+// ── Imports: Next.js metadata, navigation, UI components, and icons for each service card ──
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,11 +6,15 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import { Car, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Download, ArrowRight } from 'lucide-react';
 
+// ── Page Metadata: Sets <title> and <meta> for SEO so search engines index the service hub correctly ──
 export const metadata: Metadata = {
   title: 'Services',
   description: 'Puducherry RTO services - vehicle registration, driving license, appointments, and more.',
 };
 
+// ── Service Catalog Data: Static array grouped by category (Registration, Licensing, Online Tools).
+//     Each entry includes a route, description, and icon — drives the entire grid below so adding
+//     a new service only requires adding one object here. ──
 const serviceCategories = [
   {
     title: 'Registration Services',
@@ -39,8 +44,12 @@ const serviceCategories = [
       { name: 'Download Forms', href: '/services/download-forms', desc: 'Download RTO application forms.', icon: Download },
     ],
   },
+// ── End of service catalog data ──
 ];
 
+// ── ServicesPage Component: The main hub page. Renders a hero banner, then loops through each
+//     service category rendering a grid of clickable cards. Each card links to the service's own
+//     page. Uses FadeInSection for staggered scroll animations. ──
 export default function ServicesPage() {
   return (
     <>
@@ -48,6 +57,7 @@ export default function ServicesPage() {
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
           {serviceCategories.map((cat, i) => (
+            // ── Category section: title with accent bar, then a responsive card grid ──
             <FadeInSection key={i} delay={i * 100}>
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
@@ -58,6 +68,8 @@ export default function ServicesPage() {
                   {cat.services.map((svc, j) => {
                     const Icon = svc.icon;
                     return (
+                      // ── Service Card: links to the service page, has a gradient top border,
+                      //     icon, title, and description. Hover lifts the card up for affordance. ──
                       <Link key={j} href={svc.href} className="no-underline group block">
                         <Card className="h-full border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
                           <div className="h-1 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent group-hover:from-primary group-hover:via-primary-light transition-all duration-300" />

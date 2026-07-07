@@ -1,5 +1,7 @@
 'use client';
 
+// ── Imports ──
+
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,13 +11,21 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check } from 'lucide-react';
 
+// ── Register Page ──
+// Same full-viewport layout as Login but with a packed two-column form that keeps
+// the card compact enough to feel like a quick sign-up, not a long application.
+
 export default function RegisterPage() {
+  // ── Form State ──
   const [form, setForm] = useState({ name: '', email: '', mobile: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
 
+  // ── Submit Handler ──
+  // Client-side password-match check before hitting the API so the server isn't
+  // bothered with obviously invalid submissions.
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -34,11 +44,15 @@ export default function RegisterPage() {
     }
   }
 
+  // Benefits strip shown to encourage sign-up by listing what the user gains
   const benefits = ['Track application status', 'Book appointments online', 'View vehicle & license details', 'Pay challans digitally'];
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* ── Top Accent Bar ── */}
       <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />
+
+      {/* ── RTO Logo / Home Link ── */}
       <div className="px-4 pt-5">
         <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
@@ -50,6 +64,8 @@ export default function RegisterPage() {
           </div>
         </Link>
       </div>
+
+      {/* ── Registration Card ── */}
       <div className="flex-1 flex items-center justify-center px-4 py-6">
         <Card className="w-full max-w-md border-0 shadow-xl overflow-hidden">
           <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -60,6 +76,9 @@ export default function RegisterPage() {
             <CardTitle className="text-2xl">Get Started</CardTitle>
             <CardDescription>Create your RTO account in seconds</CardDescription>
 
+            {/* ── Benefits Badge Strip ── */}
+            {/* A compact row of check-marked items that tell the user *why* they should register.
+                Positioned just below the subtitle so it's visible without scrolling. */}
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-4 pt-3 border-t">
               {benefits.map((b, i) => (
                 <span key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -70,12 +89,16 @@ export default function RegisterPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* ── Registration Form ── */}
+            {/* Uses two-column grid groups (Email/Mobile, Password/Confirm) to fit all 5 fields
+                into a compact card without scrolling on desktop. */}
             <form onSubmit={handleSubmit} className="space-y-3">
               {error && (
                 <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20" role="alert">
                   {error}
                 </div>
               )}
+              {/* Full Name — full-width since it's always visible first */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-1">Full Name</label>
                 <div className="relative">
@@ -83,6 +106,7 @@ export default function RegisterPage() {
                   <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="John Doe" className="pl-10" />
                 </div>
               </div>
+              {/* Email + Mobile side-by-side */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="reg-email" className="block text-sm font-medium mb-1">Email</label>
@@ -99,6 +123,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
               </div>
+              {/* Password + Confirm side-by-side */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="reg-password" className="block text-sm font-medium mb-1">Password</label>
@@ -120,11 +145,14 @@ export default function RegisterPage() {
               </Button>
             </form>
 
+            {/* ── Divider ── */}
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
               <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground">or register with</span></div>
             </div>
 
+            {/* ── Alternative Registration Methods ── */}
+            {/* Aadhaar / DigiLocker as quicker alternatives to manual form entry (future). */}
             <div className="grid grid-cols-2 gap-3">
               <Button variant="outline" className="gap-2 h-11" onClick={() => alert('Aadhaar registration coming soon')}>
                 <Fingerprint className="w-4 h-4 text-orange-600" />
@@ -136,6 +164,7 @@ export default function RegisterPage() {
               </Button>
             </div>
 
+            {/* ── Login Link ── */}
             <div className="mt-4 pt-3 border-t text-center">
               <p className="text-sm text-muted-foreground">
                 Already have an account?{' '}

@@ -1,11 +1,16 @@
 'use client';
 
+// ── DownloadFormsPage: Static directory of RTO application forms (PDF) grouped by category
+//     (Registration Forms, License Forms, Other Forms). Each card shows the form name, a short
+//     description of its purpose, and a download link. Forms are for offline submission. ──
 import RequireAuth from '@/components/auth/RequireAuth';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import { Download, FileText, Car, FileSignature, ClipboardCheck, Shield } from 'lucide-react';
 import Link from 'next/link';
 
+// ── Form Categories: organized by type, each with a list of forms (name, description, icon).
+//     Static — adding a new form here makes it appear in the grid automatically. ──
 const formCategories = [
   {
     title: 'Registration Forms',
@@ -43,6 +48,8 @@ export default function DownloadFormsPage() {
         <PageHero title="Download Forms" subtitle="Download RTO application forms in PDF format for various services" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
+          {/* ── Form Category Sections: loops through Registration, License, and Other forms,
+               each in a grid of cards with form name, description, and download link. ── */}
           {formCategories.map((cat, i) => (
             <FadeInSection key={i} delay={i * 100}>
               <div className="mb-12">

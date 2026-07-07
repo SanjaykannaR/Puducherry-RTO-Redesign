@@ -1,3 +1,10 @@
+// ── Protected route access tests ──
+// Verifies that routes requiring authentication work correctly:
+//   - Public routes (calculator) are accessible without auth
+//   - Protected routes reject unauthenticated requests with 401
+//   - Protected routes return data when a valid token is provided
+// Also verifies creation of appointments and applications
+
 import request from 'supertest';
 import app from '../src/index';
 
@@ -5,6 +12,7 @@ let token: string;
 let appointmentId: string;
 let applicationId: string;
 
+// Register a test user once before all tests and store the token
 beforeAll(async () => {
   const res = await request(app)
     .post('/api/auth/register')
@@ -12,6 +20,8 @@ beforeAll(async () => {
   token = res.body.token;
 });
 
+// ── POST /api/calculator (public) ──
+// No auth required — should always return 200 with calculation result
 describe('POST /api/calculator', () => {
   it('calculates fee without auth', async () => {
     const res = await request(app)
@@ -22,6 +32,8 @@ describe('POST /api/calculator', () => {
   });
 });
 
+// ── GET /api/appointments (protected) ──
+// Should 401 without token, 200 with valid token
 describe('GET /api/appointments', () => {
   it('rejects without auth', async () => {
     const res = await request(app).get('/api/appointments');
@@ -37,6 +49,8 @@ describe('GET /api/appointments', () => {
   });
 });
 
+// ── POST /api/appointments (protected) ──
+// Creates an appointment; stores the returned ID for potential cancellation tests
 describe('POST /api/appointments', () => {
   it('creates appointment with auth', async () => {
     const res = await request(app)
@@ -49,6 +63,8 @@ describe('POST /api/appointments', () => {
   });
 });
 
+// ── GET /api/applications (protected) ──
+// Should 401 without token, 200 with valid token
 describe('GET /api/applications', () => {
   it('rejects without auth', async () => {
     const res = await request(app).get('/api/applications');
@@ -64,6 +80,8 @@ describe('GET /api/applications', () => {
   });
 });
 
+// ── POST /api/applications (protected) ──
+// Creates an application; stores the returned ID
 describe('POST /api/applications', () => {
   it('creates application with auth', async () => {
     const res = await request(app)
@@ -76,6 +94,8 @@ describe('POST /api/applications', () => {
   });
 });
 
+// ── GET /api/challans (protected) ──
+// Should 401 without token, 200 returning challans with valid token
 describe('GET /api/challans', () => {
   it('rejects without auth', async () => {
     const res = await request(app).get('/api/challans');
@@ -91,6 +111,8 @@ describe('GET /api/challans', () => {
   });
 });
 
+// ── GET /api/notifications (protected) ──
+// Should 401 without token, 200 returning notifications with valid token
 describe('GET /api/notifications', () => {
   it('rejects without auth', async () => {
     const res = await request(app).get('/api/notifications');

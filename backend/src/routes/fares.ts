@@ -1,8 +1,14 @@
+// ── Fares routes: official RTO fee structure ──
+// Public endpoint serving the complete fee schedule for driving licenses,
+// vehicle registrations, permits, and taxes — based on Puducherry RTO rates
+// Frontend uses this data to display fee tables and feed the calculator
+
 import { Router, Request, Response } from 'express';
 
 const router = Router();
 
 // Fee structure based on Puducherry RTO official rates
+// Organized by service category for easy frontend grouping
 let feeStructure = {
   driving_license: [
     { type: 'Learner\'s License Application', fee: 200 },
@@ -35,10 +41,13 @@ let feeStructure = {
   ],
 };
 
+// ── GET /api/fares ──
+// Returns the full fee breakdown across all categories
 router.get('/', (_req: Request, res: Response) => {
   res.json(feeStructure);
 });
 
+// Exported for admin routes to update fee values dynamically
 export function setFeeStructure(data: any) {
   feeStructure = data;
 }

@@ -9,19 +9,31 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Calendar, Clock, ClipboardCheck, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
+// ── AppointmentPage: 2-step stepper for booking an RTO appointment.
+//     Step 1 picks date + time slot; Step 2 picks purpose and shows document checklist.
+//     Uses conditional rendering (step === 1 vs step === 2) to toggle form sections.
+//     On submit, switches to a success confirmation view. ──
 export default function AppointmentPage() {
+  // ── Form State: tracks date, time slot, purpose across both steps ──
   const [form, setForm] = useState({ date: '', timeSlot: '', purpose: '' });
+  // ── submitted: toggles between the booking form and the success confirmation screen ──
   const [submitted, setSubmitted] = useState(false);
+  // ── step: 1 = date/time selection, 2 = purpose selection, drives which form section is visible ──
   const [step, setStep] = useState(1);
 
+  // ── Static options for dropdowns, kept here so the form fields are easy to modify ──
   const timeSlots = ['10:00-10:30', '10:30-11:00', '11:00-11:30', '12:00-12:30', '14:00-14:30', '15:00-15:30'];
   const purposes = ['Driving Test', 'License Renewal', 'Vehicle Inspection', 'Document Verification', 'General Inquiry'];
 
+  // ── handleSubmit: placeholder that flips to the success confirmation view.
+  //     A real implementation would POST the form data to the API. ──
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitted(true);
   }
 
+  // ── Success View: shown after submission. Displays the confirmed date, time, and purpose
+  //     in a green-tinted card with a "Book Another" button that resets the form + step. ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -80,6 +92,8 @@ export default function AppointmentPage() {
     );
   }
 
+  // ── Booking Form View: shown before submission. Two-column layout — left is the 2-step form,
+  //     right has sidebar cards with office hours and tips. ──
   return (
     <RequireAuth>
       <>
@@ -99,6 +113,7 @@ export default function AppointmentPage() {
       <section className="py-12" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* ── Main Form Column (2/3 width): contains the 2-step stepper card ── */}
             <div className="md:col-span-2">
               <FadeInSection>
                 <Card className="overflow-hidden border-0 shadow-xl">
@@ -109,6 +124,8 @@ export default function AppointmentPage() {
                         <CardTitle className="text-xl">Schedule Your Visit</CardTitle>
                         <CardDescription>Fill in the details below</CardDescription>
                       </div>
+                      {/* ── Step Indicator: circles 1 and 2 with a connecting line.
+                           Filled primary = completed or current step ── */}
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step >= 1 ? 'bg-primary text-white' : 'bg-muted'}`}>1</span>
                         <span className="w-6 h-px bg-border" />
@@ -118,6 +135,7 @@ export default function AppointmentPage() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* ── Step 1: Date & Time Slot selection. "Continue" advances to step 2 ── */}
                       {step === 1 && (
                         <FadeInSection>
                           <div className="space-y-5">
@@ -151,6 +169,8 @@ export default function AppointmentPage() {
                           </div>
                         </FadeInSection>
                       )}
+                      {/* ── Step 2: Purpose selection + required documents note.
+                           "Back" returns to step 1; "Book Appointment" submits. ── */}
                       {step === 2 && (
                         <FadeInSection>
                           <div className="space-y-5">
@@ -196,6 +216,7 @@ export default function AppointmentPage() {
               </FadeInSection>
             </div>
 
+            {/* ── Sidebar (1/3 width): office hours card and tips card for user convenience ── */}
             <div className="space-y-4">
               <FadeInSection delay={100}>
                 <Card className="border-0 shadow-md bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden">

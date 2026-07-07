@@ -1,10 +1,12 @@
 'use client';
 
+// ── React hooks for data fetching and state management ──
 import { useEffect, useState, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+// ── Confirmation dialog before destructive actions ──
 import {
   Dialog,
   DialogContent,
@@ -14,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { api } from '@/lib/api';
+// ── Icons for promote/demote admin and delete actions ──
 import { Shield, ShieldOff, Trash2 } from 'lucide-react';
 
 interface AdminUser {
@@ -25,11 +28,14 @@ interface AdminUser {
 }
 
 export default function AdminUsers() {
+  // ── State: user list, loading/error, and the user pending deletion ──
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
 
+  // ── Fetch users from API ──
+  // Wrapped in useCallback so it can be safely passed as a dependency.
   const fetchUsers = useCallback(async () => {
     try {
       const data = await api.get<AdminUser[]>('/admin/users');
@@ -43,6 +49,9 @@ export default function AdminUsers() {
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
+  // ── Toggle admin role ──
+  // Optimistic update: immediately flip the role in local state, then send the PATCH.
+  // If the API call fails, the error is surfaced via alert (could be replaced with toast).
   const toggleRole = async (id: string, currentRole: string) => {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     try {
@@ -55,6 +64,8 @@ export default function AdminUsers() {
     }
   };
 
+  // ── Delete user ──
+  // Removes the user both from the database and from the local list after confirmation.
   const deleteUser = async () => {
     if (!deleteTarget) return;
     try {
@@ -71,6 +82,11 @@ export default function AdminUsers() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-primary mb-6">Users Management</h1>
+      {/* ── Users table ── */}
+      {/* Admin-oriented table with columns for name, email, mobile, role badge,
+          and action buttons. Skeleton rows are shown during loading; an empty state
+          is shown when no users exist. Each row has "Make Admin/Remove Admin" and
+          "Delete" buttons, the latter triggering a confirmation dialog. */}
       <div className="rounded-lg border bg-white">
         <Table>
           <TableHeader>
@@ -142,6 +158,9 @@ export default function AdminUsers() {
         </Table>
       </div>
 
+      {/* ── Delete confirmation dialog ── */}
+      {/* Modal that shows the user's name and warns the action is irreversible.
+          Prevents accidental deletions by requiring explicit confirmation. */}
       <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <DialogContent>
           <DialogHeader>

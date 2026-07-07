@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { t } from '@/lib/i18n/translations';
 import { Phone, Mail } from 'lucide-react';
 
+// ── Quick links for returning visitors to jump to key areas ──
 const quickLinks = [
   { href: '/about', key: 'nav.about' },
   { href: '/services', key: 'nav.services' },
@@ -13,6 +14,7 @@ const quickLinks = [
   { href: '/contact', key: 'nav.contact' },
 ];
 
+// ── Citizen-facing service links: the most common tasks users come for ──
 const citizenLinks = [
   { href: '/services/vehicle-registration', key: 'services.vr' },
   { href: '/services/driving-license', key: 'services.dl' },
@@ -27,7 +29,10 @@ export default function Footer() {
   return (
     <footer className="bg-primary-dark text-white print:hidden" role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        {/* ── 4-column grid: about → quick links → citizen services → contact ── */}
+        {/* Responsively collapses: 1 col on mobile, 2 on sm, 4 on lg */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {/* ── Column 1: Brand & description ── */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
@@ -43,6 +48,7 @@ export default function Footer() {
             </p>
           </div>
 
+          {/* ── Column 2: Quick links — broad site navigation ── */}
           <div>
             <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
               <span className="w-1 h-4 bg-amber-500 rounded-full inline-block" />
@@ -52,6 +58,7 @@ export default function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-blue-200 hover:text-white text-sm no-underline transition-colors flex items-center gap-1.5 group">
+                    {/* Small dot bullet that changes colour on hover as a micro-interaction */}
                     <span className="w-1 h-1 rounded-full bg-blue-400 group-hover:bg-amber-400 transition-colors" />
                     {t(link.key, locale)}
                   </Link>
@@ -60,6 +67,7 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* ── Column 3: Citizen services — task-oriented links ── */}
           <div>
             <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
               <span className="w-1 h-4 bg-amber-500 rounded-full inline-block" />
@@ -77,6 +85,7 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* ── Column 4: Contact info + social media ── */}
           <div>
             <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
               <span className="w-1 h-4 bg-amber-500 rounded-full inline-block" />
@@ -94,6 +103,7 @@ export default function Footer() {
               </p>
               <p>{t('contact.hours', locale)}</p>
             </address>
+            {/* Social icons: external links to government social media channels */}
             <div className="mt-4">
               <h4 className="text-xs font-medium text-blue-300 uppercase tracking-wider mb-2">{t('footer.social', locale)}</h4>
               <div className="flex gap-2">
@@ -111,6 +121,7 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* ── Bottom bar: copyright year + legal links ── */}
         <div className="border-t border-blue-700/50 mt-10 pt-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-blue-300">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+// ── Icons give each section a recognisable visual anchor ──
 import { Building2, Target, Eye, Shield, CalendarDays } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -9,6 +10,9 @@ export const metadata: Metadata = {
   description: 'Learn about Puducherry RTO - history, mission, vision, and leadership.',
 };
 
+// ── Jurisdiction regions ──
+// The Union Territory spans four distinct geographic areas; listing them makes the
+// organisational scope clear to citizens.
 const regions = [
   { title: 'Puducherry Region', desc: 'Main office at S.V. Patel Salai covering Puducherry and surrounding areas.' },
   { title: 'Karaikal Region', desc: 'Regional office serving Karaikal district.' },
@@ -22,6 +26,9 @@ export default function AboutPage() {
       <PageHero title="About Puducherry RTO" subtitle="Learn about our history, mission, and commitment to citizen-centric transport services." />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
+          {/* ── Overview section ── */}
+          {/* Two side-by-side cards: one describes the department's legal mandate, the other
+              provides historical context. The gradient bar on each card ties them visually. */}
           <FadeInSection>
             <section className="mb-12">
               <div className="flex items-center gap-3 mb-6">
@@ -57,6 +64,9 @@ export default function AboutPage() {
             </section>
           </FadeInSection>
 
+          {/* ── Mission & Vision cards ── */}
+          {/* Two cards with distinct accent colours (blue for mission, amber for vision) to
+              differentiate the concepts. Each has an icon header for quick scanning. */}
           <FadeInSection delay={100}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               <Card className="border-0 shadow-md overflow-hidden">
@@ -96,6 +106,9 @@ export default function AboutPage() {
             </div>
           </FadeInSection>
 
+          {/* ── Jurisdiction grid ── */}
+          {/* Lists the four regions under Puducherry RTO's purview. Each card includes a
+              building icon and a short description so citizens know which office to approach. */}
           <FadeInSection delay={200}>
             <section>
               <div className="flex items-center gap-3 mb-6">

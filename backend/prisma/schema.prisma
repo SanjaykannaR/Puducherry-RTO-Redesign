@@ -1,3 +1,10 @@
+// ──────────────────────────────────────────────
+// Prisma schema — Puducherry RTO database
+// ──────────────────────────────────────────────
+// This schema defines the full data model for the RTO backend.
+// It will replace the in-memory stores used in Phase 2 once
+// the PostgreSQL database is provisioned.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,48 +14,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── Enums ──
+// Type-safe enums that Prisma maps to PostgreSQL enum types
+
+// User roles control access levels across the application
 enum UserRole {
-  CITIZEN
-  ADMIN
-  RTO_STAFF
+  CITIZEN     // Regular end-user (default on register)
+  ADMIN       // System administrator with full access
+  RTO_STAFF   // RTO employee (future: can process applications, schedule exams)
 }
 
+// Lifecycle states for an appointment booking
 enum AppointmentStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
-  NO_SHOW
+  SCHEDULED   // Booked, pending arrival
+  COMPLETED   // Attended and processed
+  CANCELLED   // Cancelled by user or admin
+  NO_SHOW     // User didn't arrive at the scheduled time
 }
 
+// Lifecycle states for a service application (DL, RC, permit, etc.)
 enum ApplicationStatus {
-  DRAFT
-  SUBMITTED
-  UNDER_REVIEW
-  APPROVED
-  REJECTED
-  PENDING_DOCUMENTS
+  DRAFT              // Started but not yet submitted
+  SUBMITTED          // Submitted, awaiting review
+  UNDER_REVIEW       // Being processed by RTO staff
+  APPROVED           // Approved by officer
+  REJECTED           // Rejected with reason
+  PENDING_DOCUMENTS  // Additional documents requested
 }
 
+// Payment transaction states
 enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
+  PENDING    // Initiated, awaiting confirmation
+  COMPLETED  // Successfully processed
+  FAILED     // Transaction declined or errored
+  REFUNDED   // Money returned to user
 }
 
+// ── User ──
+// Central entity. Every person interacting with the system is a User.
+// Has one-to-many relations with applications, appointments, vehicles,
+// licenses, payments, and notifications.
 model User {
   id              String   @id @default(cuid())
   email           String   @unique
   mobile          String   @unique
-  passwordHash    String
+  passwordHash    String   // bcrypt hash, never plaintext
   name            String
   role            UserRole @default(CITIZEN)
   isEmailVerified Boolean  @default(false)
   isMobileVerified Boolean @default(false)
-  aadhaarLastFour String?
+  aadhaarLastFour String?  // Last 4 digits of Aadhaar for verification (never store full Aadhaar)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  // Relations — delete cascading is handled at application level
   applications    Application[]
   appointments    Appointment[]
   vehicles        Vehicle[]
@@ -59,6 +78,9 @@ model User {
   @@map("users")
 }
 
+// ── Vehicle ──
+// Registered vehicles linked to their owner (User).
+// Stores all essential vehicle details: registration, specs, insurance, PUC, tax, fitness.
 model Vehicle {
   id             String   @id @default(cuid())
   registrationNo String   @unique
@@ -73,7 +95,7 @@ model Vehicle {
   ownerName      String
   ownerAddress   String
   insuranceUpto  DateTime
-  puccUpto       DateTime?
+  puccUpto       DateTime?    // Pollution Under Control expiry (nullable — not always done)
   taxPaidUpto    DateTime
   fitnessUpto    DateTime   @default(now())
   status         String     @default("ACTIVE")
@@ -86,6 +108,9 @@ model Vehicle {
   @@map("vehicles")
 }
 
+// ── License ──
+// Driving licenses issued to a User (holder).
+// Supports multiple license types (MCWG, LMV, etc.) with associated metadata.
 model License {
   id              String   @id @default(cuid())
   licenseNo       String   @unique
@@ -97,7 +122,7 @@ model License {
   issueDate       DateTime
   expiryDate      DateTime
   status          String   @default("ACTIVE")
-  photoUrl        String?
+  photoUrl        String?  // URL to uploaded license photograph
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -107,25 +132,32 @@ model License {
   @@map("licenses")
 }
 
+// ── Application ──
+// A service application submitted by a citizen (e.g., new DL, vehicle registration, permit).
+// Contains references to the applicant, uploaded documents, and an optional payment.
+// The formData JSON field stores dynamic form answers (schema varies by application type).
 model Application {
   id                String            @id @default(cuid())
-  type              String
+  type              String            // e.g. "DL", "RC", "PERMIT", "LICENSE_RENEWAL"
   status            ApplicationStatus @default(DRAFT)
-  formData          Json?
-  documents        Document[]
+  formData          Json?             // Flexible form responses keyed by field name
+  documents        Document[]        // Uploaded supporting documents
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
   applicant         User              @relation(fields: [applicantId], references: [id])
   applicantId       String
-  payment           Payment?
+  payment           Payment?          // Optional — some applications require pre-payment
 
   @@map("applications")
 }
 
+// ── Document ──
+// Uploaded file attached to an Application (e.g., ID proof, address proof, photo).
+// Stores the file URL (actual file storage is external: S3/local disk).
 model Document {
   id            String   @id @default(cuid())
-  type          String
+  type          String   // e.g. "AADHAAR", "PAN", "PHOTO", "ADDRESS_PROOF"
   fileUrl       String
   uploadedAt    DateTime @default(now())
 
@@ -135,13 +167,16 @@ model Document {
   @@map("documents")
 }
 
+// ── Appointment ──
+// A scheduled visit to an RTO office for tests, renewals, or inquiries.
+// Tracks the date, time slot, purpose, and lifecycle status.
 model Appointment {
   id              String             @id @default(cuid())
   date            DateTime
-  timeSlot        String
+  timeSlot        String             // e.g. "10:00-11:00"
   purpose         String
   status          AppointmentStatus  @default(SCHEDULED)
-  notes           String?
+  notes           String?            // Staff notes after the appointment
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
@@ -151,22 +186,30 @@ model Appointment {
   @@map("appointments")
 }
 
+// ── Payment ──
+// Financial transaction record. Links a User to a payment.
+// Optionally linked to an Application (for service fees) or standalone (challan payment).
+// transactionId is the reference from the payment gateway.
 model Payment {
   id              String        @id @default(cuid())
   amount          Float
   transactionId   String        @unique
-  gatewayRefNo    String?
+  gatewayRefNo    String?       // Payment gateway's internal reference
   status          PaymentStatus @default(PENDING)
   paidAt          DateTime?
   createdAt       DateTime      @default(now())
 
   user            User          @relation(fields: [userId], references: [id])
   userId          String
-  application     Application?
+  application     Application?  // Nullable: a payment can exist without an application (e.g., challan)
 
   @@map("payments")
 }
 
+// ── Notification ──
+// User-facing alerts: insurance expiry, license renewal reminders, application updates.
+// type categorises the urgency (INFO, WARNING, ALERT).
+// isRead tracks whether the user has dismissed it.
 model Notification {
   id        String   @id @default(cuid())
   title     String

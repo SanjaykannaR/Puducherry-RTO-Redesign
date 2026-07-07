@@ -9,12 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── LearnersLicensePage: Application form for a Learner's License — the first step before
+//     a permanent driving license. Collects basic personal info (name, DOB, address, mobile).
+//     Age eligibility (16 for MC 50cc, 18 for others) is shown as a reminder. ──
 export default function LearnersLicensePage() {
+  // ── Form State: personal details required for LL application ──
   const [form, setForm] = useState({ fullName: '', dob: '', address: '', mobile: '' });
+  // ── submitted: toggles form → success confirmation with application ID ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
 
+  // ── Success Confirmation: green card with LL Application ID ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -40,6 +46,7 @@ export default function LearnersLicensePage() {
     );
   }
 
+  // ── LL Application Form: name, DOB (for age check), address, and mobile number ──
   return (
     <RequireAuth>
       <>

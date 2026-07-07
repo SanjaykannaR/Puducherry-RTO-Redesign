@@ -9,6 +9,9 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Calculator, CheckCircle } from 'lucide-react';
 
+// ── Fee-calculator Data: static catalog of services with their base fees.
+//     Each entry has a unique ID, display label, and fee amount used for calculation.
+//     Adding a new service here automatically makes it selectable in the UI. ──
 const services = [
   { id: 'learners-license', label: "Learner's License", fee: 250 },
   { id: 'permanent-license-mcwg', label: 'Permanent License (MCWG)', fee: 500 },
@@ -19,15 +22,23 @@ const services = [
   { id: 'new-registration-lmv', label: 'New Registration (LMV)', fee: 3000 },
   { id: 'transfer-ownership', label: 'Transfer of Ownership', fee: 500 },
   { id: 'duplicate-rc', label: 'Duplicate RC', fee: 300 },
+// ── End of fee data ──
 ];
 
+// ── FeeCalculatorPage: Two-panel layout — left side lists all services with checkboxes,
+//     right side shows a real-time fee summary (subtotal + 18% GST + total).
+//     Users tick the services they need and the total updates instantly. No submission needed;
+//     this is purely an estimation tool. ──
 export default function FeeCalculatorPage() {
+  // ── Selected Services: array of service IDs, toggled on/off via checkbox ──
   const [selected, setSelected] = useState<string[]>([]);
 
+  // ── toggle: adds or removes a service ID from the selection array ──
   function toggle(id: string) {
     setSelected((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
   }
 
+  // ── Derived totals: map selected IDs to fee data, then compute subtotal, 18% GST, and total ──
   const items = selected.map((id) => {
     const svc = services.find((s) => s.id === id)!;
     return { id, label: svc.label, fee: svc.fee };
@@ -43,6 +54,7 @@ export default function FeeCalculatorPage() {
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* ── Left Panel: checkbox list of all services with their individual fees ── */}
             <FadeInSection>
               <Card className="border-0 shadow-xl overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -76,6 +88,8 @@ export default function FeeCalculatorPage() {
               </Card>
             </FadeInSection>
 
+            {/* ── Right Panel: live fee summary table — shows line items, subtotal, 18% GST, total.
+                 Empty state prompts user to select services first. ── */}
             <FadeInSection delay={100}>
               <Card className="border-0 shadow-xl overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-amber-400 to-amber-500" />

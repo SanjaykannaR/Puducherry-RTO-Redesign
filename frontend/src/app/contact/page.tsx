@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+// ── Per-item icons make contact details scannable symbolically, not just textually ──
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -11,6 +12,9 @@ export const metadata: Metadata = {
   description: 'Contact Puducherry RTO - address, phone, email, and office hours.',
 };
 
+// ── Department-specific helplines ──
+// Each major service has a dedicated number so callers are routed correctly without
+// going through a general switchboard.
 const helplines = [
   { service: 'General Inquiry', number: '+91 413 222 1235' },
   { service: 'Driving License', number: '+91 413 222 1236' },
@@ -18,6 +22,8 @@ const helplines = [
   { service: 'Tax & Permit', number: '+91 413 222 1238' },
 ];
 
+// ── Regional offices ──
+// Citizens outside Pondicherry proper can find their closest office here.
 const regionalOffices = [
   { name: 'Karaikal RTO', address: 'Government Complex, Karaikal - 609602', phone: '+91 4368 222 456' },
   { name: 'Mahe RTO', address: 'RTO Office, Mahe - 673310', phone: '+91 490 233 789' },
@@ -31,6 +37,7 @@ export default function ContactPage() {
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            {/* ── Left column: office info & helplines ── */}
             <div className="space-y-6">
               <FadeInSection>
                 <Card className="border-0 shadow-md overflow-hidden">
@@ -82,6 +89,9 @@ export default function ContactPage() {
               </FadeInSection>
             </div>
 
+            {/* ── Right column: contact form ── */}
+            {/* A submission form for visitors who prefer written communication.
+                Marking required fields with * reduces incomplete submissions. */}
             <FadeInSection delay={150}>
               <Card className="border-0 shadow-xl overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -130,6 +140,9 @@ export default function ContactPage() {
             </FadeInSection>
           </div>
 
+          {/* ── Regional offices strip ── */}
+          {/* A full-width card below the two-column layout lists outstation offices.
+              Each office card uses a subtle tinted background to group address and phone together. */}
           <FadeInSection delay={200}>
             <Card className="border-0 shadow-md overflow-hidden">
               <div className="h-2 bg-gradient-to-r from-green-400 to-emerald-500" />

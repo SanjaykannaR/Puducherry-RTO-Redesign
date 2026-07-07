@@ -9,12 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── DrivingLicensePage: Application for a permanent driving license, after holding a Learner's
+//     License for at least 30 days. Collects name, LL number, DOB, and desired vehicle type
+//     (MCWG / MCWOG / LMV). On submit it suggests booking a driving test. ──
 export default function DrivingLicensePage() {
+  // ── Form State: LL number links back to existing learner record; vehicle type determines test ──
   const [form, setForm] = useState({ fullName: '', llNo: '', dob: '', vehicleType: '' });
+  // ── submitted: toggles form → success confirmation with a "Book Driving Test" CTA ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
 
+  // ── Success Confirmation: shows DL Application ID with a "Book Driving Test" CTA ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -41,6 +47,7 @@ export default function DrivingLicensePage() {
     );
   }
 
+  // ── Permanent DL Form: name, DOB, LL number (linked to existing record), vehicle type dropdown ──
   return (
     <RequireAuth>
       <>

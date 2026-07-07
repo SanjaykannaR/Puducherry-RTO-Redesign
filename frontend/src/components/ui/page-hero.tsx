@@ -9,9 +9,17 @@ interface PageHeroProps {
   children?: React.ReactNode;
 }
 
+/**
+ * Gradient hero banner used at the top of every inner page.
+ * Provides visual consistency: a branded gradient header with dot-pattern overlay,
+ * a government badge, page title, optional subtitle, and optional slot for CTAs.
+ * The background is purely decorative so the actual heading hierarchy lives inside.
+ */
 export default function PageHero({ title, subtitle, badge = 'Government of Puducherry', children }: PageHeroProps) {
   return (
     <section className="relative overflow-hidden" aria-label="Page header">
+      {/* ── Decorative gradient background with dot pattern ── */}
+      {/* The radial-gradient creates a subtle dotted texture; the inner gradient darkens the bottom for text readability */}
       <div className="relative h-[280px] md:h-[340px] bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="absolute inset-0 opacity-[0.07]" style={{
           backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
@@ -19,9 +27,11 @@ export default function PageHero({ title, subtitle, badge = 'Government of Puduc
         }} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
+      {/* ── Foreground content: absolutely positioned over the gradient ── */}
       <div className="absolute inset-0 flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
           <div className="max-w-3xl">
+            {/* Badge pill: signals government authority with a shield icon */}
             {badge && (
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm rounded-full px-4 py-1.5 mb-4 border border-white/10">
                 <Shield className="w-3.5 h-3.5" />
@@ -36,6 +46,7 @@ export default function PageHero({ title, subtitle, badge = 'Government of Puduc
                 {subtitle}
               </p>
             )}
+            {/* Slot for action buttons / breadcrumbs / extra controls */}
             {children && <div className="mt-4">{children}</div>}
           </div>
         </div>

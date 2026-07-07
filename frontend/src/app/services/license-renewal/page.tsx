@@ -9,12 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── LicenseRenewalPage: Renew a driving license before or after expiry. Collects the existing
+//     license number, name, DOB, and mobile. The note about "30 days of expiry" reminds users
+//     of the regular-fee window. On submit it shows a confirmation with a Renewal ID. ──
 export default function LicenseRenewalPage() {
+  // ── Form State: existing license number plus personal details to verify identity ──
   const [form, setForm] = useState({ licenseNo: '', fullName: '', dob: '', mobile: '' });
+  // ── submitted: toggles form → success confirmation ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
 
+  // ── Success Confirmation: green card with Renewal ID ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -40,6 +46,7 @@ export default function LicenseRenewalPage() {
     );
   }
 
+  // ── License Renewal Form: existing DL number + personal details (name, DOB, mobile) ──
   return (
     <RequireAuth>
       <>

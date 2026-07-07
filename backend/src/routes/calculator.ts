@@ -1,7 +1,13 @@
+// ── Fee Calculator route ──
+// Public endpoint: computes total fee for selected RTO services including 18% GST
+// No auth required — calculators are typically public tools
+// Uses a static fee database mirroring the fares route data
+
 import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+// Internal fee lookup table: serviceId → base fee (₹)
 const feeDatabase: Record<string, number> = {
   'learners-license': 250,
   'permanent-license-mcwg': 500,
@@ -21,6 +27,10 @@ const feeDatabase: Record<string, number> = {
   'tourist-permit': 3000,
 };
 
+// ── POST /api/calculator ──
+// Accepts an array of service IDs, looks up each fee, sums them,
+// applies 18% GST (rounded to nearest integer), and returns breakdown.
+// Example: { services: ["learners-license", "duplicate-rc"] }
 router.post('/', (req: Request, res: Response) => {
   const { services: selected } = req.body;
   if (!Array.isArray(selected) || selected.length === 0) {

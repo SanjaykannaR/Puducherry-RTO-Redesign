@@ -1,5 +1,7 @@
 'use client';
 
+// ── Imports ──
+
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,17 +11,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Lock, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
+// ── Route Guard ──
+// Wraps pages that require authentication. Shows a spinner while AuthContext is resolving
+// the session, a login-prompt card if the user is unauthenticated, or the protected children.
+// Uses useRef to prevent duplicate toast firings caused by React StrictMode double-mounting.
 export default function RequireAuth({ children, message = 'Please sign in to access this service' }: { children: React.ReactNode; message?: string }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const shown = useRef(false);
+  const shown = useRef(false);          // Ensures the toast fires only once per mount
 
+  // ── Toast Notification ──
+  // Fire a sonner toast when the user is not authenticated so they get immediate feedback
+  // even if the page has already rendered some content behind the guard.
   useEffect(() => {
     if (!loading && !user && !shown.current) {
       shown.current = true;
       toast.error('Authentication required', {
         description: message,
-        duration: 8000,
+        duration: 8000,                 // Long enough for the user to notice and act
         action: {
           label: 'Sign In',
           onClick: () => router.push('/login'),
@@ -28,6 +37,8 @@ export default function RequireAuth({ children, message = 'Please sign in to acc
     }
   }, [user, loading, message, router]);
 
+  // ── Loading State ──
+  // Show a centered spinner while AuthContext performs the initial /auth/me check.
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -39,6 +50,9 @@ export default function RequireAuth({ children, message = 'Please sign in to acc
     );
   }
 
+  // ── Unauthenticated State ──
+  // Render a login-prompt card with a gentle visual hierarchy (gradient bar, lock icon, description).
+  // Provides two clear CTAs: "Sign In to Continue" and "Back to Home".
   if (!user) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">
@@ -69,5 +83,6 @@ export default function RequireAuth({ children, message = 'Please sign in to acc
     );
   }
 
+  // ── Authenticated State ──
   return <>{children}</>;
 }

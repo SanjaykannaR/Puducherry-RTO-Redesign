@@ -1,3 +1,7 @@
+// ── Admin-only authorization middleware ──
+// Used alongside `authenticate` to restrict routes to admin users only
+// Checks that req.user.role === 'admin' after authentication has run
+
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth';
 

@@ -6,6 +6,9 @@ import { Search, X } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { t } from '@/lib/i18n/translations';
 
+// ── Master service index for search ──
+// Each entry has keywords so the search feels smart (e.g. typing "fine" matches Challan).
+// The intent is a single source of truth that can also power an autocomplete feature later.
 const serviceLinks = [
   { label: 'Vehicle Registration', href: '/services/vehicle-registration', keywords: ['vehicle', 'registration', 'rc', 'new vehicle', 'register'] },
   { label: "Learner's License", href: '/services/learners-license', keywords: ['learner', 'license', 'driving', 'll', 'learning'] },
@@ -28,25 +31,29 @@ const serviceLinks = [
 export default function SearchBar() {
   const { locale } = useLanguage();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);       // Toggle: search icon vs expanded input
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<typeof serviceLinks>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // ── Auto-focus the input when search panel opens ──
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
+  // ── Filter results on every keystroke ──
+  // Matches both the display label and the curated keywords array for forgiving search.
   useEffect(() => {
     if (!query.trim()) { setResults([]); return; }
     const q = query.toLowerCase();
     const matches = serviceLinks.filter(
       (s) => s.label.toLowerCase().includes(q) || s.keywords.some((k) => k.includes(q))
-    ).slice(0, 6);
+    ).slice(0, 6);   // Cap at 6 results to avoid overwhelming the dropdown
     setResults(matches);
   }, [query]);
 
+  // ── Click-away listener: closes the search panel when user clicks outside ──
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpen(false);
@@ -63,6 +70,7 @@ export default function SearchBar() {
 
   return (
     <div className="relative" ref={panelRef}>
+      {/* ── Expandable input: icon by default, full input when toggled ── */}
       {open ? (
         <div className="flex items-center bg-white/10 rounded-lg border border-white/20">
           <input
@@ -73,6 +81,7 @@ export default function SearchBar() {
             placeholder={t('search.placeholder', locale)}
             className="bg-transparent text-white text-sm px-3 py-1.5 w-48 sm:w-56 outline-none placeholder:text-blue-200"
             onKeyDown={(e) => {
+              // Enter key takes user to the first result as a shortcut
               if (e.key === 'Enter' && results.length > 0) navigate(results[0].href);
             }}
           />
@@ -85,6 +94,7 @@ export default function SearchBar() {
           <Search className="w-5 h-5" />
         </button>
       )}
+      {/* ── Results dropdown: appears below the search input when there are matches ── */}
       {results.length > 0 && (
         <div className="absolute top-full right-0 mt-1 w-72 bg-white rounded-xl shadow-xl border overflow-hidden z-50">
           {results.map((r) => (

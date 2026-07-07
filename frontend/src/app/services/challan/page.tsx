@@ -9,14 +9,23 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { ClipboardList, CheckCircle, AlertTriangle } from 'lucide-react';
 
+// ── Challan Data: mock list of traffic violation challans. Each entry has a vehicle number,
+//     offense description, amount, date, and payment status. In production this would come
+//     from an API tied to the user's registered vehicles. ──
 const initialChallans = [
   { id: '1', vehicleNo: 'PY-01-AB-1234', offense: 'No parking', amount: 500, date: '2026-06-15', status: 'PENDING' },
   { id: '2', vehicleNo: 'PY-01-CD-5678', offense: 'Helmet not worn', amount: 1000, date: '2026-06-20', status: 'PAID' },
 ];
 
+// ── ChallanPage: Table view of all challans for the logged-in user. PENDING challans show
+//     a "Pay Now" button that locally flips the status to PAID (placeholder for payment gateway).
+//     A summary line shows the count of pending challans at the top. ──
 export default function ChallanPage() {
+  // ── Challans State: starts with mock data; payChallan mutates status in-place ──
   const [challans, setChallans] = useState(initialChallans);
 
+  // ── payChallan: marks a pending challan as PAID (placeholder — no actual payment gateway).
+  //     Maps over the challans array and updates the matching ID's status. ──
   function payChallan(id: string) {
     setChallans((prev) => prev.map((c) => c.id === id ? { ...c, status: 'PAID' } : c));
   }
@@ -42,6 +51,9 @@ export default function ChallanPage() {
                 </div>
               </CardHeader>
               <CardContent>
+                {/* ── Challan Table: lists vehicle, offense, date, amount, and status for each challan.
+                     PENDING rows show a red badge + "Pay Now" button; PAID rows show a green checkmark.
+                     Status updates are local-only (mock). ── */}
                 <Table>
                   <TableHeader>
                     <TableRow>

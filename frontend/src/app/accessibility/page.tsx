@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+// ── Icons represent each accessibility dimension at a glance ──
 import { Eye, Ear, Keyboard, Monitor } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   description: 'Accessibility features of Puducherry RTO portal - committed to WCAG 2.1 AA standards.',
 };
 
+// ── Accessibility features ──
+// Each item describes one aspect of the portal's accessibility conformance.
+// Icons match the sense or input method (eye for contrast, ear for screen reader,
+// keyboard for navigation, monitor for responsive design).
 const features = [
   { title: 'Screen Reader Support', desc: 'All content is compatible with screen readers. Skip-to-content links and proper ARIA labels are provided throughout the portal.', icon: Ear },
   { title: 'Keyboard Navigation', desc: 'Full keyboard navigation support. Use Tab, Enter, and arrow keys to navigate all interactive elements without a mouse.', icon: Keyboard },
@@ -21,6 +26,10 @@ export default function AccessibilityPage() {
       <PageHero title="Accessibility" subtitle="We are committed to making our portal accessible to all citizens in accordance with GIGW 3.0 and WCAG 2.1 AA standards." />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-12">
+          {/* ── Feature grid ── */}
+          {/* 2x2 grid of cards, each with an icon, title, and description explaining the
+              accessibility measure. The consistent card pattern (gradient bar, icon box)
+              matches the rest of the portal for visual cohesion. */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             {features.map((f, i) => {
               const Icon = f.icon;
@@ -38,6 +47,9 @@ export default function AccessibilityPage() {
               );
             })}
           </div>
+          {/* ── Report issues callout ── */}
+          {/* Amber-tinted box stands out from the white cards to invite users to report
+              any accessibility barriers they encounter, with direct contact info. */}
           <FadeInSection>
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
               <h3 className="font-semibold mb-2">Report Accessibility Issues</h3>

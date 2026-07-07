@@ -9,12 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── DuplicateRCPage: Request a replacement Registration Certificate when the original is lost,
+//     damaged, or stolen. Captures reg number, owner name, and reason (LOST / DAMAGED / STOLEN)
+//     so the RTO knows what documents (e.g. FIR copy) to require. ──
 export default function DuplicateRCPage() {
+  // ── Form State: vehicle reg number, owner name, and reason dropdown — drives doc requirements ──
   const [form, setForm] = useState({ regNo: '', fullName: '', reason: '' });
+  // ── submitted: toggles to confirmation card showing a generated Request ID ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
 
+  // ── Success Confirmation: green card with Request ID; mentions 7-day processing window ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -43,6 +49,7 @@ export default function DuplicateRCPage() {
     );
   }
 
+  // ── Duplicate RC Form: reg number, owner name, and reason dropdown (lost/damaged/stolen) ──
   return (
     <RequireAuth>
       <>

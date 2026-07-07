@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description: 'Terms and conditions for using the Puducherry RTO portal.',
 };
 
+// ── Terms of use ──
+// Each clause is presented as an independent section with a numbered circle that
+// makes the document feel structured and scannable, unlike a wall of legal text.
 const terms = [
   { title: 'Acceptance of Terms', desc: 'By accessing and using this portal, you agree to comply with these terms and conditions. If you do not agree with any part of these terms, please do not use our services.' },
   { title: 'User Responsibilities', desc: 'You are responsible for providing accurate and complete information when using our services. Any false or misleading information may result in rejection of applications or legal action.' },
@@ -25,6 +28,9 @@ export default function TermsPage() {
           <div className="space-y-4">
             {terms.map((t, i) => (
               <FadeInSection key={i} delay={i * 60}>
+                {/* ── Terms card ── */}
+                {/* A lighter card style (shadow-sm instead of shadow-md) is used here because
+                    these are dense text items. A numbered circle on the left anchors each clause. */}
                 <div className="bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-all overflow-hidden">
                   <div className="p-5">
                     <h3 className="font-semibold text-primary mb-2 flex items-center gap-2">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+// ── Icons next to each contact detail speed up visual scanning ──
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -8,6 +9,9 @@ export const metadata: Metadata = {
   description: 'Puducherry RTO office directory with contact details and services.',
 };
 
+// ── Office directory data ──
+// Each entry bundles address, phone, email, available services, and hours so citizens
+// have everything they need to visit or contact the correct office.
 const offices = [
   {
     name: 'Puducherry RTO Main Office',
@@ -52,6 +56,11 @@ export default function DirectoryPage() {
           <div className="space-y-6">
             {offices.map((office, i) => (
               <FadeInSection key={i} delay={i * 100}>
+                {/* ── Office card ── */}
+                {/* Each office is a full-width card with a two-column layout:
+                    left side shows address, phone, email, hours (each with an icon);
+                    right side lists available services as tags. The pattern repeats for every
+                    office so information is consistently positioned. */}
                 <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
                   <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
                   <div className="p-6">
@@ -83,6 +92,8 @@ export default function DirectoryPage() {
                           <span>{office.hours}</span>
                         </p>
                       </div>
+                      {/* ── Services tags ── */}
+                      {/* Pill-shaped badges make the list of services scannable at a glance. */}
                       <div>
                         <p className="font-medium mb-2 text-primary">Services Offered:</p>
                         <div className="flex flex-wrap gap-2">

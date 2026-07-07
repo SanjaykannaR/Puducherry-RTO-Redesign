@@ -9,10 +9,16 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── VehicleRegistrationPage: Single-page form for new vehicle registration.
+//     Collects vehicle specs (make, model, year, fuel type, color, chassis & engine numbers)
+//     plus a document checklist. On submit it shows a confirmation with a generated application ID.
+//     Form fields are validated by required attributes; no API call yet — sets submitted=true as placeholder. ──
 export default function VehicleRegistrationPage() {
+  // ── Form State: each field maps to a vehicle attribute needed for registration ──
   const [form, setForm] = useState({
     make: '', model: '', year: '', fuelType: '', color: '', chassisNo: '', engineNo: '',
   });
+  // ── submitted: flips to true to swap the form view for a success confirmation card ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) {
@@ -20,6 +26,7 @@ export default function VehicleRegistrationPage() {
     setSubmitted(true);
   }
 
+  // ── Success Confirmation: shows a green card with application ID after submission ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -56,6 +63,8 @@ export default function VehicleRegistrationPage() {
     );
   }
 
+  // ── Registration Form: collects vehicle details in a 2-column layout (make/model, year/fuel,
+  //     chassis/engine) plus color. Document checklist shown before submit. ──
   return (
     <RequireAuth>
       <>

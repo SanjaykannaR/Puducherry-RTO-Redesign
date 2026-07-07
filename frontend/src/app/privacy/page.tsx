@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+// ── Each privacy concept gets a matching icon for quick identification ──
 import { Shield, Lock, Eye, Database } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   description: 'Privacy policy of Puducherry RTO portal - how we collect, use, and protect your personal information.',
 };
 
+// ── Privacy policy sections ──
+// Organised by theme (collection, usage, protection, sharing) so citizens can
+// quickly find the aspect that concerns them. Each section has an icon that
+// matches its topic (database = collection, eye = usage, lock = protection, shield = sharing).
 const sections = [
   { title: 'Information We Collect', desc: 'We collect personal information including name, address, contact details, vehicle details, and driving license information when you use our services. This information is collected via online forms and documents you submit.', icon: Database },
   { title: 'How We Use Your Information', desc: 'Your information is used solely for processing your RTO service requests, verifying identity, maintaining records, and communicating with you about your applications. We do not use your data for any other purpose.', icon: Eye },
@@ -26,6 +31,10 @@ export default function PrivacyPage() {
               const Icon = s.icon;
               return (
                 <FadeInSection key={i} delay={i * 80}>
+                  {/* ── Policy section card ── */}
+                  {/* Each card uses the familiar gradient-bar + icon pattern, but the layout is
+                      simplified (icon + title side by side) because these are text-heavy legal
+                      disclosures, not action tiles. */}
                   <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden">
                     <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
                     <div className="p-6">
@@ -40,6 +49,8 @@ export default function PrivacyPage() {
               );
             })}
           </div>
+          {/* ── Last-updated notice ── */}
+          {/* Legal documents should carry a timestamp so users know how current the policy is. */}
           <FadeInSection>
             <p className="text-xs text-muted-foreground mt-8 border-t pt-4">Last updated: July 2026. This privacy policy may be updated periodically. Please check this page for any changes.</p>
           </FadeInSection>

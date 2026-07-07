@@ -1,11 +1,13 @@
 'use client';
 
+// ── Inline editable CRUD for service catalogue ──
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
+// ── Action icons for add, save, and remove ──
 import { Save, Plus, Trash2 } from 'lucide-react';
 
 interface ServiceItem {
@@ -16,12 +18,14 @@ interface ServiceItem {
 }
 
 export default function AdminServices() {
+  // ── State: services array, loading/saving flags, feedback messages ──
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // ── Fetch current services on mount ──
   useEffect(() => {
     api.get<ServiceItem[]>('/services')
       .then(setServices)
@@ -29,12 +33,15 @@ export default function AdminServices() {
       .finally(() => setLoading(false));
   }, []);
 
+  // ── Field updater ──
+  // Copies the existing array and mutates one field by index for immutability.
   const updateService = (index: number, field: keyof ServiceItem, value: string) => {
     setServices((prev) =>
       prev.map((s, i) => (i === index ? { ...s, [field]: value } : s))
     );
   };
 
+  // ── Add a blank service row ──
   const addService = () => {
     setServices((prev) => [
       ...prev,
@@ -42,10 +49,12 @@ export default function AdminServices() {
     ]);
   };
 
+  // ── Remove a service by index ──
   const removeService = (index: number) => {
     setServices((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // ── Persist all services to backend ──
   const saveServices = async () => {
     setSaving(true);
     setSuccess('');
@@ -66,6 +75,8 @@ export default function AdminServices() {
 
   return (
     <div>
+      {/* ── Header with action buttons ── */}
+      {/* "Add Service" creates a blank card; "Save Changes" PUTs the full list. */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-primary">Services Management</h1>
         <div className="flex gap-2">
@@ -80,6 +91,8 @@ export default function AdminServices() {
         </div>
       </div>
 
+      {/* ── Feedback banners ── */}
+      {/* Success/error messages appear above the form, auto-dismissed on next save attempt. */}
       {success && (
         <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-700 border border-green-200 text-sm">
           {success}
@@ -91,6 +104,9 @@ export default function AdminServices() {
         </div>
       )}
 
+      {/* ── Service cards ── */}
+      {/* Each service is a card with inline-editable fields: name, description, path, category.
+          A trash icon on the top-right removes the card. Skeleton cards are shown on initial load. */}
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -129,6 +145,9 @@ export default function AdminServices() {
                 </div>
               </CardHeader>
               <CardContent>
+                {/* ── Three-column field grid ── */}
+                {/* Description, URL path, and category are edited side by side to minimise
+                    vertical scroll when managing many services. */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">

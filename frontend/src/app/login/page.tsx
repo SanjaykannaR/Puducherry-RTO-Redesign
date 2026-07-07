@@ -1,5 +1,7 @@
 'use client';
 
+// ── Imports ──
+
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -9,14 +11,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LogIn, Mail, Lock, Fingerprint, Shield } from 'lucide-react';
 import Link from 'next/link';
 
+// ── Login Page ──
+// Full-viewport centered layout without Header/Footer (the LayoutWrapper hides them
+// when pathname === '/login'). The only navigation is the RTO logo linking back home.
+
 export default function LoginPage() {
+  // ── Form State ──
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');               // API error message to display inline
+  const [submitting, setSubmitting] = useState(false);   // Disables button during network request
   const { login } = useAuth();
   const router = useRouter();
 
+  // ── Submit Handler ──
+  // Calls AuthContext.login which posts to /auth/login and persists the JWT.
+  // On success the user is redirected to the dashboard; errors surface inside the card.
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -32,8 +42,14 @@ export default function LoginPage() {
   }
 
   return (
+    // min-h-screen + flex-col keeps the card vertically centered even on short viewports
     <div className="min-h-screen flex flex-col">
+      {/* ── Top Accent Bar ── */}
+      {/* A thin gradient bar at the very top gives the page a polished, branded feel */}
       <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />
+
+      {/* ── RTO Logo / Home Link ── */}
+      {/* Clicking the branded logo block navigates back to the homepage. */}
       <div className="px-4 pt-5">
         <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
@@ -45,6 +61,9 @@ export default function LoginPage() {
           </div>
         </Link>
       </div>
+
+      {/* ── Login Card ── */}
+      {/* Vertically + horizontally centered on the remaining viewport space */}
       <div className="flex-1 flex items-center justify-center px-4 py-6">
         <Card className="w-full max-w-md border-0 shadow-xl overflow-hidden">
           <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -56,6 +75,8 @@ export default function LoginPage() {
             <CardDescription>Sign in to your RTO account</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* ── Email / Password Form ── */}
+            {/* Inline icons inside each input help the user quickly identify the field's purpose */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               {error && (
                 <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20" role="alert">
@@ -84,11 +105,15 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            {/* ── Divider ── */}
             <div className="relative my-5">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
               <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground">or continue with</span></div>
             </div>
 
+            {/* ── Alternative Login Methods ── */}
+            {/* Aadhaar OTP and DigiLocker are future integrations; currently shown as placeholders
+                so users know alternative login paths are planned. */}
             <div className="space-y-3">
               <Button variant="outline" className="w-full justify-center gap-3 h-12 text-base" onClick={() => alert('Aadhaar OTP login coming soon')}>
                 <Fingerprint className="w-5 h-5 text-orange-600" />
@@ -100,6 +125,7 @@ export default function LoginPage() {
               </Button>
             </div>
 
+            {/* ── Register Link ── */}
             <div className="mt-5 pt-4 border-t text-center">
               <p className="text-sm text-muted-foreground">
                 Don&apos;t have an account?{' '}

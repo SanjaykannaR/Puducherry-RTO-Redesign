@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import Link from 'next/link';
+// ── Category-specific icons help users locate the right section faster ──
 import { Home, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Info, MapPin, DollarSign, Mail, Car, Download } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -9,6 +10,10 @@ export const metadata: Metadata = {
   description: 'Complete sitemap of Puducherry RTO portal - find all pages and services.',
 };
 
+// ── Sitemap groups ──
+// Links are organised into thematic groups (main pages, registration, licensing,
+// online tools, account) so users can browse by task rather than by URL structure.
+// Each group has an icon that represents the category.
 const sections = [
   {
     title: 'Main Pages', icon: Home,
@@ -65,6 +70,10 @@ export default function SitemapPage() {
       <PageHero title="Sitemap" subtitle="Complete overview of all pages available on the Puducherry RTO portal." />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
+          {/* ── Sitemap grid ── */}
+          {/* Three-column responsive grid of category cards. Each card lists all links in
+              that group with bullet dots and hover colour changes, making it a pure
+              navigation aid (no content, just pathways). */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sections.map((sec, i) => {
               const Icon = sec.icon;

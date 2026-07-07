@@ -2,6 +2,12 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Card compound component built on a flexible container with sub-components:
+ *   Card → CardHeader (→ CardTitle + CardDescription + CardAction) → CardContent → CardFooter
+ * The `size` prop ("default" | "sm") controls internal spacing via a CSS custom property (--card-spacing),
+ * so all children stay in sync without prop drilling.
+ */
 function Card({
   className,
   size = "default",

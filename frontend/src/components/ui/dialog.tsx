@@ -7,6 +7,13 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
+/**
+ * Modal dialog built on Base UI's headless Dialog primitive.
+ * Provides accessible focus trapping, escape-to-close, backdrop overlay,
+ * and animated enter/exit transitions. Compound structure mirrors the
+ * Radix/Base UI pattern: Root → Trigger → Portal → Overlay → Content → Title / Description / Footer.
+ */
+
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
@@ -59,6 +66,7 @@ function DialogContent({
         {...props}
       >
         {children}
+        {/* X close button in the top-right corner, hidden when showCloseButton is false (e.g. forced-choice dialogs) */}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
@@ -108,6 +116,7 @@ function DialogFooter({
       {...props}
     >
       {children}
+      {/* Optional Close button in footer for secondary dismiss actions */}
       {showCloseButton && (
         <DialogPrimitive.Close render={<Button variant="outline" />}>
           Close

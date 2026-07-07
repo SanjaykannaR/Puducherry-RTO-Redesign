@@ -1,5 +1,12 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+/**
+ * Core request wrapper that every API call goes through.
+ * Automatically injects the JWT auth token from localStorage (client-side only),
+ * sets JSON content-type, and throws a descriptive error for non-2xx responses.
+ * This keeps the data-fetching logic in one place so auth and error handling
+ * stay consistent across the entire app.
+ */
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const headers: Record<string, string> = {
@@ -14,6 +21,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data;
 }
 
+// ── Convenience methods mirroring HTTP verbs ──
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body: unknown) =>

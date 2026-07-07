@@ -1,5 +1,6 @@
 'use client';
 
+// ── Inline fare editing with tabbed categories ──
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { api } from '@/lib/api';
+// ── Save icon for the primary action ──
 import { Save } from 'lucide-react';
 
 interface FareItem {
@@ -16,6 +18,7 @@ interface FareItem {
 
 type FareCategory = Record<string, FareItem[]>;
 
+// ── Human-readable labels for backend category keys ──
 const categoryLabels: Record<string, string> = {
   vehicle_registration: 'Vehicle Registration',
   driving_license: 'Driving License',
@@ -24,12 +27,14 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function AdminFares() {
+  // ── State: fares grouped by category, loading/saving, feedback ──
   const [fares, setFares] = useState<FareCategory>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // ── Fetch fare data on mount ──
   useEffect(() => {
     api.get<FareCategory>('/fares')
       .then(setFares)
@@ -37,6 +42,8 @@ export default function AdminFares() {
       .finally(() => setLoading(false));
   }, []);
 
+  // ── Update a single fee value ──
+  // Parses the input as a float; silently ignores NaN so the input can be cleared.
   const updateFee = (category: string, index: number, value: string) => {
     const num = parseFloat(value);
     if (isNaN(num)) return;
@@ -48,6 +55,7 @@ export default function AdminFares() {
     }));
   };
 
+  // ── Save all fares ──
   const saveFares = async () => {
     setSaving(true);
     setSuccess('');
@@ -70,6 +78,7 @@ export default function AdminFares() {
 
   return (
     <div>
+      {/* ── Header with save button ── */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-primary">Fares Management</h1>
         <Button onClick={saveFares} disabled={saving}>
@@ -78,6 +87,7 @@ export default function AdminFares() {
         </Button>
       </div>
 
+      {/* ── Feedback banners ── */}
       {success && (
         <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-700 border border-green-200 text-sm">
           {success}
@@ -89,6 +99,10 @@ export default function AdminFares() {
         </div>
       )}
 
+      {/* ── Tabbed fare editor ── */}
+      {/* Categories are organised into tabs to keep the UI manageable when there are
+          many fare items. Each tab contains a card with rows of service-name labels
+          and editable fee inputs (right-aligned for numeric readability). */}
       {loading ? (
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -122,6 +136,9 @@ export default function AdminFares() {
                         <span className="flex-1 text-sm">{item.type}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-muted-foreground">₹</span>
+                          {/* ── Numeric input for fee ── */}
+                          {/* Type=number plus right-alignment makes bulk editing faster
+                              for administrators managing many price lines. */}
                           <Input
                             type="number"
                             value={item.fee}

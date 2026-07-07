@@ -9,8 +9,13 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── TransferOwnershipPage: Form to initiate vehicle ownership transfer from seller to buyer.
+//     Captures both parties' names, the registration number, and the sale date.
+//     Requires Form 29 & 30. Submission flow is placeholder — flips to a success card. ──
 export default function TransferOwnershipPage() {
+  // ── Form State: seller/buyer names, reg number, and date of sale — all needed for Form 29/30 ──
   const [form, setForm] = useState({ sellerName: '', buyerName: '', regNo: '', saleDate: '' });
+  // ── submitted: toggles between form view and confirmation view ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) {
@@ -18,6 +23,7 @@ export default function TransferOwnershipPage() {
     setSubmitted(true);
   }
 
+  // ── Success Confirmation: shows Reference ID after submission ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -51,6 +57,7 @@ export default function TransferOwnershipPage() {
     );
   }
 
+  // ── Transfer Form: captures seller/buyer names, reg number, and sale date for Form 29/30 ──
   return (
     <RequireAuth>
       <>

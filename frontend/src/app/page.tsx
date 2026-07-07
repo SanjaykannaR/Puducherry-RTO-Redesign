@@ -1,5 +1,7 @@
 'use client';
 
+// ── Imports ──
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +10,9 @@ import { Car, FileText, Calendar, Calculator, Search, ClipboardList, ArrowRight,
 import { useLanguage } from '@/context/LanguageContext';
 import { t } from '@/lib/i18n/translations';
 
+// ── Hero Slides ──
+// Background images shown in the auto-rotating hero banner. Each slide is an
+// ambient road/transport photo that reinforces the "RTO" identity visually.
 const heroSlides = [
   {
     image: 'https://images.unsplash.com/photo-1755659027604-cde43a75db0f?q=80&w=2070&auto=format&fit=crop',
@@ -23,6 +28,9 @@ const heroSlides = [
   },
 ];
 
+// ── Quick Services ──
+// The six highest-traffic services surfaced on the homepage so citizens can jump
+// straight to what they need without navigating through menus.
 const quickServices = [
   { key: 'services.vr', descKey: 'services.vr.desc', href: '/services/vehicle-registration', icon: Car },
   { key: 'services.dl', descKey: 'services.dl.desc', href: '/services/driving-license', icon: FileText },
@@ -32,6 +40,9 @@ const quickServices = [
   { key: 'services.challan', descKey: 'services.challan.desc', href: '/services/challan', icon: ClipboardList },
 ];
 
+// ── Highlights / Statistics ──
+// Social-proof metrics displayed as a simple 4-column grid to build trust
+// and demonstrate the portal's adoption across Puducherry.
 const highlights = [
   { value: '200+', key: 'highlights.transactions', icon: Shield },
   { value: '4', key: 'highlights.offices', icon: Building2 },
@@ -39,11 +50,20 @@ const highlights = [
   { value: '50K+', key: 'highlights.users', icon: Users },
 ];
 
+// ── Home Page ──
+
 export default function Home() {
   const { locale } = useLanguage();
+
+  // ── Hero Slider State ──
+  // slideIdx controls which image is visible; prevIdx is tracked for potential
+  // exit animations (currently unused but reserved for future cross-fade polish).
   const [slideIdx, setSlideIdx] = useState(0);
   const [prevIdx, setPrevIdx] = useState(0);
 
+  // ── Auto-Play ──
+  // Advances the hero banner every 5 seconds; cleanup on unmount or slide change
+  // prevents stale intervals from stacking up.
   useEffect(() => {
     const timer = setInterval(() => {
       setPrevIdx(slideIdx);
@@ -52,6 +72,8 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [slideIdx]);
 
+  // ── Manual Navigation ──
+  // Jump to a specific slide (called by the dot indicators and prev/next arrows).
   const goToSlide = (i: number) => {
     setPrevIdx(slideIdx);
     setSlideIdx(i);
@@ -59,6 +81,9 @@ export default function Home() {
 
   return (
     <>
+      {/* ── Hero Banner ── */}
+      {/* Full-width image carousel with gradient overlays for text legibility. */}
+      {/* Only the active slide is visible; inactive slides are opacity-0 + slightly scaled for a subtle zoom effect. */}
       <section className="relative overflow-hidden" aria-label="Hero banner">
         <div className="relative h-[500px] md:h-[600px]">
           {heroSlides.map((slide, i) => (
@@ -75,13 +100,17 @@ export default function Home() {
               aria-hidden={i !== slideIdx}
             />
           ))}
+          {/* Dark gradient overlays: left-to-right for text contrast, bottom-to-top for depth */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-primary/60" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
         </div>
 
+        {/* ── Hero Text + CTAs ── */}
+        {/* Positioned over the image with a max-width container so text reflows neatly on mobile */}
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
             <div className="max-w-3xl">
+              {/* Government badge — subtle backdrop blur makes it feel modern */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm rounded-full px-4 py-1.5 mb-4 border border-white/10">
                 <Shield className="w-3.5 h-3.5" />
                 <span>Government of Puducherry</span>
@@ -93,6 +122,7 @@ export default function Home() {
                 {t('hero.subtitle', locale)}
               </p>
               <div className="flex flex-wrap gap-3">
+                {/* Primary CTA — amber button stands out against the dark overlay */}
                 <Link
                   href="/services"
                   className="inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 text-sm font-semibold transition-all shadow-lg hover:shadow-amber-500/30 hover:scale-105 no-underline"
@@ -100,6 +130,7 @@ export default function Home() {
                   {t('hero.cta.primary', locale)}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
+                {/* Secondary CTA — ghost-style button for the appointment booking flow */}
                 <Link
                   href="/services/appointment"
                   className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm px-6 py-3 text-sm font-medium transition-all hover:scale-105 no-underline"
@@ -112,6 +143,8 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── Slide Dots ── */}
+        {/* Accessible dot indicators; the active dot stretches wider for a unique visual cue */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
           {heroSlides.map((_, i) => (
             <button
@@ -125,6 +158,8 @@ export default function Home() {
           ))}
         </div>
 
+        {/* ── Prev / Next Arrows ── */}
+        {/* Hidden until hovered so they don't distract from the visual; positioned at the vertical center */}
         <button
           onClick={() => goToSlide((slideIdx - 1 + heroSlides.length) % heroSlides.length)}
           className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-all opacity-0 hover:opacity-100"
@@ -141,6 +176,9 @@ export default function Home() {
         </button>
       </section>
 
+      {/* ── Highlights / Statistics ── */}
+      {/* FadeInSection triggers the CSS animation on scroll; the 2x2 (mobile) / 4-col (desktop) grid */}
+      {/* shows key metrics to reinforce credibility. Each icon sits in a subtle rounded box. */}
       <FadeInSection>
         <section className="bg-white border-b border-gray-100" aria-label="Key statistics">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -152,6 +190,7 @@ export default function Home() {
                     <div className="w-12 h-12 rounded-xl bg-primary/5 group-hover:bg-primary/10 flex items-center justify-center mx-auto mb-3 transition-colors">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
+                    {/* Value is hard-coded (not translated) because numbers are locale-independent */}
                     <p className="text-3xl font-bold text-primary">{h.value}</p>
                     <p className="text-sm text-muted-foreground mt-1">{t(h.key, locale)}</p>
                   </div>
@@ -162,6 +201,9 @@ export default function Home() {
         </section>
       </FadeInSection>
 
+      {/* ── Quick Services ── */}
+      {/* A 1/2/3-column responsive card grid. Each card links to a dedicated service page. */}
+      {/* Cards lift on hover with a subtle shadow + border tint to indicate interactivity. */}
       <section className="py-16 md:py-24" aria-label="Quick services" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeInSection>
@@ -178,6 +220,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {quickServices.map((service, i) => {
               const Icon = service.icon;
+              // Staggered fade-in: each card appears 100 ms later than the previous
               return (
                 <FadeInSection key={service.key} delay={i * 100}>
                   <Link href={service.href} className="no-underline group block">
@@ -202,6 +245,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Call-to-Action ── */}
+      {/* Dark gradient section with a subtle dot-grid pattern in the background. */}
+      {/* Primarily targets citizens who haven't yet engaged — invites them to contact the office. */}
       <FadeInSection>
         <section className="relative overflow-hidden" aria-label="Call to action">
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]" />

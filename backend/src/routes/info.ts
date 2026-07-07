@@ -1,7 +1,12 @@
+// ── Info routes: static informational content ──
+// Public endpoints that serve About Us details and FAQ content
+// No authentication required — these are landing-page data for all visitors
+
 import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+// Static about-data for the Puducherry RTO portal
 const aboutData = {
   name: 'Puducherry RTO',
   description: 'Office of the Transport Commissioner, Puducherry',
@@ -16,10 +21,15 @@ const aboutData = {
   },
 };
 
+// ── GET /api/info/about ──
+// Returns the RTO's profile, mission, vision, history, and contact details
 router.get('/about', (_req: Request, res: Response) => {
   res.json(aboutData);
 });
 
+// ── GET /api/info/faq ──
+// Returns a curated list of frequently asked questions and their answers
+// Covers common user queries: booking tests, required docs, challans, fees
 router.get('/faq', (_req: Request, res: Response) => {
   res.json({
     faqs: [

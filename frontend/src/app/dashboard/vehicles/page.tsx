@@ -1,9 +1,15 @@
 'use client';
 
+// ── UI primitives for animated, auth-gated entry ──
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
+// ── Shield icon contextualises the insurance validity info ──
 import { Shield } from 'lucide-react';
 
+// ── Static vehicle data ──
+// In production this would come from an API. Each record tracks the registration
+// number, make/model, year, active status, and insurance expiry so the user can
+// see at a glance whether their paperwork is current.
 const vehicles = [
   { regNo: 'PY-01-AB-1234', make: 'Honda', model: 'Activa 6G', year: 2024, status: 'ACTIVE', insurance: '2027-03-15' },
   { regNo: 'PY-01-CD-5678', make: 'Maruti', model: 'Swift VXi', year: 2023, status: 'ACTIVE', insurance: '2026-11-20' },
@@ -13,12 +19,18 @@ export default function VehiclesPage() {
   return (
     <RequireAuth>
       <>
+        {/* ── Hero banner ── */}
+        {/* Consistent gradient header across all dashboard sub-pages creates a unified brand feel. */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <h1 className="text-3xl font-bold text-white">My Vehicles</h1>
           <p className="text-blue-200 mt-1">View your registered vehicles</p>
         </div>
       </section>
+        {/* ── Vehicle list ── */}
+        {/* Each vehicle is rendered as a card with a gradient top bar, status badge,
+            and insurance indicator. The hover shadow gives tactile feedback that the card
+            is interactive (future: click to see full details). */}
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="space-y-4">
@@ -29,11 +41,15 @@ export default function VehiclesPage() {
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-xl font-bold text-primary">{v.regNo}</h2>
+                      {/* ── Status badge ── */}
+                      {/* Uses green styling for ACTIVE to give an immediate positive visual cue. */}
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                         {v.status}
                       </span>
                     </div>
                     <p className="text-muted-foreground">{v.make} {v.model} ({v.year})</p>
+                    {/* ── Insurance reminder ── */}
+                    {/* Prominently shown so users can take action before coverage lapses. */}
                     <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
                       <Shield className="w-4 h-4 text-green-500" />
                       <span>Insurance valid until: <strong>{v.insurance}</strong></span>

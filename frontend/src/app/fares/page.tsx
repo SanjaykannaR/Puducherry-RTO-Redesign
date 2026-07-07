@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+// ── shadcn/ui Table component for clean tabular fee display ──
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
@@ -9,6 +10,10 @@ export const metadata: Metadata = {
   description: 'Puducherry RTO fee structure for driving license, vehicle registration, permits, and taxes.',
 };
 
+// ── Fee categories ──
+// Each category groups related services together so users can find pricing for
+// their specific transaction (license, registration, permit, tax) in one place.
+// Fees are in INR and formatted with Indian numbering (toLocaleString('en-IN')).
 const feeCategories = [
   {
     title: 'Driving License Fees',
@@ -62,6 +67,11 @@ export default function FaresPage() {
           <div className="space-y-8">
             {feeCategories.map((cat, i) => (
               <FadeInSection key={i} delay={i * 100}>
+                {/* ── Fee table card ── */}
+                {/* Each category is wrapped in a card with a gradient bar. Inside, a two-column
+                    table lists every service type and its fee, right-aligned for easy number comparison.
+                    Using Indian locale formatting (toLocaleString('en-IN')) ensures ₹ amounts
+                    display with the correct comma grouping (e.g. 7,500). */}
                 <Card className="border-0 shadow-md overflow-hidden">
                   <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
                   <CardHeader>
@@ -91,6 +101,9 @@ export default function FaresPage() {
               </FadeInSection>
             ))}
           </div>
+          {/* ── Disclaimer ── */}
+          {/* Government fees change periodically; a disclaimer sets expectations and
+              directs users to verify current rates at their local office. */}
           <FadeInSection delay={400}>
             <p className="text-xs text-muted-foreground mt-8 border-t pt-4">
               Note: These fees are indicative. Please verify current rates at your nearest RTO office or check official government notifications. Additional service charges and GST may apply where applicable.

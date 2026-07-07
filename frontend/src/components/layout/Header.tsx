@@ -12,24 +12,30 @@ export default function Header() {
   const { locale, setLocale } = useLanguage();
 
   return (
+    // ── Sticky top bar pinned at z-50 so it always overlays page content ──
     <header className="bg-primary text-white print:hidden sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-primary/95">
+      {/* Skip-to-content: first focusable element, lets keyboard users bypass the nav */}
       <a href="#main-content" className="skip-to-content">
         {t('skip.content', locale)}
       </a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
+          {/* ── Logo: RTO icon always visible; title + subtitle hidden on mobile to save space ── */}
           <Link href="/" className="flex items-center gap-3 no-underline text-white group">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
               <span className="text-primary font-bold text-sm">RTO</span>
             </div>
+            {/* Hidden on small screens so the header doesn't crowd ── */}
             <div className="hidden sm:block">
               <h1 className="text-lg font-bold leading-tight">{t('site.title', locale)}</h1>
               <p className="text-xs text-blue-200">{t('site.subtitle', locale)}</p>
             </div>
           </Link>
 
+          {/* ── Right-side toolbar: search, language switcher, sign-in ── */}
           <div className="flex items-center gap-2">
             <SearchBar />
+            {/* Language dropdown with icon overlay; uses appearance-none for cross-browser custom styling */}
             <div className="relative">
               <select
                 value={locale}
@@ -50,6 +56,7 @@ export default function Header() {
             </Link>
           </div>
         </div>
+        {/* Navigation sits inside the header below the top bar */}
         <Navbar />
       </div>
     </header>

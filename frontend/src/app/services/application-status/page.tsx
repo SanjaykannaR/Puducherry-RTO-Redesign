@@ -9,10 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Search, FileText, Calendar } from 'lucide-react';
 
+// ── ApplicationStatusPage: Track the real-time status of an RTO application by entering
+//     its application ID. Shows type, submission date, and current status with colour-coded
+//     badges (DRAFT → SUBMITTED → UNDER_REVIEW → APPROVED / REJECTED).
+//     Uses mock data; a real API would replace handleSearch. ──
 export default function ApplicationStatusPage() {
+  // ── Search Input ──
   const [appId, setAppId] = useState('');
+  // ── Status Result: populated after search with id, type, status code, and date ──
   const [status, setStatus] = useState<null | { id: string; type: string; status: string; date: string }>(null);
 
+  // ── handleSearch: placeholder that returns mock status data for a given application ID.
+  //     In production this would call an API endpoint to look up the real status. ──
   function handleSearch() {
     if (!appId.trim()) return;
     setStatus({
@@ -23,6 +31,8 @@ export default function ApplicationStatusPage() {
     });
   }
 
+  // ── Status Colour Map: each pipeline status gets a distinct colour scheme so users
+  //     can instantly gauge progress (amber = pending, green = approved, red = rejected) ──
   const statusColor: Record<string, string> = {
     DRAFT: 'bg-gray-100 text-gray-700 border-gray-200',
     SUBMITTED: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -37,6 +47,7 @@ export default function ApplicationStatusPage() {
         <PageHero title="Application Status" subtitle="Track your RTO application status in real-time" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
+          {/* ── Search Card: text input for application ID, searches on button click or Enter ── */}
           <FadeInSection>
             <Card className="border-0 shadow-xl overflow-hidden mb-6">
               <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -63,6 +74,9 @@ export default function ApplicationStatusPage() {
             </Card>
           </FadeInSection>
 
+          {/* ── Status Result Card: shows application type, date, and colour-coded status badge.
+               The status colour is picked from statusColor map (DRAFT=gray, UNDER_REVIEW=amber, etc.).
+               If UNDER_REVIEW, an additional info note is shown. ── */}
           {status && (
             <FadeInSection>
               <Card className="border-0 shadow-xl overflow-hidden">

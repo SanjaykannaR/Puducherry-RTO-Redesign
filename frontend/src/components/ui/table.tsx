@@ -4,8 +4,17 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Table compound components wrapping native <table> elements with consistent styling.
+ * The outermost Table wrapper provides an overflow-x-auto container so tables
+ * scroll horizontally on small screens without breaking the layout.
+ * Each sub-component (Header, Body, Row, Cell, etc.) applies minimal styling
+ * so consumers can compose standard <table> markup with our design tokens.
+ */
+
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
+    // ── Responsive container: horizontal scroll on overflow ──
     <div
       data-slot="table-container"
       className="relative w-full overflow-x-auto"

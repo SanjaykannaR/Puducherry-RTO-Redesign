@@ -3,6 +3,11 @@ import { Input as InputPrimitive } from "@base-ui/react/input"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Styled input with forwarded ref for use with form libraries (react-hook-form, Formik, etc.).
+ * The underlying Base UI Input primitive handles accessibility attributes (aria-invalid, aria-describedby)
+ * and the ref is forwarded automatically so consumers don't need to wrap it.
+ */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <InputPrimitive

@@ -1,7 +1,13 @@
+// ── Services routes: RTO service catalogue ──
+// Public endpoint listing all services offered on the portal
+// Each entry includes metadata (icon, category, link) for frontend rendering
+// Categories help group services: registration, license, tools, information
+
 import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+// In-memory service catalogue — covers the main citizen-facing RTO services
 let services = [
   {
     id: 'vehicle-registration',
@@ -69,10 +75,14 @@ let services = [
   },
 ];
 
+// ── GET /api/services ──
+// Returns the full list of services for the frontend service catalogue
 router.get('/', (_req: Request, res: Response) => {
   res.json({ services });
 });
 
+// ── GET /api/services/:id ──
+// Returns a single service by its unique string ID (e.g. "driving-license")
 router.get('/:id', (req: Request, res: Response) => {
   const service = services.find((s) => s.id === req.params.id);
   if (!service) {
@@ -82,6 +92,7 @@ router.get('/:id', (req: Request, res: Response) => {
   res.json(service);
 });
 
+// Exported for admin routes to update the service catalogue
 export function setServices(data: any) {
   services = data;
 }

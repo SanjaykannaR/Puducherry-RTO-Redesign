@@ -9,12 +9,18 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
+// ── InternationalPermitPage: Apply for an International Driving Permit (IDP) valid in 150+
+//     countries under the UN Convention. Requires a valid Indian driving license and passport.
+//     The "countries to visit" field helps the RTO determine which convention to apply. ──
 export default function InternationalPermitPage() {
+  // ── Form State: DL number ties to existing license record; passport + countries for the permit ──
   const [form, setForm] = useState({ licenseNo: '', fullName: '', passportNo: '', countries: '' });
+  // ── submitted: toggles form → success confirmation with a Permit ID ──
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
 
+  // ── Success Confirmation: green card with Permit ID; mentions 3-5 day issuance window ──
   if (submitted) {
     return (
       <RequireAuth>
@@ -40,6 +46,7 @@ export default function InternationalPermitPage() {
     );
   }
 
+  // ── IDP Application Form: DL number, name, passport, and target countries ──
   return (
     <RequireAuth>
       <>

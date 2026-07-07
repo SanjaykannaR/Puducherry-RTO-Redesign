@@ -9,13 +9,21 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Search, Activity, Shield, Wrench, Receipt } from 'lucide-react';
 
+// ── VehicleStatusPage: Lookup tool that shows a vehicle's lifecycle status — RC details,
+//     insurance, fitness certificate, PUC, and road tax — all in one place. Users enter a
+//     registration number and see colour-coded expiry timelines with days-remaining badges.
+//     Currently uses mock data; real API integration would replace handleSearch. ──
 export default function VehicleStatusPage() {
+  // ── Search Input State ──
   const [regNo, setRegNo] = useState('');
+  // ── Result State: populated after search; each date drives the days-left calculation ──
   const [result, setResult] = useState<null | {
     registrationNo: string; make: string; model: string; year: number;
     insuranceUpto: string; fitnessUpto: string; pucUpto: string; taxPaidUpto: string; status: string;
   }>(null);
 
+  // ── handleSearch: placeholder that returns mock vehicle data for the entered reg number.
+  //     A real API integration would replace this with a fetch to the vehicle database. ──
   function handleSearch() {
     if (!regNo.trim()) return;
     setResult({
@@ -31,6 +39,8 @@ export default function VehicleStatusPage() {
     });
   }
 
+  // ── daysLeft: calculates whole days remaining until a given date.
+  //     Used by each lifecycle row to show a coloured badge (e.g. "120 days left"). ──
   function daysLeft(date: string): number {
     const diff = new Date(date).getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
@@ -42,6 +52,7 @@ export default function VehicleStatusPage() {
         <PageHero title="Vehicle Lifecycle Status" subtitle="Check RC, insurance, PUC, and fitness status of your vehicle" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-3xl mx-auto px-4 py-12">
+          {/* ── Search Card: text input + search button. Enter key also triggers search. ── */}
           <FadeInSection>
             <Card className="border-0 shadow-xl overflow-hidden mb-6">
               <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -68,6 +79,9 @@ export default function VehicleStatusPage() {
             </Card>
           </FadeInSection>
 
+          {/* ── Results Section: only shown after a successful search. Displays vehicle basic info
+               (make, model, year, status) plus a lifecycle breakdown with colour-coded rows
+               showing validity dates and days remaining for Insurance, FC, PUC, and Road Tax. ── */}
           {result && (
             <FadeInSection>
               <Card className="border-0 shadow-xl overflow-hidden">

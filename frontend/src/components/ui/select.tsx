@@ -6,6 +6,13 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
+/**
+ * Custom select built on Base UI's headless Select primitive.
+ * Unlike a native <select>, this renders a fully styled trigger + popover pattern
+ * that is accessible (ARIA-compliant) and visually consistent across browsers.
+ * The compound API mirrors the native <select> mental model: Root → Trigger → Content → Item.
+ */
+
 const Select = SelectPrimitive.Root
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {

@@ -1,14 +1,20 @@
 'use client';
 
+// ── Auth guard ──
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
+// ── UI primitives for card grid layout ──
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
+// ── Icons help users visually identify each card's purpose at a glance ──
 import { Car, FileText, Calendar, Search, ClipboardList, Bell, ArrowRight, LogOut } from 'lucide-react';
 
+// ── Dashboard navigation cards ──
+// Each card provides a single entry point into a user-facing feature section.
+// The gradient color and icon differentiate services without needing to read text first.
 const dashboardLinks = [
   { title: 'My Vehicles', href: '/dashboard/vehicles', desc: 'View registered vehicles', icon: Car, color: 'from-blue-400 to-blue-500' },
   { title: 'My Licenses', href: '/dashboard/licenses', desc: 'View driving licenses', icon: FileText, color: 'from-green-400 to-emerald-500' },
@@ -19,6 +25,7 @@ const dashboardLinks = [
 ];
 
 export default function DashboardPage() {
+  // ── Redirect unauthenticated users to login; block render until auth resolves ──
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -31,6 +38,9 @@ export default function DashboardPage() {
   return (
     <RequireAuth>
       <>
+        {/* ── Hero banner ── */}
+        {/* Dark gradient header with a subtle dot pattern gives the dashboard a distinct visual start.
+            It displays the user's name to personalise the experience. */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="absolute inset-0 opacity-[0.07]" style={{
           backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
@@ -51,6 +61,10 @@ export default function DashboardPage() {
         </div>
       </section>
 
+        {/* ── Card grid ── */}
+        {/* Links to every major dashboard section laid out in a responsive 1/2/3-column grid.
+            Each card has a coloured gradient top bar, icon, and a hover lift effect so users
+            perceive it as an actionable tile rather than static content. */}
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -70,6 +84,8 @@ export default function DashboardPage() {
                       <CardContent>
                         <CardDescription>{link.desc}</CardDescription>
                       </CardContent>
+                      {/* ── Hover hint ── */}
+                      {/* "Access" + arrow only appears on hover to keep the card clean by default. */}
                       <div className="px-6 pb-4 flex items-center gap-1 text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                         Access <ArrowRight className="w-3.5 h-3.5" />
                       </div>

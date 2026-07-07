@@ -1,7 +1,13 @@
+// ── Directory routes: RTO office listings ──
+// Public endpoints listing all regional RTO offices under Puducherry UT
+// Includes office contact details, services offered, and operating hours
+
 import { Router, Request, Response } from 'express';
 
 const router = Router();
 
+// In-memory store of RTO offices across the four Puducherry regions
+// Includes main office + Karaikal, Mahe, and Yanam sub-offices
 let offices = [
   {
     id: 1,
@@ -41,10 +47,14 @@ let offices = [
   },
 ];
 
+// ── GET /api/directory ──
+// Returns a complete list of all RTO offices
 router.get('/', (_req: Request, res: Response) => {
   res.json({ offices });
 });
 
+// ── GET /api/directory/:id ──
+// Returns details for a single office by its numeric ID
 router.get('/:id', (req: Request, res: Response) => {
   const office = offices.find((o) => o.id === parseInt(req.params.id));
   if (!office) {
@@ -54,6 +64,7 @@ router.get('/:id', (req: Request, res: Response) => {
   res.json(office);
 });
 
+// Exported for admin routes to update the directory
 export function setOffices(data: any) {
   offices = data;
 }

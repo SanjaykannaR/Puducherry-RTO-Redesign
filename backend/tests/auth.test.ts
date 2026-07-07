@@ -1,8 +1,16 @@
+// ── Auth endpoint tests ──
+// Tests the three auth endpoints: register, login, and profile (/me)
+// Uses supertest to make HTTP requests against the Express app without a server
+// Tests cover happy paths, validation errors, and auth failures
+
 import request from 'supertest';
 import app from '../src/index';
 
+// ── POST /api/auth/register ──
+// Verifies successful user creation, duplicate detection, and field validation
 describe('POST /api/auth/register', () => {
   it('registers a new user and returns token', async () => {
+    // Should return 201 with a JWT token and the user object
     const res = await request(app)
       .post('/api/auth/register')
       .send({ email: 'test@example.com', mobile: '9876543210', password: 'Pass123!', name: 'Test User' });
@@ -12,6 +20,7 @@ describe('POST /api/auth/register', () => {
   });
 
   it('rejects duplicate email', async () => {
+    // Register once, then try again with the same email — should get 409
     await request(app)
       .post('/api/auth/register')
       .send({ email: 'dup@example.com', mobile: '1111111111', password: 'Pass123!', name: 'Dup' });
@@ -22,6 +31,7 @@ describe('POST /api/auth/register', () => {
   });
 
   it('rejects missing fields', async () => {
+    // Omitting mobile, password, and name — should return 400
     const res = await request(app)
       .post('/api/auth/register')
       .send({ email: 'bad@example.com' });
@@ -29,8 +39,11 @@ describe('POST /api/auth/register', () => {
   });
 });
 
+// ── POST /api/auth/login ──
+// Verifies successful login and wrong-password rejection
 describe('POST /api/auth/login', () => {
   it('logs in with valid credentials', async () => {
+    // Register a user first, then log in — should return 200 + token
     await request(app)
       .post('/api/auth/register')
       .send({ email: 'login@example.com', mobile: '3333333333', password: 'Pass123!', name: 'Login' });
@@ -42,6 +55,7 @@ describe('POST /api/auth/login', () => {
   });
 
   it('rejects invalid password', async () => {
+    // Wrong password for an existing user — should return 401
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'login@example.com', password: 'wrong' });
@@ -49,8 +63,11 @@ describe('POST /api/auth/login', () => {
   });
 });
 
+// ── GET /api/auth/me ──
+// Verifies profile retrieval with a valid token and rejection without one
 describe('GET /api/auth/me', () => {
   it('returns user info with valid token', async () => {
+    // Register, then use the returned token to fetch /me — should match
     const reg = await request(app)
       .post('/api/auth/register')
       .send({ email: 'me@example.com', mobile: '4444444444', password: 'Pass123!', name: 'Me' });
@@ -62,6 +79,7 @@ describe('GET /api/auth/me', () => {
   });
 
   it('rejects missing token', async () => {
+    // No auth header at all — should return 401
     const res = await request(app).get('/api/auth/me');
     expect(res.status).toBe(401);
   });
