@@ -1,24 +1,25 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import FadeInSection from '@/components/ui/fade-in-section';
 import { Car, FileText, Calendar, Calculator, Search, ClipboardList, ArrowRight, ChevronLeft, ChevronRight, Shield, Clock, Award, Users, Building2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { t } from '@/lib/i18n/translations';
 
 const heroSlides = [
   {
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop',
-    alt: 'Scenic road with car driving',
+    image: 'https://images.unsplash.com/photo-1755659027604-cde43a75db0f?q=80&w=2070&auto=format&fit=crop',
+    alt: 'Traffic rules road signs showing speed limit and no honking',
   },
   {
-    image: 'https://images.unsplash.com/photo-1599508704516-2c0f0bfa3e8d?q=80&w=2070&auto=format&fit=crop',
-    alt: 'Road traffic with city skyline',
+    image: 'https://images.unsplash.com/photo-1566440450530-5989804251bf?q=80&w=2070&auto=format&fit=crop',
+    alt: 'Motorcycle rider wearing helmet for road safety',
   },
   {
-    image: 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?q=80&w=2089&auto=format&fit=crop',
-    alt: 'License and registration documents',
+    image: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=2065&auto=format&fit=crop',
+    alt: 'Highway traffic and road safety driving scene',
   },
 ];
 
@@ -37,28 +38,6 @@ const highlights = [
   { value: '99%', key: 'highlights.digital', icon: Award },
   { value: '50K+', key: 'highlights.users', icon: Users },
 ];
-
-function FadeInSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const [visible, setVisible] = useState(false);
-  const ref = useCallback((node: HTMLDivElement | null) => {
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    observer.observe(node);
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default function Home() {
   const { locale } = useLanguage();

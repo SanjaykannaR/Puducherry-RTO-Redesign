@@ -7,6 +7,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'site.lang': 'en',
     'skip.content': 'Skip to main content',
     'select.language': 'Select language',
+    'search.placeholder': 'Search services...',
     'sign.in': 'Sign In',
 
     'nav.home': 'Home',
@@ -67,6 +68,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'site.lang': 'ta',
     'skip.content': 'முக்கிய உள்ளடக்கத்திற்கு செல்லவும்',
     'select.language': 'மொழியை தேர்ந்தெடுக்கவும்',
+    'search.placeholder': 'சேவைகளை தேடுங்கள்...',
     'sign.in': 'உள்நுழைய',
 
     'nav.home': 'முகப்பு',
@@ -127,6 +129,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'site.lang': 'fr',
     'skip.content': 'Aller au contenu principal',
     'select.language': 'Choisir la langue',
+    'search.placeholder': 'Rechercher des services...',
     'sign.in': 'Connexion',
 
     'nav.home': 'Accueil',

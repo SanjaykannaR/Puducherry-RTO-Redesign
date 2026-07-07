@@ -1,8 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { FileText } from 'lucide-react';
+import FadeInSection from '@/components/ui/fade-in-section';
 
 const licenses = [
   { no: 'PY-0120241234567', type: 'MCWG', name: 'Learner\'s License', issueDate: '2025-01-15', expiryDate: '2026-01-14', status: 'EXPIRED' },
@@ -11,28 +9,50 @@ const licenses = [
 
 export default function LicensesPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="flex items-center gap-3 mb-8">
-        <FileText className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold text-primary">My Licenses</h1>
-      </div>
-      <div className="space-y-4">
-        {licenses.map((l) => (
-          <Card key={l.no}>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{l.type}</CardTitle>
-                <Badge variant={l.status === 'ACTIVE' ? 'default' : 'destructive'}>{l.status}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="text-sm space-y-1">
-              <p><span className="text-muted-foreground">License No:</span> {l.no}</p>
-              <p><span className="text-muted-foreground">Type:</span> {l.name}</p>
-              <p><span className="text-muted-foreground">Valid:</span> {l.issueDate} to {l.expiryDate}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <>
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <h1 className="text-3xl font-bold text-white">My Licenses</h1>
+          <p className="text-blue-200 mt-1">View your driving licenses</p>
+        </div>
+      </section>
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-10">
+          <div className="space-y-4">
+            {licenses.map((l, i) => (
+              <FadeInSection key={l.no} delay={i * 100}>
+                <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
+                  <div className={`h-2 bg-gradient-to-r ${l.status === 'ACTIVE' ? 'from-green-400 to-emerald-500' : 'from-red-400 to-rose-500'}`} />
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-xl font-bold text-primary">{l.type}</h2>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                        l.status === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
+                      }`}>
+                        {l.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground">License No.</p>
+                        <p className="font-medium">{l.no}</p>
+                      </div>
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground">Type</p>
+                        <p className="font-medium">{l.name}</p>
+                      </div>
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground">Validity</p>
+                        <p className="font-medium">{l.issueDate} - {l.expiryDate}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

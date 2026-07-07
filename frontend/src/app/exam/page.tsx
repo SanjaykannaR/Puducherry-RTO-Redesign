@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Camera, XCircle } from 'lucide-react';
+import PageHero from '@/components/ui/page-hero';
+import { AlertTriangle, Camera, XCircle, Shield, Monitor } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 const AI_URL = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
@@ -142,102 +143,155 @@ export default function ExamPage() {
     }
   }
   if (loading) return null;
+  if (examDone) {
+    return (
+      <>
+        <PageHero title={examResult?.passed ? 'Exam Passed' : 'Exam Completed'} subtitle={examResult?.passed ? 'Congratulations!' : 'Better luck next time'} />
+        <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+          <div className="max-w-md mx-auto px-4 py-12">
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <div className={`h-2 bg-gradient-to-r ${examResult?.passed ? 'from-green-400 to-emerald-500' : 'from-red-400 to-rose-500'}`} />
+              <CardContent className="text-center py-8">
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${examResult?.passed ? 'bg-green-50' : 'bg-red-50'}`}>
+                  <span className={`text-3xl ${examResult?.passed ? 'text-green-500' : 'text-red-500'}`}>
+                    {examResult?.passed ? '✓' : '✗'}
+                  </span>
+                </div>
+                <p className="text-2xl font-bold mb-2">
+                  Score: {examResult?.score}/{examResult?.total}
+                </p>
+                <Badge className={examResult?.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                  {examResult?.passed ? 'PASSED' : 'FAILED'}
+                </Badge>
+                <Button className="mt-6 w-full" onClick={() => router.push('/dashboard')}>
+                  Back to Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </>
+    );
+  }
   if (!examStarted) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">AI-Proctored Exam</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              This exam uses AI proctoring. Violation limit: {VIOLATION_LIMIT}.
-            </p>
-            {cameraError && (
-              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded">
-                {cameraError}
-              </div>
-            )}
-            <Button size="lg" onClick={startExam}>Start Exam</Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <PageHero title="AI-Proctored Exam" subtitle="This exam uses AI proctoring. Ensure your camera is working." />
+        <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+          <div className="max-w-lg mx-auto px-4 py-12">
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+              <CardContent className="text-center py-8 space-y-5">
+                <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mx-auto">
+                  <Monitor className="w-8 h-8 text-primary" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-muted-foreground">
+                    This exam uses AI proctoring to ensure integrity.
+                  </p>
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 text-left space-y-1">
+                    <p className="font-medium">Important Rules:</p>
+                    <p>• Maximum violations: {VIOLATION_LIMIT}</p>
+                    <p>• Do not switch tabs or exit fullscreen</p>
+                    <p>• Keep your face visible in camera</p>
+                    <p>• No other person allowed in frame</p>
+                  </div>
+                </div>
+                {cameraError && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20">
+                    {cameraError}
+                  </div>
+                )}
+                <Button size="lg" onClick={startExam} className="w-full">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Start Exam
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </>
     );
   }
   const q = questions[currentQ];
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-4 p-3 bg-muted/30 rounded-lg">
-        <div className="flex items-center gap-3">
-          <Camera className={'h-5 w-5 ' + (cameraOn ? 'text-green-500' : 'text-destructive')} />
-          <span className="text-sm">{faceDetected ? 'Face detected' : 'No face detected'}</span>
-          <video ref={videoRef} autoPlay muted playsInline className="w-16 h-12 rounded border" />
-        </div>
-        <div className="flex items-center gap-3">
-          {statusMsg && <span className="text-xs text-muted-foreground">{statusMsg}</span>}
-          {violations > 0 && (
-            <Badge variant={violations >= VIOLATION_LIMIT ? 'destructive' : 'secondary'}>
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              {violations}/{VIOLATION_LIMIT}
-            </Badge>
+    <>
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-xl shadow-sm border">
+            <div className="flex items-center gap-3">
+              <Camera className={'h-5 w-5 ' + (cameraOn ? 'text-green-500' : 'text-destructive')} />
+              <span className="text-sm">{faceDetected ? 'Face detected' : 'No face detected'}</span>
+              <video ref={videoRef} autoPlay muted playsInline className="w-16 h-12 rounded-lg border" />
+            </div>
+            <div className="flex items-center gap-3">
+              {statusMsg && <span className="text-xs text-muted-foreground">{statusMsg}</span>}
+              {violations > 0 && (
+                <Badge variant={violations >= VIOLATION_LIMIT ? 'destructive' : 'secondary'}>
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  {violations}/{VIOLATION_LIMIT}
+                </Badge>
+              )}
+            </div>
+          </div>
+          {violations >= VIOLATION_LIMIT ? (
+            <Card className="border-0 shadow-xl overflow-hidden border-l-4 border-l-destructive">
+              <CardHeader>
+                <CardTitle className="text-destructive">Exam Terminated</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Maximum violation limit ({VIOLATION_LIMIT}) reached.
+                </p>
+                <Button className="mt-4" onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-muted-foreground bg-white px-3 py-1.5 rounded-lg shadow-sm">
+                  Question {currentQ + 1} of {questions.length}
+                </span>
+                <span className="text-sm text-muted-foreground bg-white px-3 py-1.5 rounded-lg shadow-sm">
+                  Answered: {Object.keys(answers).length}/{questions.length}
+                </span>
+              </div>
+              <Card className="border-0 shadow-xl overflow-hidden">
+                <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+                <CardHeader>
+                  <CardTitle className="text-lg">{q.q}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {q.options.map((opt, idx) => (
+                    <label key={idx}
+                      className={'flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ' +
+                        (answers[q.id] === idx ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/30 hover:bg-primary/5')}
+                    >
+                      <input type="radio" name={'q-' + q.id}
+                        checked={answers[q.id] === idx}
+                        onChange={() => answer(q.id, idx)}
+                        className="h-4 w-4 accent-primary"
+                      />
+                      <span className="text-sm">{opt}</span>
+                    </label>
+                  ))}
+                </CardContent>
+              </Card>
+              <div className="flex items-center justify-between mt-6">
+                <Button variant="outline" disabled={currentQ === 0}
+                  onClick={() => setCurrentQ((p) => p - 1)}>Previous</Button>
+                {currentQ < questions.length - 1 ? (
+                  <Button onClick={() => setCurrentQ((p) => p + 1)}
+                    disabled={answers[q.id] === undefined}>Next</Button>
+                ) : (
+                  <Button onClick={submitExam}
+                    disabled={Object.keys(answers).length < questions.length}>Submit Exam</Button>
+                )}
+              </div>
+            </>
           )}
         </div>
-      </div>
-      {violations >= VIOLATION_LIMIT ? (
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-destructive">Exam Terminated</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Maximum violation limit ({VIOLATION_LIMIT}) reached.
-            </p>
-            <Button className="mt-4" onClick={() => router.push('/dashboard')}>Back to Dashboard</Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm text-muted-foreground">
-              Question {currentQ + 1} of {questions.length}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              Answered: {Object.keys(answers).length}/{questions.length}
-            </span>
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{q.q}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {q.options.map((opt, idx) => (
-                <label key={idx}
-                  className={'flex items-center gap-3 p-3 rounded border cursor-pointer transition-colors ' +
-                    (answers[q.id] === idx ? 'border-primary bg-primary/5' : 'hover:bg-muted/50')}
-                >
-                  <input type="radio" name={'q-' + q.id}
-                    checked={answers[q.id] === idx}
-                    onChange={() => answer(q.id, idx)}
-                    className="h-4 w-4 accent-primary"
-                  />
-                  <span>{opt}</span>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-          <div className="flex items-center justify-between mt-6">
-            <Button variant="outline" disabled={currentQ === 0}
-              onClick={() => setCurrentQ((p) => p - 1)}>Previous</Button>
-            {currentQ < questions.length - 1 ? (
-              <Button onClick={() => setCurrentQ((p) => p + 1)}
-                disabled={answers[q.id] === undefined}>Next</Button>
-            ) : (
-              <Button onClick={submitExam}
-                disabled={Object.keys(answers).length < questions.length}>Submit Exam</Button>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+      </section>
+    </>
   );
 }

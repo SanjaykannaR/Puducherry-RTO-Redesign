@@ -4,14 +4,15 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Search, Activity } from 'lucide-react';
+import PageHero from '@/components/ui/page-hero';
+import FadeInSection from '@/components/ui/fade-in-section';
+import { Search, Activity, Shield, Wrench, Receipt } from 'lucide-react';
 
 export default function VehicleStatusPage() {
   const [regNo, setRegNo] = useState('');
   const [result, setResult] = useState<null | {
     registrationNo: string; make: string; model: string; year: number;
-    insuranceUpto: string; fitnessUpto: string; taxPaidUpto: string; status: string;
+    insuranceUpto: string; fitnessUpto: string; pucUpto: string; taxPaidUpto: string; status: string;
   }>(null);
 
   function handleSearch() {
@@ -23,6 +24,7 @@ export default function VehicleStatusPage() {
       year: 2024,
       insuranceUpto: '2027-03-15',
       fitnessUpto: '2029-03-15',
+      pucUpto: '2026-09-15',
       taxPaidUpto: '2027-03-15',
       status: 'ACTIVE',
     });
@@ -34,59 +36,124 @@ export default function VehicleStatusPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="flex items-center gap-3 mb-6">
-        <Activity className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold text-primary">Vehicle Lifecycle Status</h1>
-      </div>
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Search Vehicle</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3">
-            <Input
-              placeholder="Enter Registration No. (e.g. PY-01-AB-1234)"
-              value={regNo}
-              onChange={(e) => setRegNo(e.target.value)}
-            />
-            <Button onClick={handleSearch}><Search className="h-4 w-4 mr-2" />Search</Button>
-          </div>
-        </CardContent>
-      </Card>
+    <>
+      <PageHero title="Vehicle Lifecycle Status" subtitle="Check RC, insurance, PUC, and fitness status of your vehicle" />
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-3xl mx-auto px-4 py-12">
+          <FadeInSection>
+            <Card className="border-0 shadow-xl overflow-hidden mb-6">
+              <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="h-5 w-5 text-primary" />
+                  Search Vehicle
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3">
+                  <Input
+                    placeholder="Enter Registration No. (e.g. PY-01-AB-1234)"
+                    value={regNo}
+                    onChange={(e) => setRegNo(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                  <Button onClick={handleSearch}>
+                    <Search className="h-4 w-4 mr-2" />
+                    Search
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </FadeInSection>
 
-      {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{result.registrationNo}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-muted-foreground">Make</span><p className="font-medium">{result.make}</p></div>
-              <div><span className="text-muted-foreground">Model</span><p className="font-medium">{result.model}</p></div>
-              <div><span className="text-muted-foreground">Year</span><p className="font-medium">{result.year}</p></div>
-              <div><span className="text-muted-foreground">Status</span><p><Badge variant="default">{result.status}</Badge></p></div>
-            </div>
-            <div className="border-t pt-4">
-              <h3 className="font-semibold mb-3">Lifecycle Status</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                  <div><span className="font-medium">Insurance</span><p className="text-xs text-muted-foreground">Valid until {result.insuranceUpto}</p></div>
-                  <Badge variant="secondary">{daysLeft(result.insuranceUpto)} days left</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                  <div><span className="font-medium">Fitness</span><p className="text-xs text-muted-foreground">Valid until {result.fitnessUpto}</p></div>
-                  <Badge variant="secondary">{daysLeft(result.fitnessUpto)} days left</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded">
-                  <div><span className="font-medium">Road Tax</span><p className="text-xs text-muted-foreground">Paid until {result.taxPaidUpto}</p></div>
-                  <Badge variant="secondary">{daysLeft(result.taxPaidUpto)} days left</Badge>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          {result && (
+            <FadeInSection>
+              <Card className="border-0 shadow-xl overflow-hidden">
+                <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    {result.registrationNo}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-primary/5 rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground">Make</p>
+                      <p className="font-semibold">{result.make}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground">Model</p>
+                      <p className="font-semibold">{result.model}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground">Year</p>
+                      <p className="font-semibold">{result.year}</p>
+                    </div>
+                    <div className="bg-primary/5 rounded-xl p-3">
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <p className="font-semibold text-green-600">{result.status}</p>
+                    </div>
+                  </div>
+                  <div className="border-t pt-5">
+                    <h3 className="font-semibold mb-4 text-primary">Lifecycle Status</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-100">
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-5 h-5 text-green-600" />
+                          <div>
+                            <span className="font-medium">Insurance</span>
+                            <p className="text-xs text-muted-foreground">Valid until {result.insuranceUpto}</p>
+                          </div>
+                        </div>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          {daysLeft(result.insuranceUpto)} days left
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div className="flex items-center gap-3">
+                          <Wrench className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <span className="font-medium">Fitness Certificate (FC)</span>
+                            <p className="text-xs text-muted-foreground">Valid until {result.fitnessUpto}</p>
+                          </div>
+                        </div>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                          {daysLeft(result.fitnessUpto)} days left
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-purple-50 rounded-xl border border-purple-100">
+                        <div className="flex items-center gap-3">
+                          <Activity className="w-5 h-5 text-purple-600" />
+                          <div>
+                            <span className="font-medium">PUC Certificate</span>
+                            <p className="text-xs text-muted-foreground">Valid until {result.pucUpto}</p>
+                          </div>
+                        </div>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                          {daysLeft(result.pucUpto)} days left
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
+                        <div className="flex items-center gap-3">
+                          <Receipt className="w-5 h-5 text-amber-600" />
+                          <div>
+                            <span className="font-medium">Road Tax</span>
+                            <p className="text-xs text-muted-foreground">Paid until {result.taxPaidUpto}</p>
+                          </div>
+                        </div>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                          {daysLeft(result.taxPaidUpto)} days left
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeInSection>
+          )}
+        </div>
+      </section>
+    </>
   );
 }

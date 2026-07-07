@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { t } from '@/lib/i18n/translations';
-import { ExternalLink, Phone, Mail } from 'lucide-react';
+import { Phone, Mail } from 'lucide-react';
 
 const quickLinks = [
   { href: '/about', key: 'nav.about' },
@@ -123,9 +123,7 @@ export default function Footer() {
               <Link href="/sitemap" className="text-blue-200 hover:text-white no-underline transition-colors">{t('footer.sitemap', locale)}</Link>
             </div>
           </div>
-          <p className="text-xs text-blue-400 text-center mt-3">
-            {t('footer.powered', locale)} <a href="https://opencode.ai" className="text-amber-400 hover:text-amber-300 no-underline" target="_blank" rel="noopener noreferrer">OpenCode <ExternalLink className="w-3 h-3 inline" /></a>
-          </p>
+
         </div>
       </div>
     </footer>

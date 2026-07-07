@@ -13,7 +13,7 @@ describe('ExamPage', () => {
 
   it('shows proctoring warning text', () => {
     render(<ExamPage />);
-    expect(screen.getByText(/ai proctoring/i)).toBeInTheDocument();
-    expect(screen.getByText(/violation limit/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/ai proctoring/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/violations/i)).toBeInTheDocument();
   });
 });

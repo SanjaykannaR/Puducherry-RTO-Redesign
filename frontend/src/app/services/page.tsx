@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Car, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Download } from 'lucide-react';
+import PageHero from '@/components/ui/page-hero';
+import FadeInSection from '@/components/ui/fade-in-section';
+import { Car, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Download, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -33,7 +35,7 @@ const serviceCategories = [
       { name: 'Fee Calculator', href: '/services/fee-calculator', desc: 'Calculate fees for various RTO services.', icon: Calculator },
       { name: 'Application Status', href: '/services/application-status', desc: 'Track your application in real-time.', icon: Search },
       { name: 'Challan Status', href: '/services/challan', desc: 'View and pay traffic violation challans.', icon: ClipboardList },
-      { name: 'Vehicle Status', href: '/services/vehicle-status', desc: 'Check RC, insurance, PUC, and fitness status.', icon: Activity },
+      { name: 'Vehicle Status', href: '/services/vehicle-status', desc: 'Check RC, insurance, FC (Fitness Certificate), PUC, and tax status.', icon: Activity },
       { name: 'Download Forms', href: '/services/download-forms', desc: 'Download RTO application forms.', icon: Download },
     ],
   },
@@ -41,36 +43,45 @@ const serviceCategories = [
 
 export default function ServicesPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-primary mb-4">RTO Services</h1>
-      <p className="text-muted-foreground mb-8">
-        Comprehensive range of transport services offered by the Office of the Transport Commissioner, Puducherry.
-      </p>
-      {serviceCategories.map((cat, i) => (
-        <section key={i} className="mb-10">
-          <h2 className="text-xl font-semibold text-primary mb-4">{cat.title}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {cat.services.map((svc, j) => {
-              const Icon = svc.icon;
-              return (
-                <Link key={j} href={svc.href} className="no-underline">
-                  <Card className="h-full transition-all hover:shadow-md hover:border-primary/30 group cursor-pointer">
-                    <CardHeader className="flex flex-row items-center gap-3">
-                      <Icon className="h-6 w-6 text-primary shrink-0" />
-                      <div>
-                        <CardTitle className="text-base group-hover:text-primary">{svc.name}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription>{svc.desc}</CardDescription>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ))}
-    </div>
+    <>
+      <PageHero title="RTO Services" subtitle="Comprehensive range of transport services offered by the Office of the Transport Commissioner, Puducherry." />
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-5xl mx-auto px-4 py-12">
+          {serviceCategories.map((cat, i) => (
+            <FadeInSection key={i} delay={i * 100}>
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary-light rounded-full" />
+                  <h2 className="text-2xl font-bold text-primary">{cat.title}</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {cat.services.map((svc, j) => {
+                    const Icon = svc.icon;
+                    return (
+                      <Link key={j} href={svc.href} className="no-underline group block">
+                        <Card className="h-full border-0 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                          <div className="h-1 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent group-hover:from-primary group-hover:via-primary-light transition-all duration-300" />
+                          <CardHeader className="flex flex-row items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/5 group-hover:bg-primary/10 flex items-center justify-center shrink-0 transition-colors">
+                              <Icon className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-base group-hover:text-primary transition-colors">{svc.name}</CardTitle>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <CardDescription>{svc.desc}</CardDescription>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

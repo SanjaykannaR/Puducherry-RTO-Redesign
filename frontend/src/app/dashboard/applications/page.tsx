@@ -1,8 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Search } from 'lucide-react';
+import FadeInSection from '@/components/ui/fade-in-section';
 
 const applications = [
   { id: 'RTO-A1B2C3', type: 'Vehicle Registration', status: 'UNDER_REVIEW', date: '2026-06-28' },
@@ -11,35 +9,52 @@ const applications = [
 ];
 
 const statusColor: Record<string, string> = {
-  SUBMITTED: 'bg-blue-100 text-blue-700',
-  UNDER_REVIEW: 'bg-amber-100 text-amber-700',
-  APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
+  SUBMITTED: 'bg-blue-50 text-blue-700 border-blue-200',
+  UNDER_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
+  APPROVED: 'bg-green-50 text-green-700 border-green-200',
+  REJECTED: 'bg-red-50 text-red-700 border-red-200',
 };
 
 export default function ApplicationsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="flex items-center gap-3 mb-8">
-        <Search className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold text-primary">My Applications</h1>
-      </div>
-      <div className="space-y-4">
-        {applications.map((app) => (
-          <Card key={app.id}>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{app.id}</CardTitle>
-                <Badge className={statusColor[app.status]}>{app.status.replace('_', ' ')}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="text-sm space-y-1">
-              <p><span className="text-muted-foreground">Type:</span> {app.type}</p>
-              <p><span className="text-muted-foreground">Date:</span> {app.date}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <>
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <h1 className="text-3xl font-bold text-white">My Applications</h1>
+          <p className="text-blue-200 mt-1">Track your submitted applications</p>
+        </div>
+      </section>
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-10">
+          <div className="space-y-4">
+            {applications.map((app, i) => (
+              <FadeInSection key={app.id} delay={i * 100}>
+                <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
+                  <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-lg font-bold text-primary font-mono">{app.id}</h2>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusColor[app.status] || 'bg-gray-50 border-gray-200'}`}>
+                        {app.status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground">Type</p>
+                        <p className="font-medium">{app.type}</p>
+                      </div>
+                      <div className="bg-primary/5 rounded-lg p-3">
+                        <p className="text-xs text-muted-foreground">Date</p>
+                        <p className="font-medium">{app.date}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

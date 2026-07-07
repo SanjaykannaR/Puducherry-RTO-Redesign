@@ -1,13 +1,8 @@
 import type { Metadata } from 'next';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageHero from '@/components/ui/page-hero';
+import FadeInSection from '@/components/ui/fade-in-section';
 
 export const metadata: Metadata = {
   title: 'Fees & Fares',
@@ -60,43 +55,49 @@ const feeCategories = [
 
 export default function FaresPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-primary mb-4">Fees & Fares</h1>
-      <p className="text-muted-foreground mb-8">
-        Official fee structure for RTO services in Puducherry. Fees are subject to change as per government notifications.
-      </p>
-      <div className="space-y-8">
-        {feeCategories.map((cat, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle>{cat.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Service Type</TableHead>
-                    <TableHead className="text-right w-32">Fee (₹)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cat.items.map((item, j) => (
-                    <TableRow key={j}>
-                      <TableCell>{item.type}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        ₹{item.fee.toLocaleString('en-IN')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <p className="text-xs text-muted-foreground mt-8 border-t pt-4">
-        Note: These fees are indicative. Please verify current rates at your nearest RTO office or check official government notifications. Additional service charges and GST may apply where applicable.
-      </p>
-    </div>
+    <>
+      <PageHero title="Fees & Fares" subtitle="Official fee structure for RTO services in Puducherry. Fees are subject to change as per government notifications." />
+      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+        <div className="max-w-5xl mx-auto px-4 py-12">
+          <div className="space-y-8">
+            {feeCategories.map((cat, i) => (
+              <FadeInSection key={i} delay={i * 100}>
+                <Card className="border-0 shadow-md overflow-hidden">
+                  <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+                  <CardHeader>
+                    <CardTitle>{cat.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Service Type</TableHead>
+                          <TableHead className="text-right w-32">Fee (₹)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {cat.items.map((item, j) => (
+                          <TableRow key={j}>
+                            <TableCell>{item.type}</TableCell>
+                            <TableCell className="text-right font-medium">
+                              ₹{item.fee.toLocaleString('en-IN')}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </FadeInSection>
+            ))}
+          </div>
+          <FadeInSection delay={400}>
+            <p className="text-xs text-muted-foreground mt-8 border-t pt-4">
+              Note: These fees are indicative. Please verify current rates at your nearest RTO office or check official government notifications. Additional service charges and GST may apply where applicable.
+            </p>
+          </FadeInSection>
+        </div>
+      </section>
+    </>
   );
 }
