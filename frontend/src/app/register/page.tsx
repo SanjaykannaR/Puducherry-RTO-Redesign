@@ -5,7 +5,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,6 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', mobile: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { register } = useAuth();
   const router = useRouter();
 
   // ── Submit Handler ──
@@ -35,8 +34,9 @@ export default function RegisterPage() {
     }
     setSubmitting(true);
     try {
-      await register({ name: form.name, email: form.email, mobile: form.mobile, password: form.password });
-      router.push('/dashboard');
+      await api.post('/auth/register', { name: form.name, email: form.email, mobile: form.mobile, password: form.password });
+      router.push('/login?registered=true');
+      setError('');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -28,7 +28,7 @@ const serviceLinks = [
   { label: 'Directory', href: '/directory', keywords: ['directory', 'office', 'address', 'phone'] },
 ];
 
-export default function SearchBar() {
+export default function SearchBar({ onToggle }: { onToggle?: (open: boolean) => void }) {
   const { locale } = useLanguage();
   const router = useRouter();
   const [open, setOpen] = useState(false);       // Toggle: search icon vs expanded input
@@ -40,7 +40,8 @@ export default function SearchBar() {
   // ── Auto-focus the input when search panel opens ──
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
-  }, [open]);
+    onToggle?.(open);
+  }, [open, onToggle]);
 
   // ── Filter results on every keystroke ──
   // Matches both the display label and the curated keywords array for forgiving search.

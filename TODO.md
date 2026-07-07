@@ -1,72 +1,137 @@
-# RTO Portal — TODO
+# RTO Portal — Complete Status (2026-07-07)
 
-## ✅ Completed
-- [x] PageHero + FadeInSection reusable components
-- [x] SearchBar in Header (search across 16+ services)
-- [x] 39 routes, 0 build errors, 0 404s (all service + footer pages created)
-- [x] Modernized all 22+ pages (GIGW/WCAG compliant gradient cards)
-- [x] Footer cleaned: "Powered by OpenCode" removed
-- [x] Login page: Aadhaar + DigiLocker buttons, inline icons, full-viewport centered card, RTO logo (links to `/`)
-- [x] Register page: centered card with RTO logo, benefits badge strip, Aadhaar/DigiLocker buttons
-- [x] Auth pages (login/register): no navbar/footer — clean full-screen layout
-- [x] RequireAuth guard on all 19 service/dashboard/exam pages (toast + login prompt card)
-- [x] Sonner toast library installed + `<Toaster />` in global layout
-- [x] Auto-commit `pre-push` git hook (commits uncommitted changes before `git push`)
-- [x] Vehicle Status page: PUC Certificate section, renamed "Fitness" to "Fitness Certificate (FC)"
-- [x] All 8 frontend tests pass, backend 30 tests pass
-- [x] Prisma `Payment` model defined (unused, waiting for gateway)
+---
 
-## 🔜 Backlog
+## ✅ Fully Complete (No more work needed)
 
-### 🔐 Authentication & Identity
-- [ ] DigiLocker OAuth integration
-  - [ ] Apply as Requester on [apisetu.gov.in](https://apisetu.gov.in/digilocker) (4-8 week approval, free)
-  - [ ] Add `digilockerId` field to Prisma User model + migrate
-  - [ ] Create `POST /api/auth/digilocker` backend endpoint (code exchange + upsert)
-  - [ ] Create `/auth/digilocker/callback` frontend page
-  - [ ] Wire "Sign in with DigiLocker" buttons on login/register pages
-  - [ ] Add `loginWithDigiLocker()` to AuthContext
-  - [ ] Sandbox testing → production switch
-- [ ] Aadhaar API for physical RTO counters (biometric)
-  - [ ] Register as KUA with UIDAI (free for government)
-  - [ ] Set up ASA (Authentication Service Agency)
-  - [ ] Implement XML-based auth + encryption
+- [x] **Home page** — Hero carousel (3 slides), stats strip, 6 service cards, CTA section
+- [x] **All static content pages** — About, Contact, Services hub, Directory, Fares, Sitemap, Terms, Privacy, Accessibility
+- [x] **Fee Calculator** — Client-side, 9 services, real-time subtotal + GST
+- [x] **i18n** — 3 languages (EN/TA/FR), localStorage persistence, `<html lang>` synced, 65+ keys
+- [x] **Auth system** — Login/Register forms, JWT in localStorage, session restore via `/auth/me`
+- [x] **Route guard** — `RequireAuth` component with toast + login prompt on 19 pages
+- [x] **Admin CRUD** — Users, Fares, Services management, Stats dashboard
+- [x] **AI Exam proctoring** — Face detection via MediaPipe, violation tracking, pass/fail scoring
+- [x] **Header redesign** — Hamburger next to logo (mobile), smooth slide-down menu, search-compact nav (desktop), auth-aware button (Dashboard vs Sign In)
+- [x] **Auth flow** — Register → Login (with success toast), Login → Home; register no longer auto-logs-in
+- [x] **Dashboard home** — Fetches live data (challans, applications, notifications), shows summary counts + user profile
+- [x] **All footer pages** — Accessibility, Privacy, Terms, Sitemap (zero 404s across all linked routes)
+- [x] **Sonner toasts** — Installed + `<Toaster />` in layout
+- [x] **Backend tests** — 30 passing (auth, middleware, protected routes, exam, public routes)
+- [x] **Frontend tests** — 8 passing (AuthContext, Exam, Dashboard)
+- [x] **Auto-commit pre-push hook**
+
+---
+
+## 🔶 Mock / Placeholder (UI exists, but no real backend integration)
+
+| Page | What's done | What's missing |
+|------|-------------|----------------|
+| **9 Service Forms** (vehicle-reg, DL, LL, license-renewal, intl-permit, transfer-ownership, duplicate-rc, appointment, download-forms) | Full form UI with all fields, validation, doc checklists, success screens | Submit just sets `submitted=true` — no `POST /api/applications` call. Download-forms has no real PDF files. |
+| **Application Status** (`/services/application-status`) | Search input + status display | Always returns hardcoded "UNDER_REVIEW" — no real API lookup |
+| **Challan Status** (`/services/challan`) | Lists 2 hardcoded challans, Pay Now button | Pay Now just toggles local state — no `POST /api/challans/:id/pay` call |
+| **Vehicle Status** (`/services/vehicle-status`) | Search + vehicle details display (insurance, FC, PUC, tax) | Always returns hardcoded mock data — no real API lookup |
+| **Dashboard sub-pages** (vehicles, licenses, applications, notifications) | Full UI with cards, status badges, mark-read toggles | All use hardcoded static data — no API calls to backend |
+| **Contact form** | Name/email/phone/message fields | No submit handler — doesn't POST anywhere |
+| **Login Aadhaar/DigiLocker buttons** | Buttons render with proper styling | Show `alert('coming soon')` on click |
+| **Register Aadhaar/DigiLocker buttons** | Same as above | Same as above |
+| **Forgot password** | Link on login page | No route exists (`/forgot-password` = 404) |
+
+---
+
+## 🔴 Dead Code / Cleanup Needed
+
+| File | Lines | Issue |
+|------|-------|-------|
+| `src/components/ui/select.tsx` | 208 | **Entire file unused** — all pages use native `<select>` |
+| `CardAction` / `CardFooter` exports | 2 exports | Exported but never imported anywhere |
+| `TableFooter` / `TableCaption` exports | 2 exports | Exported but never imported anywhere |
+| `prevIdx` state in `src/app/page.tsx` | lines 62,69,78 | Set but never read |
+| `AuthContext.register()` | lines 68-73 | Defined but never called (register page uses `api.post` directly) |
+| `Pillow` in `ai/requirements.txt` | listed | Installed but never imported |
+| Hardcoded timestamp in `ai/main.py` | health endpoint | Returns static date instead of `datetime.utcnow()` |
+
+---
+
+## 🟡 Need Fix / Polish
+
+- [ ] **Fixing** `admin/users/page.tsx` — frontend sends `deleteTarget._id` but backend expects `req.params.id` (MongoDB convention mismatch)
+- [ ] **Fixing** SearchBar click-away listener uses `mousedown` — on some browsers this can race with the toggle click
+- [ ] **Fixing** `src/components/ui/select.tsx` should either be deleted or actually used
+- [ ] **Fixing** Register page uses `api.post` directly instead of `useAuth().register()` — inconsistent pattern
+- [ ] **Fixing** Contact form should POST to a real endpoint
+- [ ] **Fixing** `/forgot-password` route needs to be created or the link removed
+
+---
+
+## 🔜 Major Features Not Yet Started
+
+### 🗄️ Database Migration (Phase 3a)
+- [ ] **Prisma connection** — currently ALL 31 endpoints use in-memory arrays. Data lost on restart.
+- [ ] Migrate auth (register/login/me) to Prisma
+- [ ] Create Vehicle & License routes (models exist in Prisma, no routes for them)
+- [ ] Migrate appointments, applications, challans, notifications to Prisma
+- [ ] Create `PATCH /api/applications/:id/status` for admin approve/reject workflow
+- [ ] Create vehicle CRUD routes (for dashboard "My Vehicles")
+- [ ] Create license CRUD routes (for dashboard "My Licenses")
+- [ ] Run all Prisma migrations
+- [ ] Seed script for demo data
 
 ### 💳 Payment Gateway
-- [ ] Razorpay integration (all flows)
-  - [ ] Add `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` to backend/.env
-  - [ ] Create `POST /api/payments/create-order`
-  - [ ] Create `POST /api/payments/verify`
-  - [ ] Create `POST /api/payments/webhook` (Razorpay webhook handler)
-  - [ ] Create `GET /api/payments/history`
-  - [ ] Create `RazorpayButton` + `PaymentModal` frontend components
-  - [ ] Create `/payment/success`, `/payment/failed`, `/payment/history` pages
-  - [ ] Integrate payment into: fee-calculator checkout, challan pay, appointment booking, all service applications (registration, license, renewal, etc.)
-  - [ ] Run Prisma migration for existing `Payment` model
-  - [ ] Test with Razorpay test mode
+- [ ] Razorpay integration: create-order, verify, webhook, history endpoints
+- [ ] RazorpayButton + PaymentModal frontend components
+- [ ] Payment success/failed/history pages
+- [ ] Integrate into: fee-calculator checkout, challan pay, appointment booking, all 9 service forms
+- [ ] Run Prisma migration for existing `Payment` model
+- [ ] Test with Razorpay test mode
 
-### 🗄️ Database & Infrastructure
-- [ ] Migrate auth routes from in-memory array to Prisma/Postgres
-- [ ] Run all Prisma migrations (User, Payment, etc.)
-- [ ] Add proper error logging/monitoring
-- [ ] Rate limiting tuning per endpoint type
+### 🔐 DigiLocker + Aadhaar
+- [ ] DigiLocker OAuth: register as requester on apisetu.gov.in
+- [ ] `POST /api/auth/digilocker` backend endpoint
+- [ ] `/auth/digilocker/callback` page
+- [ ] Wire buttons on login/register
+- [ ] Add `loginWithDigiLocker()` to AuthContext
+- [ ] Aadhaar biometric integration (KUA registration with UIDAI)
 
-### 📊 Admin & Reports
-- [ ] Revenue/transaction dashboard (admin panel)
-- [ ] Payment refund flow in admin panel
+### 📄 Real API Integration for Placeholders
+- [ ] Wire all 9 service forms → `POST /api/applications` (with proper type + formData)
+- [ ] Wire Application Status → `GET /api/applications/:id`
+- [ ] Wire Challan Status → `GET /api/challans` + `POST /api/challans/:id/pay`
+- [ ] Wire Vehicle Status → new `GET /api/vehicles/search/:regNo`
+- [ ] Wire Dashboard sub-pages → `GET /api/vehicles`, `GET /api/licenses`, `GET /api/applications`, `GET /api/notifications`
+- [ ] Wire Contact form → `POST /api/contact`
+- [ ] Wire Forgot Password → create route, email/SMS reset link
+- [ ] Create real PDF files for download-forms
+
+### 📡 Notifications & Alerts
+- [ ] SMS gateway integration
+- [ ] Email notifications (confirmation, payment, appointment reminder)
+- [ ] Backend scheduled jobs for insurance/PUC expiry alerts
+
+### 📊 Admin Enhancements
+- [ ] Revenue / transaction dashboard
+- [ ] Payment refund flow
 - [ ] Service usage analytics
+- [ ] Application approve/reject workflow (status update route)
 
-### 📄 Document Handling
-- [ ] PDF download for certificates (RC, DL, PUC, Fitness)
-- [ ] Bulk download forms
-- [ ] Upload validation (file size, type, virus scan)
-
-### 📨 Notifications
-- [ ] SMS gateway for application status updates
-- [ ] Email notifications (registration confirmation, payment receipt, appointment reminder)
-
-### 🧪 Testing
-- [ ] Add DigiLocker callback component test
-- [ ] Add Razorpay order/verify API test
+### 🧪 Testing Expansion
+- [ ] Add tests for all 9 service form submissions
+- [ ] Add test for the AI exam flow (full integration)
 - [ ] Add `RequireAuth` component test
-- [ ] E2E test: full registration → login → book appointment flow
+- [ ] Add E2E test: register → login → book appointment → pay
+- [ ] Add tests with real face images for AI service
+- [ ] Add tests for all 31 backend endpoints (currently only 24 tests)
+
+---
+
+## Summary Dashboard
+
+| Category | Count |
+|----------|-------|
+| **Frontend routes** | 39 (all build, 0 errors) |
+| **Backend endpoints** | 31 (all in-memory, 0 using DB) |
+| **Placeholder/mock pages** | 9 service forms + 4 dashboard sub-pages + 3 search tools + contact form = **17 need real API wiring** |
+| **Dead code files** | 1 full component (select.tsx) + 4 unused exports + 2 dead vars |
+| **Backend tests** | 30 ✅ |
+| **Frontend tests** | 8 ✅ |
+| **AI tests** | 6 (all negative-path only) |
