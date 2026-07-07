@@ -56,8 +56,10 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`RTO Backend running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`RTO Backend running on port ${PORT}`);
+  });
+}
 
 export default app;

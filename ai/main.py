@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from routes.detect import router as detect_router
 
 app = FastAPI(
     title="RTO AI Proctoring Service",
@@ -14,6 +15,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(detect_router)
 
 @app.get("/api/health")
 async def health():
