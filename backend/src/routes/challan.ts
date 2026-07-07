@@ -26,4 +26,5 @@ router.post('/:id/pay', authenticate, (req: AuthRequest, res: Response) => {
   res.json({ message: 'Payment successful', challan });
 });
 
+export { challans };
 export default router;

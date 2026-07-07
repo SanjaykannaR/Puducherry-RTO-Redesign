@@ -57,4 +57,5 @@ router.get('/me', authenticate, (req: AuthRequest, res: Response) => {
   res.json({ user: { id: user.id, email: user.email, mobile: user.mobile, name: user.name, role: user.role } });
 });
 
+export { users };
 export default router;

@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 
 const router = Router();
 
-const services = [
+let services = [
   {
     id: 'vehicle-registration',
     title: 'Vehicle Registration',
@@ -82,4 +82,8 @@ router.get('/:id', (req: Request, res: Response) => {
   res.json(service);
 });
 
+export function setServices(data: any) {
+  services = data;
+}
+export { services };
 export default router;

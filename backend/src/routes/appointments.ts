@@ -40,4 +40,5 @@ router.patch('/:id/cancel', authenticate, (req: AuthRequest, res: Response) => {
   res.json(appt);
 });
 
+export { appointments };
 export default router;

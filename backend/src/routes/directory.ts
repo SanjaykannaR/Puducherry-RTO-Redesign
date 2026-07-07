@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 
 const router = Router();
 
-const offices = [
+let offices = [
   {
     id: 1,
     name: 'Puducherry RTO Main Office',
@@ -54,4 +54,8 @@ router.get('/:id', (req: Request, res: Response) => {
   res.json(office);
 });
 
+export function setOffices(data: any) {
+  offices = data;
+}
+export { offices };
 export default router;

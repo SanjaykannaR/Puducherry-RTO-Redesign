@@ -16,6 +16,7 @@ import calculatorRoutes from './routes/calculator';
 import challanRoutes from './routes/challan';
 import notificationRoutes from './routes/notifications';
 import examRoutes from './routes/exam';
+import adminRoutes from './routes/admin';
 
 dotenv.config();
 
@@ -51,6 +52,7 @@ app.use('/api/calculator', calculatorRoutes);
 app.use('/api/challans', challanRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/exam', examRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });

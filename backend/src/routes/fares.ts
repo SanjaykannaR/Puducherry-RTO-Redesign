@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 const router = Router();
 
 // Fee structure based on Puducherry RTO official rates
-const feeStructure = {
+let feeStructure = {
   driving_license: [
     { type: 'Learner\'s License Application', fee: 200 },
     { type: 'Learner\'s License Test', fee: 50 },
@@ -39,4 +39,8 @@ router.get('/', (_req: Request, res: Response) => {
   res.json(feeStructure);
 });
 
+export function setFeeStructure(data: any) {
+  feeStructure = data;
+}
+export { feeStructure };
 export default router;

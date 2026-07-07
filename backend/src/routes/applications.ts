@@ -41,4 +41,5 @@ router.post('/', authenticate, (req: AuthRequest, res: Response) => {
   res.status(201).json(app);
 });
 
+export { applications };
 export default router;
