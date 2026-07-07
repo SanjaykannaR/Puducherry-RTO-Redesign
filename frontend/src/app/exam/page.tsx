@@ -24,7 +24,7 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [examStarted, setExamStarted] = useState(false);
   const [examDone, setExamDone] = useState(false);
-  const [examResult, setExamResult] = useState(null);
+  const [examResult, setExamResult] = useState<{ score: number; total: number; passed: boolean } | null>(null);
   const [violations, setViolations] = useState(0);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraError, setCameraError] = useState('');
@@ -50,7 +50,9 @@ export default function ExamPage() {
     const canvas = document.createElement('canvas');
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
-    canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(videoRef.current, 0, 0);
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       const formData = new FormData();
@@ -116,7 +118,7 @@ export default function ExamPage() {
   async function startExam() {
     await startCamera();
     try {
-      const data = await api.post('/exam/start', {});
+      const data = await api.post<{ questions: Question[] }>('/exam/start', {});
       setQuestions(data.questions);
       setExamStarted(true);
       try { await document.documentElement.requestFullscreen(); } catch {}
@@ -124,7 +126,7 @@ export default function ExamPage() {
       setStatusMsg('Failed to start exam');
     }
   }
-  function answer(qId, optIdx) {
+  function answer(qId: number, optIdx: number) {
     setAnswers((prev) => ({ ...prev, [qId]: optIdx }));
   }
   async function submitExam() {
@@ -132,7 +134,7 @@ export default function ExamPage() {
     if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
     try { document.exitFullscreen(); } catch {}
     try {
-      const result = await api.post('/exam/submit', { answers });
+      const result = await api.post<{ score: number; total: number; passed: boolean }>('/exam/submit', { answers });
       setExamResult(result);
       setExamDone(true);
     } catch {
