@@ -155,3 +155,24 @@ body {
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 3px;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+::selection {
+  background: var(--primary);
+  color: white;
+}
