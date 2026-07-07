@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CITIZEN
+  ADMIN
+  RTO_STAFF
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  PENDING_DOCUMENTS
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  mobile          String   @unique
+  passwordHash    String
+  name            String
+  role            UserRole @default(CITIZEN)
+  isEmailVerified Boolean  @default(false)
+  isMobileVerified Boolean @default(false)
+  aadhaarLastFour String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  applications    Application[]
+  appointments    Appointment[]
+  vehicles        Vehicle[]
+  licenses        License[]
+  payments        Payment[]
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+model Vehicle {
+  id             String   @id @default(cuid())
+  registrationNo String   @unique
+  chassisNo      String
+  engineNo       String
+  make           String
+  model          String
+  variant        String?
+  manufactureYear Int
+  fuelType       String
+  color          String
+  ownerName      String
+  ownerAddress   String
+  insuranceUpto  DateTime
+  puccUpto       DateTime?
+  taxPaidUpto    DateTime
+  fitnessUpto    DateTime   @default(now())
+  status         String     @default("ACTIVE")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  owner          User       @relation(fields: [ownerId], references: [id])
+  ownerId        String
+
+  @@map("vehicles")
+}
+
+model License {
+  id              String   @id @default(cuid())
+  licenseNo       String   @unique
+  type            String   @default("MCWG")
+  name            String
+  dob             DateTime
+  bloodGroup      String?
+  address         String
+  issueDate       DateTime
+  expiryDate      DateTime
+  status          String   @default("ACTIVE")
+  photoUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  holder          User     @relation(fields: [holderId], references: [id])
+  holderId        String
+
+  @@map("licenses")
+}
+
+model Application {
+  id                String            @id @default(cuid())
+  type              String
+  status            ApplicationStatus @default(DRAFT)
+  formData          Json?
+  documents        Document[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  applicant         User              @relation(fields: [applicantId], references: [id])
+  applicantId       String
+  payment           Payment?
+
+  @@map("applications")
+}
+
+model Document {
+  id            String   @id @default(cuid())
+  type          String
+  fileUrl       String
+  uploadedAt    DateTime @default(now())
+
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+
+  @@map("documents")
+}
+
+model Appointment {
+  id              String             @id @default(cuid())
+  date            DateTime
+  timeSlot        String
+  purpose         String
+  status          AppointmentStatus  @default(SCHEDULED)
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  applicant       User               @relation(fields: [applicantId], references: [id])
+  applicantId     String
+
+  @@map("appointments")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  amount          Float
+  transactionId   String        @unique
+  gatewayRefNo    String?
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+
+  user            User          @relation(fields: [userId], references: [id])
+  userId          String
+  application     Application?
+
+  @@map("payments")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@map("notifications")
+}

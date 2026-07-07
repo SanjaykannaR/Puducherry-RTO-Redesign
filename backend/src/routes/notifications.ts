@@ -1,0 +1,42 @@
+import { Router, Response } from 'express';
+import { authenticate, AuthRequest } from '../middleware/auth';
+
+const router = Router();
+
+const notifications: Array<{
+  id: string; userId: string; title: string; message: string;
+  type: string; isRead: boolean; createdAt: string;
+}> = [
+  {
+    id: '1', userId: '0', title: 'Insurance Expiring Soon',
+    message: 'Your vehicle PY-01-AB-1234 insurance expires in 15 days.',
+    type: 'WARNING', isRead: false, createdAt: '2026-07-01',
+  },
+  {
+    id: '2', userId: '0', title: 'License Renewal Due',
+    message: 'Your driving license expires on 2026-09-15. Please renew.',
+    type: 'INFO', isRead: false, createdAt: '2026-06-28',
+  },
+  {
+    id: '3', userId: '0', title: 'PUC Expired',
+    message: 'Your PUC certificate has expired. Get a fresh PUC test.',
+    type: 'ALERT', isRead: true, createdAt: '2026-06-15',
+  },
+];
+
+router.get('/', authenticate, (req: AuthRequest, res: Response) => {
+  const userNotifs = notifications.filter((n) => n.userId === req.user!.userId || true);
+  res.json({ notifications: userNotifs });
+});
+
+router.patch('/:id/read', authenticate, (req: AuthRequest, res: Response) => {
+  const notif = notifications.find((n) => n.id === req.params.id);
+  if (!notif) {
+    res.status(404).json({ error: 'Not found' });
+    return;
+  }
+  notif.isRead = true;
+  res.json(notif);
+});
+
+export default router;
