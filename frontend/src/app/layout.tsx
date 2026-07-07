@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import LayoutWrapper from './layout-wrapper';
 import { AuthProvider } from '@/context/AuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import './globals.css';
@@ -29,11 +28,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <LanguageProvider>
-            <Header />
-            <main id="main-content" className="flex-1" role="main">
-              {children}
-            </main>
-            <Footer />
+            <LayoutWrapper>{children}</LayoutWrapper>
           </LanguageProvider>
         </AuthProvider>
       </body>

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function VehicleRegistrationPage() {
@@ -21,8 +22,9 @@ export default function VehicleRegistrationPage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Application Submitted" subtitle="Your vehicle registration request has been received" />
+      <RequireAuth>
+        <>
+          <PageHero title="Application Submitted" subtitle="Your vehicle registration request has been received" />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4 py-12">
             <FadeInSection>
@@ -49,13 +51,15 @@ export default function VehicleRegistrationPage() {
             </FadeInSection>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="Vehicle Registration" subtitle="Register your new vehicle with Puducherry RTO" />
+    <RequireAuth>
+      <>
+        <PageHero title="Vehicle Registration" subtitle="Register your new vehicle with Puducherry RTO" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-3xl mx-auto px-4 py-12">
           <FadeInSection>
@@ -129,6 +133,7 @@ export default function VehicleRegistrationPage() {
           </FadeInSection>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

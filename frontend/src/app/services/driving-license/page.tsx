@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function DrivingLicensePage() {
@@ -16,8 +17,9 @@ export default function DrivingLicensePage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Application Submitted" subtitle="Your Permanent License application has been received" />
+      <RequireAuth>
+        <>
+          <PageHero title="Application Submitted" subtitle="Your Permanent License application has been received" />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4 py-12">
             <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-green-400 to-emerald-500" />
@@ -34,13 +36,15 @@ export default function DrivingLicensePage() {
             </Card>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="Permanent Driving License" subtitle="Apply for a permanent driving license after completing your LL period" />
+    <RequireAuth>
+      <>
+        <PageHero title="Permanent Driving License" subtitle="Apply for a permanent driving license after completing your LL period" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -70,6 +74,7 @@ export default function DrivingLicensePage() {
           </Card>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

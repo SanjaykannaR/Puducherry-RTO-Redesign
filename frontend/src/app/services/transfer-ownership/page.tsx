@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function TransferOwnershipPage() {
@@ -19,8 +20,9 @@ export default function TransferOwnershipPage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Transfer Initiated" subtitle="Your ownership transfer request has been received" />
+      <RequireAuth>
+        <>
+          <PageHero title="Transfer Initiated" subtitle="Your ownership transfer request has been received" />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4 py-12">
             <FadeInSection>
@@ -44,13 +46,15 @@ export default function TransferOwnershipPage() {
             </FadeInSection>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="Transfer of Ownership" subtitle="Transfer vehicle ownership from seller to buyer" />
+    <RequireAuth>
+      <>
+        <PageHero title="Transfer of Ownership" subtitle="Transfer vehicle ownership from seller to buyer" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <FadeInSection>
@@ -82,6 +86,7 @@ export default function TransferOwnershipPage() {
           </FadeInSection>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

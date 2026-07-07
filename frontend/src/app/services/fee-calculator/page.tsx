@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Calculator, CheckCircle } from 'lucide-react';
 
 const services = [
@@ -36,8 +37,9 @@ export default function FeeCalculatorPage() {
   const total = subtotal + gst;
 
   return (
-    <>
-      <PageHero title="Fee Calculator" subtitle="Calculate fees for various RTO services and permits" />
+    <RequireAuth>
+      <>
+        <PageHero title="Fee Calculator" subtitle="Calculate fees for various RTO services and permits" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -124,6 +126,7 @@ export default function FeeCalculatorPage() {
           </div>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

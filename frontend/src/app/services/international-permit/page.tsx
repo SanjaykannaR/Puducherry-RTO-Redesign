@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function InternationalPermitPage() {
@@ -16,8 +17,9 @@ export default function InternationalPermitPage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Permit Submitted" subtitle="Your International Driving Permit request has been received" />
+      <RequireAuth>
+        <>
+          <PageHero title="Permit Submitted" subtitle="Your International Driving Permit request has been received" />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4 py-12">
             <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-green-400 to-emerald-500" />
@@ -33,13 +35,15 @@ export default function InternationalPermitPage() {
             </Card>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="International Driving Permit" subtitle="Apply for an IDP to drive abroad" />
+    <RequireAuth>
+      <>
+        <PageHero title="International Driving Permit" subtitle="Apply for an IDP to drive abroad" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -67,6 +71,7 @@ export default function InternationalPermitPage() {
           </Card>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import PageHero from '@/components/ui/page-hero';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { AlertTriangle, Camera, XCircle, Shield, Monitor } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -145,8 +146,9 @@ export default function ExamPage() {
   if (loading) return null;
   if (examDone) {
     return (
-      <>
-        <PageHero title={examResult?.passed ? 'Exam Passed' : 'Exam Completed'} subtitle={examResult?.passed ? 'Congratulations!' : 'Better luck next time'} />
+      <RequireAuth>
+        <>
+          <PageHero title={examResult?.passed ? 'Exam Passed' : 'Exam Completed'} subtitle={examResult?.passed ? 'Congratulations!' : 'Better luck next time'} />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-md mx-auto px-4 py-12">
             <Card className="border-0 shadow-xl overflow-hidden">
@@ -170,14 +172,16 @@ export default function ExamPage() {
             </Card>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
   if (!examStarted) {
     return (
-      <>
-        <PageHero title="AI-Proctored Exam" subtitle="This exam uses AI proctoring. Ensure your camera is working." />
-        <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+      <RequireAuth>
+        <>
+          <PageHero title="AI-Proctored Exam" subtitle="This exam uses AI proctoring. Ensure your camera is working." />
+          <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-lg mx-auto px-4 py-12">
             <Card className="border-0 shadow-xl overflow-hidden">
               <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -210,13 +214,15 @@ export default function ExamPage() {
             </Card>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
   const q = questions[currentQ];
   return (
-    <>
-      <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
+    <RequireAuth>
+      <>
+        <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
@@ -292,6 +298,7 @@ export default function ExamPage() {
           )}
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

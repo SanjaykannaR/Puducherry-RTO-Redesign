@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { ClipboardList, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const initialChallans = [
@@ -21,8 +22,9 @@ export default function ChallanPage() {
   }
 
   return (
-    <>
-      <PageHero title="Traffic Challans" subtitle="View and pay traffic violation challans online" />
+    <RequireAuth>
+      <>
+        <PageHero title="Traffic Challans" subtitle="View and pay traffic violation challans online" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <FadeInSection>
@@ -82,6 +84,7 @@ export default function ChallanPage() {
           </FadeInSection>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

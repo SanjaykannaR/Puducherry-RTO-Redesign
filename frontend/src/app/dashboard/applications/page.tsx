@@ -1,5 +1,6 @@
 'use client';
 
+import RequireAuth from '@/components/auth/RequireAuth';
 import FadeInSection from '@/components/ui/fade-in-section';
 
 const applications = [
@@ -17,8 +18,9 @@ const statusColor: Record<string, string> = {
 
 export default function ApplicationsPage() {
   return (
-    <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
+    <RequireAuth>
+      <>
+        <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <h1 className="text-3xl font-bold text-white">My Applications</h1>
           <p className="text-blue-200 mt-1">Track your submitted applications</p>
@@ -55,6 +57,7 @@ export default function ApplicationsPage() {
           </div>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

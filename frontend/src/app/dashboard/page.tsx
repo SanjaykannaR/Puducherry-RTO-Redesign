@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, FileText, Calendar, Search, ClipboardList, Bell, ArrowRight, LogOut } from 'lucide-react';
 
 const dashboardLinks = [
@@ -28,8 +29,9 @@ export default function DashboardPage() {
   if (loading || !user) return null;
 
   return (
-    <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
+    <RequireAuth>
+      <>
+        <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
         <div className="absolute inset-0 opacity-[0.07]" style={{
           backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
           backgroundSize: '50px 50px',
@@ -79,6 +81,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

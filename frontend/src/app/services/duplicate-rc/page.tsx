@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function DuplicateRCPage() {
@@ -16,8 +17,9 @@ export default function DuplicateRCPage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Request Submitted" subtitle="Your duplicate RC request has been received" />
+      <RequireAuth>
+        <>
+          <PageHero title="Request Submitted" subtitle="Your duplicate RC request has been received" />
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4 py-12">
             <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-green-400 to-emerald-500" />
@@ -36,13 +38,15 @@ export default function DuplicateRCPage() {
             </Card>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="Duplicate RC" subtitle="Request a duplicate Registration Certificate if lost or damaged" />
+    <RequireAuth>
+      <>
+        <PageHero title="Duplicate RC" subtitle="Request a duplicate Registration Certificate if lost or damaged" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Card className="border-0 shadow-xl overflow-hidden"><div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -72,6 +76,7 @@ export default function DuplicateRCPage() {
           </Card>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

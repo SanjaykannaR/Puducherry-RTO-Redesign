@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Calendar, Clock, ClipboardCheck, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function AppointmentPage() {
@@ -23,8 +24,9 @@ export default function AppointmentPage() {
 
   if (submitted) {
     return (
-      <>
-        <PageHero title="Appointment Booked" subtitle="Your appointment has been scheduled successfully" />
+      <RequireAuth>
+        <>
+          <PageHero title="Appointment Booked" subtitle="Your appointment has been scheduled successfully" />
         <section className="py-12" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
           <div className="max-w-2xl mx-auto px-4">
             <FadeInSection>
@@ -73,13 +75,15 @@ export default function AppointmentPage() {
             </FadeInSection>
           </div>
         </section>
-      </>
+        </>
+      </RequireAuth>
     );
   }
 
   return (
-    <>
-      <PageHero title="Book Appointment" subtitle="Schedule your RTO visit for driving tests, license services, vehicle inspection, and inquiries">
+    <RequireAuth>
+      <>
+        <PageHero title="Book Appointment" subtitle="Schedule your RTO visit for driving tests, license services, vehicle inspection, and inquiries">
         <div className="flex gap-2">
           <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/80 text-xs rounded-full px-3 py-1 border border-white/10">
             <Clock className="w-3 h-3" />
@@ -229,6 +233,7 @@ export default function AppointmentPage() {
           </div>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

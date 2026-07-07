@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
+import RequireAuth from '@/components/auth/RequireAuth';
 import { Search, FileText, Calendar } from 'lucide-react';
 
 export default function ApplicationStatusPage() {
@@ -31,8 +32,9 @@ export default function ApplicationStatusPage() {
   };
 
   return (
-    <>
-      <PageHero title="Application Status" subtitle="Track your RTO application status in real-time" />
+    <RequireAuth>
+      <>
+        <PageHero title="Application Status" subtitle="Track your RTO application status in real-time" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-2xl mx-auto px-4 py-12">
           <FadeInSection>
@@ -100,6 +102,7 @@ export default function ApplicationStatusPage() {
           )}
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }

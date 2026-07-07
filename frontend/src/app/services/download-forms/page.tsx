@@ -1,13 +1,10 @@
-import type { Metadata } from 'next';
+'use client';
+
+import RequireAuth from '@/components/auth/RequireAuth';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import { Download, FileText, Car, FileSignature, ClipboardCheck, Shield } from 'lucide-react';
 import Link from 'next/link';
-
-export const metadata: Metadata = {
-  title: 'Download Forms',
-  description: 'Download RTO application forms for vehicle registration, driving license, permits, and more.',
-};
 
 const formCategories = [
   {
@@ -41,8 +38,9 @@ const formCategories = [
 
 export default function DownloadFormsPage() {
   return (
-    <>
-      <PageHero title="Download Forms" subtitle="Download RTO application forms in PDF format for various services" />
+    <RequireAuth>
+      <>
+        <PageHero title="Download Forms" subtitle="Download RTO application forms in PDF format for various services" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
           {formCategories.map((cat, i) => (
@@ -80,6 +78,7 @@ export default function DownloadFormsPage() {
           </FadeInSection>
         </div>
       </section>
-    </>
+      </>
+    </RequireAuth>
   );
 }
