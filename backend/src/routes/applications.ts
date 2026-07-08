@@ -1,9 +1,15 @@
+// ── Application routes: user service applications (e.g. license, registration) ──
+// All endpoints require authentication. Applications track their lifecycle
+// via a status field: SUBMITTED → IN_REVIEW → APPROVED/REJECTED/CANCELLED.
+
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import prisma from '../services/prisma';
 
 const router = Router();
 
+// ── GET /api/applications ──
+// Returns all applications for the authenticated user, newest first.
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const applications = await prisma.application.findMany({
     where: { applicantId: req.user!.userId },
@@ -13,6 +19,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   res.json({ applications });
 });
 
+// ── GET /api/applications/:id ──
+// Returns a single application (scoped to the authenticated user).
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
   const app = await prisma.application.findFirst({
@@ -26,6 +34,8 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   res.json(app);
 });
 
+// ── POST /api/applications ──
+// Creates a new application with type and optional form-data payload.
 router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   const { type, formData } = req.body;
   if (!type) {
@@ -43,6 +53,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   res.status(201).json(app);
 });
 
+// ── PATCH /api/applications/:id/cancel ──
+// Cancels an application that is no longer needed.
 router.patch('/:id/cancel', authenticate, async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
   const app = await prisma.application.findFirst({

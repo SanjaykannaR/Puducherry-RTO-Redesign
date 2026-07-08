@@ -1,3 +1,7 @@
+// ── Auth routes: register, login, and current-user lookup ──
+// Public endpoints for account creation and authentication (JWT-based).
+// The /me endpoint requires a valid Bearer token.
+
 import { Router, Response } from 'express';
 import { hashPassword, verifyPassword, generateToken } from '../services/auth';
 import { authenticate, AuthRequest } from '../middleware/auth';
@@ -5,6 +9,9 @@ import prisma from '../services/prisma';
 
 const router = Router();
 
+// ── POST /api/auth/register ──
+// Creates a new citizen account. Validates required fields, checks for
+// duplicate email/mobile, hashes the password, and returns a JWT.
 router.post('/register', async (req: AuthRequest, res: Response) => {
   const { email, mobile, password, name } = req.body;
   if (!email || !mobile || !password || !name) {
@@ -32,6 +39,9 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
   });
 });
 
+// ── POST /api/auth/login ──
+// Authenticates with email + password. Returns JWT and user profile
+// on success. Uses bcrypt constant-time comparison.
 router.post('/login', async (req: AuthRequest, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -52,6 +62,8 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
   });
 });
 
+// ── GET /api/auth/me ──
+// Returns the authenticated user's profile. Requires a valid Bearer token.
 router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
   if (!user) {

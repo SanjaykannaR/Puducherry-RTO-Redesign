@@ -1,9 +1,15 @@
+// ── License routes: user driving licenses ──
+// Authenticated users can list, view, and register their driving licenses.
+// Each license tracks type (MCWG/LMV/etc.), validity dates, and holder info.
+
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import prisma from '../services/prisma';
 
 const router = Router();
 
+// ── GET /api/licenses ──
+// Returns all licenses for the authenticated user.
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const licenses = await prisma.license.findMany({
     where: { holderId: req.user!.userId },
@@ -11,6 +17,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   res.json({ licenses });
 });
 
+// ── GET /api/licenses/:id ──
+// Returns a single license record (scoped to the authenticated user).
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
   const license = await prisma.license.findFirst({
@@ -23,6 +31,8 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   res.json(license);
 });
 
+// ── POST /api/licenses ──
+// Registers a new driving license for the user.
 router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   const { licenseNo, type, name, dob, address, issueDate, expiryDate } = req.body;
   if (!licenseNo || !name || !dob || !address || !issueDate || !expiryDate) {

@@ -1,9 +1,15 @@
+// ── Challan routes: traffic violation payments ──
+// Authenticated users can view pending challans and make mock payments.
+// Challans are Payment records without an applicationId (standalone fees).
+
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import prisma from '../services/prisma';
 
 const router = Router();
 
+// ── GET /api/challans ──
+// Lists all challans for the authenticated user.
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const challans = await prisma.payment.findMany({
     where: { userId: req.user!.userId, applicationId: null },
@@ -12,6 +18,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   res.json({ challans });
 });
 
+// ── POST /api/challans/:id/pay ──
+// Marks a challan as paid (mock payment — no real gateway integration).
 router.post('/:id/pay', authenticate, async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
   const challan = await prisma.payment.findFirst({
