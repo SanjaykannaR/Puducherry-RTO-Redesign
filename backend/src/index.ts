@@ -21,6 +21,9 @@ import challanRoutes from './routes/challan';
 import notificationRoutes from './routes/notifications';
 import examRoutes from './routes/exam';
 import adminRoutes from './routes/admin';
+import vehicleRoutes from './routes/vehicles';
+import licenseRoutes from './routes/licenses';
+import contactRoutes from './routes/contact';
 
 // ── Environment setup ──
 // Load .env so process.env.* is available everywhere
@@ -70,6 +73,9 @@ app.use('/api/calculator', calculatorRoutes);     // Public: fee + GST calculato
 app.use('/api/challans', challanRoutes);          // Protected: challan listing + mock payment
 app.use('/api/notifications', notificationRoutes); // Protected: user notifications
 app.use('/api/exam', examRoutes);                 // Protected: driving test (quiz) flow
+app.use('/api/vehicles', vehicleRoutes);           // Protected: user vehicles
+app.use('/api/licenses', licenseRoutes);           // Protected: user licenses
+app.use('/api/contact', contactRoutes);           // Public: contact form submissions
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 
 // ── 404 fallback ──

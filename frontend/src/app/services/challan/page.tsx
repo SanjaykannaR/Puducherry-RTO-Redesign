@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,26 +8,35 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { ClipboardList, CheckCircle, AlertTriangle } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
-// ── Challan Data: mock list of traffic violation challans. Each entry has a vehicle number,
-//     offense description, amount, date, and payment status. In production this would come
-//     from an API tied to the user's registered vehicles. ──
-const initialChallans = [
-  { id: '1', vehicleNo: 'PY-01-AB-1234', offense: 'No parking', amount: 500, date: '2026-06-15', status: 'PENDING' },
-  { id: '2', vehicleNo: 'PY-01-CD-5678', offense: 'Helmet not worn', amount: 1000, date: '2026-06-20', status: 'PAID' },
-];
-
-// ── ChallanPage: Table view of all challans for the logged-in user. PENDING challans show
-//     a "Pay Now" button that locally flips the status to PAID (placeholder for payment gateway).
-//     A summary line shows the count of pending challans at the top. ──
 export default function ChallanPage() {
-  // ── Challans State: starts with mock data; payChallan mutates status in-place ──
-  const [challans, setChallans] = useState(initialChallans);
+  const [challans, setChallans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // ── payChallan: marks a pending challan as PAID (placeholder — no actual payment gateway).
-  //     Maps over the challans array and updates the matching ID's status. ──
-  function payChallan(id: string) {
-    setChallans((prev) => prev.map((c) => c.id === id ? { ...c, status: 'PAID' } : c));
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await api.get<{ challans: any[] }>('/challans');
+        setChallans(res.challans);
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  async function payChallan(id: string) {
+    try {
+      await api.post(`/challans/${id}/pay`, {});
+      setChallans((prev) => prev.map((c) => c.id === id ? { ...c, status: 'COMPLETED' } : c));
+      toast.success('Payment successful');
+    } catch (err: any) {
+      toast.error(err.message || 'Payment failed');
+    }
   }
 
   return (
@@ -66,29 +75,36 @@ export default function ChallanPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {challans.map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell className="font-medium">{c.vehicleNo}</TableCell>
-                        <TableCell>{c.offense}</TableCell>
-                        <TableCell>{c.date}</TableCell>
-                        <TableCell className="text-right font-medium">₹{c.amount}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            c.status === 'PAID' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                          }`}>
-                            {c.status === 'PAID' ? <CheckCircle className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
-                            {c.status}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {c.status === 'PENDING' && (
-                            <Button size="sm" onClick={() => payChallan(c.id)} className="whitespace-nowrap">
-                              Pay Now
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {loading ? (
+                      <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Loading...</TableCell></TableRow>
+                    ) : challans.length === 0 ? (
+                      <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No challans found</TableCell></TableRow>
+                    ) : challans.map((c: any) => {
+                      const isPaid = c.status === 'COMPLETED' || c.status === 'PAID';
+                      return (
+                        <TableRow key={c.id}>
+                          <TableCell className="font-medium">{c.vehicleNo || c.description}</TableCell>
+                          <TableCell>{c.offense || c.description}</TableCell>
+                          <TableCell>{c.date || c.createdAt?.split('T')[0]}</TableCell>
+                          <TableCell className="text-right font-medium">₹{c.amount}</TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              isPaid ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                            }`}>
+                              {isPaid ? <CheckCircle className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                              {c.status}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {!isPaid && (
+                              <Button size="sm" onClick={() => payChallan(c.id)} className="whitespace-nowrap">
+                                Pay Now
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>

@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── LicenseRenewalPage: Renew a driving license before or after expiry. Collects the existing
 //     license number, name, DOB, and mobile. The note about "30 days of expiry" reminds users
@@ -15,10 +17,19 @@ import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 export default function LicenseRenewalPage() {
   // ── Form State: existing license number plus personal details to verify identity ──
   const [form, setForm] = useState({ licenseNo: '', fullName: '', dob: '', mobile: '' });
-  // ── submitted: toggles form → success confirmation ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'LICENSE_RENEWAL', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
+  }
 
   // ── Success Confirmation: green card with Renewal ID ──
   if (submitted) {
@@ -35,7 +46,7 @@ export default function LicenseRenewalPage() {
                 <CardDescription>Your license renewal is being processed</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Renewal ID</p><p className="font-semibold text-lg font-mono">RTO-REN-{Date.now().toString(36).toUpperCase()}</p></div>
+                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Renewal ID</p><p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p></div>
                 <Button className="w-full mt-4" onClick={() => setSubmitted(false)}>Submit Another</Button>
               </CardContent>
             </Card>

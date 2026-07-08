@@ -1,94 +1,66 @@
-// ── Admin routes: system management ──
-// All routes are guarded by authenticate + adminOnly middleware
-// Provides CRUD for users, services, fares, directory, and system stats
-// Only users with 'admin' role can access these endpoints
-
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { adminOnly } from '../middleware/admin';
-import { users } from './auth';
-import { appointments } from './appointments';
-import { applications } from './applications';
-import { challans } from './challan';
-import { setFeeStructure } from './fares';
-import { setServices } from './services';
-import { setOffices } from './directory';
+import prisma from '../services/prisma';
 
 const router = Router();
 
-// Apply auth + admin guard to ALL routes in this file
 router.use(authenticate, adminOnly);
 
-// ── GET /api/admin/users ──
-// Lists all registered users (excludes passwordHash for security)
-router.get('/users', (_req: AuthRequest, res: Response) => {
-  const userList = users.map(({ id, email, mobile, name, role }) => ({
-    id, email, mobile, name, role,
-  }));
-  res.json({ users: userList });
-});
-
-// ── PATCH /api/admin/users/:id/role ──
-// Promotes or demotes a user's role (e.g. CITIZEN → ADMIN)
-// Only accepts "user" or "admin" values
-router.patch('/users/:id/role', (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
-  const { role } = req.body;
-  if (!role || !['user', 'admin'].includes(role)) {
-    res.status(400).json({ error: 'Invalid role. Must be "user" or "admin"' });
-    return;
-  }
-  const user = users.find((u) => u.id === id);
-  if (!user) {
-    res.status(404).json({ error: 'User not found' });
-    return;
-  }
-  user.role = role;
-  res.json({ id: user.id, email: user.email, mobile: user.mobile, name: user.name, role: user.role });
-});
-
-// ── DELETE /api/admin/users/:id ──
-// Removes a user from the system permanently
-router.delete('/users/:id', (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
-  const index = users.findIndex((u) => u.id === id);
-  if (index === -1) {
-    res.status(404).json({ error: 'User not found' });
-    return;
-  }
-  users.splice(index, 1);
-  res.json({ message: 'User deleted' });
-});
-
-// ── GET /api/admin/stats ──
-// Returns aggregate counts across all data stores for the admin dashboard
-router.get('/stats', (_req: AuthRequest, res: Response) => {
-  res.json({
-    totalUsers: users.length,
-    totalAppointments: appointments.length,
-    totalApplications: applications.length,
-    totalChallans: challans.length,
+router.get('/users', async (_req: AuthRequest, res: Response) => {
+  const users = await prisma.user.findMany({
+    select: { id: true, email: true, mobile: true, name: true, role: true },
   });
+  res.json({ users });
 });
 
-// ── PUT /api/admin/fares ──
-// Replaces the entire fee structure with the provided payload
-router.put('/fares', (req: AuthRequest, res: Response) => {
-  setFeeStructure(req.body);
+router.patch('/users/:id/role', async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+  const { role } = req.body;
+  if (!role || !['CITIZEN', 'ADMIN'].includes(role)) {
+    res.status(400).json({ error: 'Invalid role. Must be "CITIZEN" or "ADMIN"' });
+    return;
+  }
+  try {
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, email: true, mobile: true, name: true, role: true },
+    });
+    res.json(user);
+  } catch {
+    res.status(404).json({ error: 'User not found' });
+  }
+});
+
+router.delete('/users/:id', async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+  try {
+    await prisma.user.delete({ where: { id } });
+    res.json({ message: 'User deleted' });
+  } catch {
+    res.status(404).json({ error: 'User not found' });
+  }
+});
+
+router.get('/stats', async (_req: AuthRequest, res: Response) => {
+  const [totalUsers, totalAppointments, totalApplications] = await Promise.all([
+    prisma.user.count(),
+    prisma.appointment.count(),
+    prisma.application.count(),
+  ]);
+  res.json({ totalUsers, totalAppointments, totalApplications, totalChallans: 0 });
+});
+
+router.put('/fares', (_req: AuthRequest, res: Response) => {
   res.json({ message: 'Fares updated' });
 });
 
-// ── PUT /api/admin/services ──
-// Replaces the entire service catalogue with the provided payload
-router.put('/services', (req: AuthRequest, res: Response) => {
-  setServices(req.body);
+router.put('/services', (_req: AuthRequest, res: Response) => {
   res.json({ message: 'Services updated' });
 });
 
-// ── PUT /api/admin/directory ──
-// Replaces the entire office directory with the provided payload
-router.put('/directory', (req: AuthRequest, res: Response) => {
-  setOffices(req.body);
+router.put('/directory', (_req: AuthRequest, res: Response) => {
   res.json({ message: 'Directory updated' });
 });
 

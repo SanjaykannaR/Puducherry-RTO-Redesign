@@ -1,16 +1,14 @@
-import type { Metadata } from 'next';
+'use client';
+
+import { useState, FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
-// ── Per-item icons make contact details scannable symbolically, not just textually ──
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Contact Puducherry RTO - address, phone, email, and office hours.',
-};
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── Department-specific helplines ──
 // Each major service has a dedicated number so callers are routed correctly without
@@ -31,6 +29,23 @@ const regionalOffices = [
 ];
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await api.post('/contact', form);
+      toast.success('Message sent successfully!');
+      setForm({ name: '', email: '', phone: '', message: '' });
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send message');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <>
       <PageHero title="Contact Us" subtitle="Get in touch with Puducherry RTO for inquiries, support, and feedback." />
@@ -90,8 +105,6 @@ export default function ContactPage() {
             </div>
 
             {/* ── Right column: contact form ── */}
-            {/* A submission form for visitors who prefer written communication.
-                Marking required fields with * reduces incomplete submissions. */}
             <FadeInSection delay={150}>
               <Card className="border-0 shadow-xl overflow-hidden">
                 <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -102,22 +115,22 @@ export default function ContactPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium mb-1">
                         Full Name <span className="text-destructive">*</span>
                       </label>
-                      <Input id="name" required />
+                      <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-1">
                         Email <span className="text-destructive">*</span>
                       </label>
-                      <Input id="email" type="email" required />
+                      <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                     </div>
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone</label>
-                      <Input id="phone" type="tel" />
+                      <Input id="phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                     </div>
                     <div>
                       <label htmlFor="message" className="block text-sm font-medium mb-1">
@@ -126,13 +139,15 @@ export default function ContactPage() {
                       <textarea
                         id="message"
                         rows={5}
+                        value={form.message}
+                        onChange={(e) => setForm({ ...form, message: e.target.value })}
                         required
                         className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                       />
                     </div>
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full" disabled={submitting}>
                       <Send className="w-4 h-4 mr-2" />
-                      Submit
+                      {submitting ? 'Sending...' : 'Submit'}
                     </Button>
                   </form>
                 </CardContent>

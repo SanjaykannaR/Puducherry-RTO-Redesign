@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── TransferOwnershipPage: Form to initiate vehicle ownership transfer from seller to buyer.
 //     Captures both parties' names, the registration number, and the sale date.
@@ -15,12 +17,18 @@ import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 export default function TransferOwnershipPage() {
   // ── Form State: seller/buyer names, reg number, and date of sale — all needed for Form 29/30 ──
   const [form, setForm] = useState({ sellerName: '', buyerName: '', regNo: '', saleDate: '' });
-  // ── submitted: toggles between form view and confirmation view ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'TRANSFER_OWNERSHIP', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
   }
 
   // ── Success Confirmation: shows Reference ID after submission ──
@@ -44,7 +52,7 @@ export default function TransferOwnershipPage() {
                 <CardContent className="space-y-4">
                   <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100">
                     <p className="text-sm text-muted-foreground">Reference ID</p>
-                    <p className="font-semibold text-lg font-mono">RTO-TR-{Date.now().toString(36).toUpperCase()}</p>
+                    <p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p>
                   </div>
                   <Button className="w-full" onClick={() => setSubmitted(false)}>Submit Another</Button>
                 </CardContent>

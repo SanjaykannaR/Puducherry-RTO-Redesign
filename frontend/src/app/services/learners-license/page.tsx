@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── LearnersLicensePage: Application form for a Learner's License — the first step before
 //     a permanent driving license. Collects basic personal info (name, DOB, address, mobile).
@@ -15,10 +17,19 @@ import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 export default function LearnersLicensePage() {
   // ── Form State: personal details required for LL application ──
   const [form, setForm] = useState({ fullName: '', dob: '', address: '', mobile: '' });
-  // ── submitted: toggles form → success confirmation with application ID ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'LEARNERS_LICENSE', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
+  }
 
   // ── Success Confirmation: green card with LL Application ID ──
   if (submitted) {
@@ -35,7 +46,7 @@ export default function LearnersLicensePage() {
                 <CardDescription>Appear for the LL test at your nearest RTO office</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Application ID</p><p className="font-semibold text-lg font-mono">RTO-LL-{Date.now().toString(36).toUpperCase()}</p></div>
+                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Application ID</p><p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p></div>
                 <Button className="w-full mt-4" onClick={() => setSubmitted(false)}>Submit Another</Button>
               </CardContent>
             </Card>

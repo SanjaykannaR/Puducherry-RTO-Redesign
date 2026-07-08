@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── InternationalPermitPage: Apply for an International Driving Permit (IDP) valid in 150+
 //     countries under the UN Convention. Requires a valid Indian driving license and passport.
@@ -15,10 +17,19 @@ import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 export default function InternationalPermitPage() {
   // ── Form State: DL number ties to existing license record; passport + countries for the permit ──
   const [form, setForm] = useState({ licenseNo: '', fullName: '', passportNo: '', countries: '' });
-  // ── submitted: toggles form → success confirmation with a Permit ID ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'INTERNATIONAL_PERMIT', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
+  }
 
   // ── Success Confirmation: green card with Permit ID; mentions 3-5 day issuance window ──
   if (submitted) {
@@ -35,7 +46,7 @@ export default function InternationalPermitPage() {
                 <CardDescription>Your IDP will be issued within 3-5 working days</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Permit ID</p><p className="font-semibold text-lg font-mono">RTO-IDP-{Date.now().toString(36).toUpperCase()}</p></div>
+                <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100"><p className="text-sm text-muted-foreground">Permit ID</p><p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p></div>
                 <Button className="w-full mt-4" onClick={() => setSubmitted(false)}>Submit Another</Button>
               </CardContent>
             </Card>

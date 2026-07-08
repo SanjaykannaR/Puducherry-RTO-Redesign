@@ -1,20 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import RequireAuth from '@/components/auth/RequireAuth';
 import FadeInSection from '@/components/ui/fade-in-section';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
-// ── Static application data ──
-// Tracks the lifecycle of each submission. The status field drives badge colours
-// so users can quickly distinguish submitted, under-review, approved, and rejected items.
-const applications = [
-  { id: 'RTO-A1B2C3', type: 'Vehicle Registration', status: 'UNDER_REVIEW', date: '2026-06-28' },
-  { id: 'RTO-D4E5F6', type: 'Learner\'s License', status: 'APPROVED', date: '2026-06-15' },
-  { id: 'RTO-G7H8I9', type: 'Duplicate RC', status: 'SUBMITTED', date: '2026-07-01' },
-];
-
-// ── Status colour map ──
-// Maps each workflow state to a unique pastel colour so the badge is informative
-// without relying solely on text.
 const statusColor: Record<string, string> = {
   SUBMITTED: 'bg-blue-50 text-blue-700 border-blue-200',
   UNDER_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -23,6 +14,15 @@ const statusColor: Record<string, string> = {
 };
 
 export default function ApplicationsPage() {
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<{ applications: any[] }>('/applications')
+      .then(res => setApplications(res.applications))
+      .catch(() => toast.error('Failed to load applications'))
+      .finally(() => setLoading(false));
+  }, []);
   return (
     <RequireAuth>
       <>
@@ -40,7 +40,11 @@ export default function ApplicationsPage() {
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="space-y-4">
-            {applications.map((app, i) => (
+            {loading ? (
+              <div className="text-center text-muted-foreground py-8">Loading...</div>
+            ) : applications.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">No applications found</div>
+            ) : applications.map((app, i) => (
               <FadeInSection key={app.id} delay={i * 100}>
                 <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
                   <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
@@ -58,7 +62,7 @@ export default function ApplicationsPage() {
                       </div>
                       <div className="bg-primary/5 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">Date</p>
-                        <p className="font-medium">{app.date}</p>
+                        <p className="font-medium">{app.createdAt?.split('T')[0] || app.date}</p>
                       </div>
                     </div>
                   </div>

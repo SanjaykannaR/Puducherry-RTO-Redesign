@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── VehicleRegistrationPage: Single-page form for new vehicle registration.
 //     Collects vehicle specs (make, model, year, fuel type, color, chassis & engine numbers)
@@ -18,12 +20,18 @@ export default function VehicleRegistrationPage() {
   const [form, setForm] = useState({
     make: '', model: '', year: '', fuelType: '', color: '', chassisNo: '', engineNo: '',
   });
-  // ── submitted: flips to true to swap the form view for a success confirmation card ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'VEHICLE_REGISTRATION', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
   }
 
   // ── Success Confirmation: shows a green card with application ID after submission ──
@@ -47,7 +55,7 @@ export default function VehicleRegistrationPage() {
                 <CardContent className="space-y-4">
                   <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100">
                     <p className="text-sm text-muted-foreground">Application ID</p>
-                    <p className="font-semibold text-lg font-mono">RTO-{Date.now().toString(36).toUpperCase()}</p>
+                    <p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p>
                   </div>
                   <Button className="w-full" onClick={() => setSubmitted(false)}>
                     <Car className="w-4 h-4 mr-2" />

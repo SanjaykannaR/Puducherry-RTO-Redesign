@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Calendar, Clock, ClipboardCheck, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── AppointmentPage: 2-step stepper for booking an RTO appointment.
 //     Step 1 picks date + time slot; Step 2 picks purpose and shows document checklist.
@@ -16,20 +18,23 @@ import { Calendar, Clock, ClipboardCheck, CheckCircle, ArrowRight, ArrowLeft } f
 export default function AppointmentPage() {
   // ── Form State: tracks date, time slot, purpose across both steps ──
   const [form, setForm] = useState({ date: '', timeSlot: '', purpose: '' });
-  // ── submitted: toggles between the booking form and the success confirmation screen ──
   const [submitted, setSubmitted] = useState(false);
-  // ── step: 1 = date/time selection, 2 = purpose selection, drives which form section is visible ──
+  const [submittedId, setSubmittedId] = useState('');
   const [step, setStep] = useState(1);
 
   // ── Static options for dropdowns, kept here so the form fields are easy to modify ──
   const timeSlots = ['10:00-10:30', '10:30-11:00', '11:00-11:30', '12:00-12:30', '14:00-14:30', '15:00-15:30'];
   const purposes = ['Driving Test', 'License Renewal', 'Vehicle Inspection', 'Document Verification', 'General Inquiry'];
 
-  // ── handleSubmit: placeholder that flips to the success confirmation view.
-  //     A real implementation would POST the form data to the API. ──
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    try {
+      const res = await api.post<{ id: string }>('/appointments', { date: form.date, timeSlot: form.timeSlot, purpose: form.purpose });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Booking failed');
+    }
   }
 
   // ── Success View: shown after submission. Displays the confirmed date, time, and purpose
@@ -53,6 +58,7 @@ export default function AppointmentPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="bg-blue-50/50 rounded-xl p-5 space-y-3 border border-blue-100">
+                    <p className="text-xs text-muted-foreground">Booking ID: {submittedId}</p>
                     <div className="flex items-center gap-3">
                       <Calendar className="w-5 h-5 text-primary shrink-0" />
                       <div>

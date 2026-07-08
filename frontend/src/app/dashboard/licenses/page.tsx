@@ -1,19 +1,21 @@
 'use client';
 
-// ── Auth guard ensures only logged-in users see this page ──
+import { useState, useEffect } from 'react';
 import RequireAuth from '@/components/auth/RequireAuth';
 import FadeInSection from '@/components/ui/fade-in-section';
-
-// ── Static license data ──
-// Shows both Learner's and Permanent licenses with their validity windows.
-// The status drives both the gradient bar colour and the badge style so users
-// instantly spot expired vs active documents.
-const licenses = [
-  { no: 'PY-0120241234567', type: 'MCWG', name: 'Learner\'s License', issueDate: '2025-01-15', expiryDate: '2026-01-14', status: 'EXPIRED' },
-  { no: 'PY-0120252345678', type: 'MCWG', name: 'Permanent License', issueDate: '2026-03-20', expiryDate: '2036-03-19', status: 'ACTIVE' },
-];
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function LicensesPage() {
+  const [licenses, setLicenses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<{ licenses: any[] }>('/licenses')
+      .then(res => setLicenses(res.licenses))
+      .catch(() => toast.error('Failed to load licenses'))
+      .finally(() => setLoading(false));
+  }, []);
   return (
     <RequireAuth>
       <>
@@ -31,8 +33,12 @@ export default function LicensesPage() {
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="space-y-4">
-            {licenses.map((l, i) => (
-              <FadeInSection key={l.no} delay={i * 100}>
+            {loading ? (
+              <div className="text-center text-muted-foreground py-8">Loading...</div>
+            ) : licenses.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">No licenses found</div>
+            ) : licenses.map((l, i) => (
+              <FadeInSection key={l.id || l.licenseNo} delay={i * 100}>
                 <div className="bg-white rounded-xl border-0 shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
                   <div className={`h-2 bg-gradient-to-r ${l.status === 'ACTIVE' ? 'from-green-400 to-emerald-500' : 'from-red-400 to-rose-500'}`} />
                   <div className="p-6">
@@ -44,13 +50,10 @@ export default function LicensesPage() {
                         {l.status}
                       </span>
                     </div>
-                    {/* ── Detail grid ── */}
-                    {/* Three evenly-spaced panels break the metadata into scannable chunks:
-                        license number, type name, and validity range. */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                       <div className="bg-primary/5 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">License No.</p>
-                        <p className="font-medium">{l.no}</p>
+                        <p className="font-medium">{l.licenseNo}</p>
                       </div>
                       <div className="bg-primary/5 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">Type</p>
@@ -58,7 +61,7 @@ export default function LicensesPage() {
                       </div>
                       <div className="bg-primary/5 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground">Validity</p>
-                        <p className="font-medium">{l.issueDate} - {l.expiryDate}</p>
+                        <p className="font-medium">{l.issueDate?.split('T')[0] || l.issueDate} - {l.expiryDate?.split('T')[0] || l.expiryDate}</p>
                       </div>
                     </div>
                   </div>

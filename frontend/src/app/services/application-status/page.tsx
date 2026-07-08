@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Search, FileText, Calendar } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── ApplicationStatusPage: Track the real-time status of an RTO application by entering
 //     its application ID. Shows type, submission date, and current status with colour-coded
@@ -19,16 +21,14 @@ export default function ApplicationStatusPage() {
   // ── Status Result: populated after search with id, type, status code, and date ──
   const [status, setStatus] = useState<null | { id: string; type: string; status: string; date: string }>(null);
 
-  // ── handleSearch: placeholder that returns mock status data for a given application ID.
-  //     In production this would call an API endpoint to look up the real status. ──
-  function handleSearch() {
+  async function handleSearch() {
     if (!appId.trim()) return;
-    setStatus({
-      id: appId,
-      type: 'Vehicle Registration',
-      status: 'UNDER_REVIEW',
-      date: '2026-06-28',
-    });
+    try {
+      const res = await api.get<{ id: string; type: string; status: string; createdAt: string }>(`/applications/${appId}`);
+      setStatus({ id: res.id, type: res.type, status: res.status, date: res.createdAt.split('T')[0] });
+    } catch (err: any) {
+      toast.error(err.message || 'Application not found');
+    }
   }
 
   // ── Status Colour Map: each pipeline status gets a distinct colour scheme so users

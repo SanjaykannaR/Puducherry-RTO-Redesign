@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── DuplicateRCPage: Request a replacement Registration Certificate when the original is lost,
 //     damaged, or stolen. Captures reg number, owner name, and reason (LOST / DAMAGED / STOLEN)
@@ -15,10 +17,19 @@ import { FileText, CheckCircle, ArrowRight } from 'lucide-react';
 export default function DuplicateRCPage() {
   // ── Form State: vehicle reg number, owner name, and reason dropdown — drives doc requirements ──
   const [form, setForm] = useState({ regNo: '', fullName: '', reason: '' });
-  // ── submitted: toggles to confirmation card showing a generated Request ID ──
   const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState('');
 
-  function handleSubmit(e: FormEvent) { e.preventDefault(); setSubmitted(true); }
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await api.post<{ id: string }>('/applications', { type: 'DUPLICATE_RC', formData: form });
+      setSubmittedId(res.id);
+      setSubmitted(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Submission failed');
+    }
+  }
 
   // ── Success Confirmation: green card with Request ID; mentions 7-day processing window ──
   if (submitted) {
@@ -37,7 +48,7 @@ export default function DuplicateRCPage() {
               <CardContent className="space-y-4">
                 <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100">
                   <p className="text-sm text-muted-foreground">Request ID</p>
-                  <p className="font-semibold text-lg font-mono">RTO-DRC-{Date.now().toString(36).toUpperCase()}</p>
+                  <p className="font-semibold text-lg font-mono">RTO-{submittedId.toUpperCase()}</p>
                 </div>
                 <Button className="w-full" onClick={() => setSubmitted(false)}>Submit Another</Button>
               </CardContent>

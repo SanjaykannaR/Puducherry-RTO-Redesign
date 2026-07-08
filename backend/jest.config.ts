@@ -11,6 +11,7 @@ const config: Config = {
       diagnostics: false,
     }],
   },
+  globalSetup: '<rootDir>/tests/setup.ts',
 };
 
 export default config;

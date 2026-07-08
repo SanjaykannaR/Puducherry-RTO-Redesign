@@ -8,6 +8,8 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Search, Activity, Shield, Wrench, Receipt } from 'lucide-react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 // ── VehicleStatusPage: Lookup tool that shows a vehicle's lifecycle status — RC details,
 //     insurance, fitness certificate, PUC, and road tax — all in one place. Users enter a
@@ -22,21 +24,24 @@ export default function VehicleStatusPage() {
     insuranceUpto: string; fitnessUpto: string; pucUpto: string; taxPaidUpto: string; status: string;
   }>(null);
 
-  // ── handleSearch: placeholder that returns mock vehicle data for the entered reg number.
-  //     A real API integration would replace this with a fetch to the vehicle database. ──
-  function handleSearch() {
+  async function handleSearch() {
     if (!regNo.trim()) return;
-    setResult({
-      registrationNo: regNo,
-      make: 'Honda',
-      model: 'Activa 6G',
-      year: 2024,
-      insuranceUpto: '2027-03-15',
-      fitnessUpto: '2029-03-15',
-      pucUpto: '2026-09-15',
-      taxPaidUpto: '2027-03-15',
-      status: 'ACTIVE',
-    });
+    try {
+      const res = await api.get<any>(`/vehicles/search/${encodeURIComponent(regNo)}`);
+      setResult({
+        registrationNo: res.registrationNo,
+        make: res.make,
+        model: res.model,
+        year: res.manufactureYear,
+        insuranceUpto: res.insuranceUpto?.split('T')[0] || '',
+        fitnessUpto: res.fitnessUpto?.split('T')[0] || '',
+        pucUpto: res.pucUpto?.split('T')[0] || '',
+        taxPaidUpto: res.taxPaidUpto?.split('T')[0] || '',
+        status: res.status || 'ACTIVE',
+      });
+    } catch (err: any) {
+      toast.error(err.message || 'Vehicle not found');
+    }
   }
 
   // ── daysLeft: calculates whole days remaining until a given date.

@@ -1,28 +1,34 @@
 'use client';
 
-// ── Local state for tracking read/unread status ──
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
-// ── Icon per type helps users triage urgency without reading the full message ──
 import { Bell, AlertTriangle, Info, CheckCheck } from 'lucide-react';
-
-// ── Seed notifications ──
-// Each notification carries a type (WARNING, ALERT, INFO) that controls icon, border,
-// and background colour. The `isRead` flag toggles visual prominence and the "Mark Read" action.
-const initialNotifs = [
-  { id: '1', title: 'Insurance Expiring Soon', message: 'Your vehicle PY-01-AB-1234 insurance expires in 15 days.', type: 'WARNING', isRead: false, date: '2026-07-01' },
-  { id: '2', title: 'License Renewal Due', message: 'Your driving license expires on 2026-09-15. Please renew.', type: 'INFO', isRead: false, date: '2026-06-28' },
-  { id: '3', title: 'PUC Expired', message: 'Your PUC certificate has expired. Get a fresh PUC test.', type: 'ALERT', isRead: true, date: '2026-06-15' },
-];
+import { api } from '@/lib/api';
 
 export default function NotificationsPage() {
-  // ── State: notification list (allows local mark-as-read without a server round-trip) ──
-  const [notifs, setNotifs] = useState(initialNotifs);
+  const [notifs, setNotifs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [marking, setMarking] = useState<string | null>(null);
 
-  function markRead(id: string) {
-    setNotifs((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
+  useEffect(() => {
+    api.get<{ notifications: any[] }>('/notifications')
+      .then(res => setNotifs(res.notifications))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function markRead(id: string) {
+    setMarking(id);
+    try {
+      await api.patch(`/notifications/${id}/read`, {});
+      setNotifs((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
+    } catch {
+      // ignore
+    } finally {
+      setMarking(null);
+    }
   }
 
   // ── Visual mapping per notification type ──
@@ -75,7 +81,7 @@ export default function NotificationsPage() {
                         </div>
                         <div>
                           <h3 className="font-semibold">{n.title}</h3>
-                          <p className="text-xs text-muted-foreground mt-0.5">{n.date}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{n.createdAt?.split('T')[0] || n.date}</p>
                         </div>
                       </div>
                       <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${typeBg[n.type]} ${typeText[n.type]}`}>
