@@ -5,6 +5,8 @@ modules, and exposes a health-check endpoint used by deployment infrastructure
 to verify the service is alive.
 """
 
+from datetime import datetime
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.detect import router as detect_router
@@ -41,4 +43,4 @@ async def health():
     Returns a simple JSON payload so consumers can confirm the service is
     running and responding. The timestamp field aids debugging in logs.
     """
-    return {"status": "ok", "service": "ai-proctoring", "timestamp": "2026-07-07T00:00:00Z"}
+    return {"status": "ok", "service": "ai-proctoring", "timestamp": datetime.utcnow().isoformat() + "Z"}

@@ -56,26 +56,18 @@ export default function Home() {
   const { locale } = useLanguage();
 
   // ── Hero Slider State ──
-  // slideIdx controls which image is visible; prevIdx is tracked for potential
-  // exit animations (currently unused but reserved for future cross-fade polish).
   const [slideIdx, setSlideIdx] = useState(0);
-  const [prevIdx, setPrevIdx] = useState(0);
 
   // ── Auto-Play ──
-  // Advances the hero banner every 5 seconds; cleanup on unmount or slide change
-  // prevents stale intervals from stacking up.
   useEffect(() => {
     const timer = setInterval(() => {
-      setPrevIdx(slideIdx);
       setSlideIdx((i) => (i + 1) % heroSlides.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [slideIdx]);
 
   // ── Manual Navigation ──
-  // Jump to a specific slide (called by the dot indicators and prev/next arrows).
   const goToSlide = (i: number) => {
-    setPrevIdx(slideIdx);
     setSlideIdx(i);
   };
 
