@@ -88,17 +88,20 @@ test.describe('Login & Logout Flow', () => {
   });
 
   test('logs in with valid credentials', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'networkidle' });
 
     await page.locator('input[type="email"]').first().fill(session.email);
     await page.locator('input[type="password"]').first().fill(session.password);
     await page.locator('button[type="submit"]').first().click();
 
-    // Should navigate away from /login — dashboard or home
-    await page.waitForURL(/\/(dashboard|home|$)/, { timeout: 10000 });
+    // Next.js router.push('/') does client-side navigation — waitForURL with
+    // default 'load' won't detect it. Wait for network idle then check URL.
+    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    const url = page.url();
+    expect(url === 'http://localhost:3000/' || url.includes('/dashboard') || url.includes('/home')).toBeTruthy();
 
     // Auth-visible elements should appear
-    await expect(page.getByText(/logout|dashboard|profile|welcome/i).first()).toBeVisible({ timeout: 8000 }).catch(() => {
+    await expect(page.getByText(/sign out|welcome/i).first()).toBeVisible({ timeout: 8000 }).catch(() => {
       // Non-critical: the page may have redirected to home without user name visible
     });
 
@@ -108,30 +111,36 @@ test.describe('Login & Logout Flow', () => {
   });
 
   test('shows error for invalid credentials', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'networkidle' });
     await page.locator('input[type="email"]').first().fill(session.email);
     await page.locator('input[type="password"]').first().fill('WrongPassword999!');
     await page.locator('button[type="submit"]').first().click();
 
-    // Should show an error message
+    // Wait for the API call to return (either network idle or error renders)
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+    // Should show an error message — the backend returns "Invalid credentials"
     await expect(page.getByText(/invalid|error|incorrect|failed/i).first()).toBeVisible({ timeout: 8000 });
   });
 
   test('supports full logout cycle', async ({ page }) => {
-    // Login first
+    // Login first via the session API
     await authenticatePage(page, session);
 
     // Navigate to dashboard (requires auth — confirms we're logged in)
-    await page.goto('/dashboard');
-    await page.waitForURL('/dashboard', { timeout: 10000 });
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    // Wait for user name to appear (confirming auth state loaded)
+    await expect(page.getByText(/welcome/i).first()).toBeVisible({ timeout: 10000 });
 
-    // Find and click logout button
+    // Find and click logout / sign out button
     const logoutBtn = page.getByText(/sign out|log out|logout/i).first();
     await expect(logoutBtn).toBeVisible({ timeout: 5000 });
     await logoutBtn.click();
 
-    // Should redirect to home or login
-    await page.waitForURL(/\/(login|home|$)/, { timeout: 10000 });
+    // Should redirect to home or login (client-side navigation)
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+    const url = page.url();
+    expect(url === 'http://localhost:3000/' || url.includes('/login')).toBeTruthy();
 
     // Token should be removed from localStorage
     const storedToken = await page.evaluate(() => localStorage.getItem('token'));
@@ -147,10 +156,13 @@ test.describe('Token Persistence', () => {
     await authenticatePage(page, session);
 
     // Navigate to a page that shows user info
-    await page.goto('/dashboard');
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
 
-    // Reload the page (simulating browser refresh)
-    await page.reload();
+    // Reload the page (simulating browser refresh) — wait for full load
+    await page.reload({ waitUntil: 'networkidle' });
+
+    // Wait for auth to resolve and dashboard to render
+    await page.locator('h1').first().waitFor({ state: 'visible', timeout: 10000 });
 
     // Should still see auth-gated content (not the sign-in prompt)
     await expect(page.getByText(/welcome|dashboard|sign out/i).first()).toBeVisible({ timeout: 10000 }).catch(() => {

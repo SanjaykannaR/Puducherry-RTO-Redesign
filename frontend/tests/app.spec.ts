@@ -1,192 +1,410 @@
+// ── Page-load smoke tests ──
+// Every route in the app is visited and checked for basic render.
+// Public pages are tested without auth; auth-required pages are tested
+// both without auth (expect sign-in prompt) and with auth (expect real content).
+// This ensures no route 404s or crashes the app.
+
 import { test, expect } from '@playwright/test';
+import { registerTestUser, authenticatePage } from './test-utils';
 
-// ── Helpers ──
+// ──────────────────────────────────────────────
+// PUBLIC PAGES — no authentication required
+// ──────────────────────────────────────────────
 
-const TEST_USER = {
-  name: 'E2E Test User',
-  email: `e2e_${Date.now()}@test.com`,
-  mobile: '9999999999',
-  password: 'Test@123',
-};
+test.describe('Public Pages', () => {
 
-// ── Homepage ──
+  // ── Homepage ──
+  test.describe('Homepage (/)', () => {
+    test('loads with hero section and nav links', async ({ page }) => {
+      await page.goto('/');
+      await expect(page).toHaveTitle(/Puducherry RTO/);
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.locator('section[aria-label="Hero banner"]')).toBeVisible();
+      // Key nav links
+      await expect(page.getByRole('link', { name: /services/i }).first()).toBeVisible();
+      await expect(page.getByRole('link', { name: /about/i }).first()).toBeVisible();
+      await expect(page.getByRole('link', { name: /contact/i }).first()).toBeVisible();
+    });
 
-test.describe('Homepage', () => {
-  test('loads with correct title and hero section', async ({ page }) => {
-    await page.goto('/');
-    await expect(page).toHaveTitle(/Puducherry RTO/);
-    await expect(page.locator('h1').first()).toBeVisible();
-    // Hero banner section (identified by aria-label)
-    await expect(page.locator('section[aria-label="Hero banner"]')).toBeVisible();
-  });
+    test('renders services section with cards', async ({ page }) => {
+      await page.goto('/');
+      const servicesSection = page.locator('section').filter({ hasText: /quick access|our services/i }).first();
+      await expect(servicesSection).toBeVisible();
+      // At least one service card link exists
+      await expect(servicesSection.locator('a').first()).toBeVisible();
+    });
 
-  test('navigation links are present', async ({ page }) => {
-    await page.goto('/');
-    // Check key nav links
-    await expect(page.getByRole('link', { name: /services/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /about/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /contact/i }).first()).toBeVisible();
-  });
-
-  test('services section lists cards', async ({ page }) => {
-    await page.goto('/');
-    // Scroll to services section
-    const servicesSection = page.locator('section').filter({ hasText: /our services|apply for/i }).first();
-    if (await servicesSection.isVisible()) {
-      // At least one service card should exist
-      await expect(servicesSection.locator('a, button, [role="button"]').first()).toBeVisible();
-    }
-  });
-});
-
-// ── About Page ──
-
-test.describe('About Page', () => {
-  test('loads and displays content', async ({ page }) => {
-    await page.goto('/about');
-    await expect(page.locator('h1').first()).toBeVisible();
-    await expect(page).toHaveTitle(/about/i);
-  });
-});
-
-// ── Contact Page ──
-
-test.describe('Contact Page', () => {
-  test('loads and has contact form', async ({ page }) => {
-    await page.goto('/contact');
-    await expect(page.locator('h1').first()).toBeVisible();
-    // Contact form should have name, email, message fields
-    const nameField = page.locator('input[name="name"], input[id="name"], input[placeholder*="name" i]');
-    const emailField = page.locator('input[type="email"]');
-    const messageField = page.locator('textarea');
-    if (await nameField.isVisible()) {
-      await expect(nameField).toBeVisible();
-      await expect(emailField).toBeVisible();
-      await expect(messageField).toBeVisible();
-    }
-  });
-});
-
-// ── Authentication Flow ──
-
-test.describe('Authentication', () => {
-  test('register page loads and form is present', async ({ page }) => {
-    await page.goto('/register');
-    await expect(page.locator('h1').first()).toBeVisible();
-    await expect(page.locator('input[type="email"]').first()).toBeVisible();
-    await expect(page.locator('input[type="password"]').first()).toBeVisible();
-  });
-
-  test('login page loads and form is present', async ({ page }) => {
-    await page.goto('/login');
-    await expect(page.locator('h1').first()).toBeVisible();
-    await expect(page.locator('input[type="email"]').first()).toBeVisible();
-    await expect(page.locator('input[type="password"]').first()).toBeVisible();
-  });
-
-  test('can register a new user', async ({ page }) => {
-    await page.goto('/register');
-
-    // Fill registration form
-    const nameInput = page.locator('input[name="name"], input[id="name"], input[placeholder*="name" i]').first();
-    const emailInput = page.locator('input[type="email"]').first();
-    const mobileInput = page.locator('input[name="mobile"], input[id="mobile"], input[placeholder*="mobile" i], input[placeholder*="phone" i]').first();
-    const passwordInput = page.locator('input[type="password"]').first();
-    const confirmPassword = page.locator('input[name="confirmPassword"], input[name="confirm_password"], input[placeholder*="confirm" i]');
-
-    await nameInput.fill(TEST_USER.name);
-    await emailInput.fill(TEST_USER.email);
-    if (await mobileInput.isVisible()) {
-      await mobileInput.fill(TEST_USER.mobile);
-    }
-    await passwordInput.fill(TEST_USER.password);
-    if (await confirmPassword.isVisible()) {
-      await confirmPassword.fill(TEST_USER.password);
-    }
-
-    // Submit
-    const submitBtn = page.locator('button[type="submit"]').first();
-    await submitBtn.click();
-
-    // Should redirect to login or dashboard after successful registration
-    await page.waitForURL(/\/(login|dashboard)/, { timeout: 10000 }).catch(() => {
-      // If no redirect, at least check for success toast/message
+    test('statistics section is visible', async ({ page }) => {
+      await page.goto('/');
+      await expect(page.locator('section[aria-label="Key statistics"]')).toBeVisible();
     });
   });
 
-  test('can login with registered credentials', async ({ page }) => {
-    // First ensure user is registered
-    await page.goto('/register');
-    const emailInput = page.locator('input[type="email"]').first();
-    const passwordInput = page.locator('input[type="password"]').first();
-    await emailInput.fill(TEST_USER.email);
-    await passwordInput.fill(TEST_USER.password);
-    const submitBtn = page.locator('button[type="submit"]').first();
-    await submitBtn.click();
-
-    // Now login
-    await page.goto('/login');
-    await page.locator('input[type="email"]').first().fill(TEST_USER.email);
-    await page.locator('input[type="password"]').first().fill(TEST_USER.password);
-    await page.locator('button[type="submit"]').first().click();
-
-    // After login, should be on dashboard or homepage with user info
-    await page.waitForURL(/\/(dashboard|home|$)/, { timeout: 10000 }).catch(() => {
-      // Allow other redirects
+  // ── About Page ──
+  test.describe('About (/about)', () => {
+    test('loads and displays title', async ({ page }) => {
+      await page.goto('/about');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page).toHaveTitle(/about/i);
     });
-    // Check that some auth-visible element appears (e.g. user name, logout button, dashboard link)
-    await expect(page.getByText(/logout|dashboard|profile/i).first()).toBeVisible({ timeout: 8000 }).catch(() => {
-      // Non-critical assertion - the login may work but redirect differently
+  });
+
+  // ── Contact Page ──
+  test.describe('Contact (/contact)', () => {
+    test('loads with form fields visible', async ({ page }) => {
+      await page.goto('/contact');
+      await expect(page.locator('h1').first()).toBeVisible();
+      // Form fields: name, email, message
+      const nameField = page.locator('input[name="name"], input[id="name"], input[placeholder*="name" i]');
+      const emailField = page.locator('input[type="email"]');
+      const messageField = page.locator('textarea');
+      await expect(nameField.first()).toBeVisible();
+      await expect(emailField.first()).toBeVisible();
+      await expect(messageField.first()).toBeVisible();
+    });
+  });
+
+  // ── Login Page ──
+  test.describe('Login (/login)', () => {
+    test('loads with form fields', async ({ page }) => {
+      await page.goto('/login');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.locator('input[type="email"]').first()).toBeVisible();
+      await expect(page.locator('input[type="password"]').first()).toBeVisible();
+    });
+  });
+
+  // ── Register Page ──
+  test.describe('Register (/register)', () => {
+    test('loads with form fields', async ({ page }) => {
+      await page.goto('/register');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.locator('input[type="email"]').first()).toBeVisible();
+      await expect(page.locator('input[type="password"]').first()).toBeVisible();
+    });
+  });
+
+  // ── Forgot Password ──
+  test.describe('Forgot Password (/forgot-password)', () => {
+    test('loads with email form', async ({ page }) => {
+      await page.goto('/forgot-password');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.locator('input[type="email"]').first()).toBeVisible();
+      // Has a submit button
+      await expect(page.locator('button[type="submit"]').first()).toBeVisible();
+    });
+
+    test('displays success message after submitting email', async ({ page }) => {
+      await page.goto('/forgot-password');
+      await page.locator('input[type="email"]').first().fill('user@example.com');
+      await page.locator('button[type="submit"]').first().click();
+      // Should show the "sent" message
+      await expect(page.getByText(/reset link|check your email|sent/i).first()).toBeVisible({ timeout: 5000 });
+    });
+  });
+
+  // ── Privacy Policy ──
+  test.describe('Privacy (/privacy)', () => {
+    test('loads with content', async ({ page }) => {
+      await page.goto('/privacy');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Terms of Service ──
+  test.describe('Terms (/terms)', () => {
+    test('loads with content', async ({ page }) => {
+      await page.goto('/terms');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Sitemap ──
+  test.describe('Sitemap (/sitemap)', () => {
+    test('loads with links to all sections', async ({ page }) => {
+      await page.goto('/sitemap');
+      await expect(page.locator('h1').first()).toBeVisible();
+      // Should contain links to major sections
+      await expect(page.getByRole('link', { name: /services/i }).first()).toBeVisible();
+    });
+  });
+
+  // ── Accessibility ──
+  test.describe('Accessibility (/accessibility)', () => {
+    test('loads with accessibility info', async ({ page }) => {
+      await page.goto('/accessibility');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Fares (fee table) ──
+  test.describe('Fares (/fares)', () => {
+    test('loads the fee structure table', async ({ page }) => {
+      await page.goto('/fares');
+      await expect(page.locator('h1').first()).toBeVisible();
+      // Should render fee tables (at least one table or card with fee info)
+      await expect(page.locator('table, [role="table"]').first()).toBeVisible({ timeout: 8000 });
+    });
+  });
+
+  // ── Directory / RTO Offices ──
+  test.describe('Directory (/directory)', () => {
+    test('loads office listings', async ({ page }) => {
+      await page.goto('/directory');
+      await expect(page.locator('h1').first()).toBeVisible();
+      // Should list at least one RTO office
+      await expect(page.getByText(/RTO|office|Puducherry/i).first()).toBeVisible();
+    });
+  });
+
+  // ── Services Hub ──
+  test.describe('Services Hub (/services)', () => {
+    test('loads with service categories', async ({ page }) => {
+      await page.goto('/services');
+      await expect(page.locator('h1').first()).toBeVisible();
+      // Should list service categories
+      await expect(page.getByText(/Registration|Licensing|Tools/i).first()).toBeVisible();
     });
   });
 });
 
-// ── Service Pages ──
+// ──────────────────────────────────────────────
+// AUTH-REQUIRED PAGES — tested with auth
+// These pages wrap content in RequireAuth, so without
+// a logged-in session they show a sign-in prompt instead.
+// ──────────────────────────────────────────────
 
-test.describe('Service Pages', () => {
-  test('driving license page loads', async ({ page }) => {
-    await page.goto('/services/driving-license');
-    await expect(page.locator('h1').first()).toBeVisible();
+test.describe('Auth-Required Service Pages', () => {
+  let session: { token: string; email: string; password: string };
+
+  test.beforeAll(async () => {
+    session = await registerTestUser();
   });
 
-  test('vehicle registration page loads', async ({ page }) => {
-    await page.goto('/services/vehicle-registration');
-    await expect(page.locator('h1').first()).toBeVisible();
+  // ── Driving License ──
+  test.describe('Driving License (/services/driving-license)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/driving-license');
+      // Should show "Sign In Required" instead of page content
+      await expect(page.getByText(/sign in required|sign in to continue/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads application form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/driving-license', { waitUntil: 'networkidle' });
+      await expect(page.locator('h1').first()).toBeVisible();
+      // PageHero renders "Permanent Driving License" heading
+      await expect(page.getByText(/Driving License/i).first()).toBeVisible({ timeout: 8000 });
+    });
   });
 
-  test('appointment booking page loads', async ({ page }) => {
-    await page.goto('/services/appointment');
-    await expect(page.locator('h1').first()).toBeVisible();
+  // ── Vehicle Registration ──
+  test.describe('Vehicle Registration (/services/vehicle-registration)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/vehicle-registration');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/vehicle-registration');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.getByText(/vehicle registration/i).first()).toBeVisible({ timeout: 5000 });
+    });
   });
 
-  test('challan payment page loads', async ({ page }) => {
-    await page.goto('/services/challan');
-    await expect(page.locator('h1').first()).toBeVisible();
+  // ── Appointment ──
+  test.describe('Appointment (/services/appointment)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/appointment');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads booking form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/appointment');
+      await expect(page.locator('h1').first()).toBeVisible();
+      await expect(page.getByText(/book appointment|appointment booking/i).first()).toBeVisible({ timeout: 5000 });
+    });
   });
 
-  test('vehicle status page loads and allows search', async ({ page }) => {
-    await page.goto('/services/vehicle-status');
-    await expect(page.locator('h1').first()).toBeVisible();
-    // There should be a search input (reg no field)
-    const searchInput = page.locator('input[placeholder*="reg" i], input[placeholder*="number" i], input[name="regNo"]').first();
-    if (await searchInput.isVisible()) {
-      await expect(searchInput).toBeVisible();
-    }
+  // ── Challan ──
+  test.describe('Challan (/services/challan)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/challan');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads challan list when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/challan');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Vehicle Status ──
+  test.describe('Vehicle Status (/services/vehicle-status)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/vehicle-status');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads search form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/vehicle-status');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Application Status ──
+  test.describe('Application Status (/services/application-status)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/application-status');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads search form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/application-status');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Fee Calculator ──
+  test.describe('Fee Calculator (/services/fee-calculator)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/fee-calculator');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads calculator with service checklist when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/fee-calculator', { waitUntil: 'networkidle' });
+      await expect(page.locator('h1').first()).toBeVisible();
+      // PageHero renders "Fee Calculator" heading
+      await expect(page.locator('h1').first()).toContainText(/Fee Calculator/i);
+      // Service checkboxes are inside FadeInSection (opacity-0 until visible) — scroll to trigger
+      await page.evaluate(() => window.scrollTo(0, 300));
+      await page.waitForTimeout(1000);
+      await expect(page.locator('input[type="checkbox"]').first()).toBeVisible({ timeout: 8000 });
+    });
+  });
+
+  // ── Learners License ──
+  test.describe('Learners License (/services/learners-license)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/learners-license');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads application form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/learners-license', { waitUntil: 'networkidle' });
+      await expect(page.locator('h1').first()).toBeVisible();
+      // PageHero renders "Learner's License" as h1 — confirm via h1 text
+      await expect(page.locator('h1').first()).toContainText(/Learner/i);
+    });
+  });
+
+  // ── License Renewal ──
+  test.describe('License Renewal (/services/license-renewal)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/license-renewal');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/license-renewal');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Duplicate RC ──
+  test.describe('Duplicate RC (/services/duplicate-rc)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/duplicate-rc');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/duplicate-rc');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── International Permit ──
+  test.describe('International Permit (/services/international-permit)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/international-permit');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/international-permit');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Transfer Ownership ──
+  test.describe('Transfer Ownership (/services/transfer-ownership)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/transfer-ownership');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads form when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/transfer-ownership');
+      await expect(page.locator('h1').first()).toBeVisible();
+    });
+  });
+
+  // ── Download Forms ──
+  test.describe('Download Forms (/services/download-forms)', () => {
+    test('shows sign-in prompt when not authenticated', async ({ page }) => {
+      await page.goto('/services/download-forms');
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('loads with form download cards when authenticated', async ({ page }) => {
+      await authenticatePage(page, session);
+      await page.goto('/services/download-forms', { waitUntil: 'networkidle' });
+      await expect(page.locator('h1').first()).toBeVisible();
+      // PageHero renders "Download Forms" heading
+      await expect(page.locator('h1').first()).toContainText(/download/i);
+      // Form cards are inside FadeInSection (opacity-0 until scrolled into view)
+      // Scroll to trigger IntersectionObserver
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(1000);
+      // Should list downloadable forms (category heading h2 elements)
+      await expect(page.locator('h2').first()).toBeVisible({ timeout: 5000 });
+    });
   });
 });
 
-// ── Navigation and Responsiveness ──
+// ──────────────────────────────────────────────
+// NAVIGATION: crawl all routes to catch 404s
+// ──────────────────────────────────────────────
 
-test.describe('Navigation', () => {
-  test('can navigate between pages without 404', async ({ page }) => {
-    const pages = ['/', '/about', '/contact', '/login', '/register', '/services/driving-license', '/services/vehicle-registration', '/services/appointment', '/services/challan', '/services/vehicle-status'];
-    for (const path of pages) {
-      await page.goto(path);
-      // Should not see a 404 or error page title
+test.describe('Navigation Smoke Test', () => {
+  const publicRoutes = [
+    '/', '/about', '/contact', '/login', '/register', '/forgot-password',
+    '/privacy', '/terms', '/sitemap', '/accessibility', '/fares', '/directory',
+    '/services',
+  ];
+
+  for (const route of publicRoutes) {
+    test(`navigating to ${route} returns 200`, async ({ page }) => {
+      const response = await page.goto(route);
+      expect(response?.status()).toBe(200);
+      // Should not show error page content
       await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 });
       const title = await page.title();
       expect(title).not.toContain('404');
       expect(title).not.toContain('Not Found');
-    }
-  });
+    });
+  }
 });

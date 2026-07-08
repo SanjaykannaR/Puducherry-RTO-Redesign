@@ -116,11 +116,87 @@
 
 ### 🧪 Testing Expansion
 - [ ] Add tests for all 9 service form submissions
-- [ ] Add test for the AI exam flow (full integration)
-- [ ] Add `RequireAuth` component test
-- [ ] Add E2E test: register → login → book appointment → pay
-- [ ] Add tests with real face images for AI service
+- [x] Added E2E test: register → login → book appointment → pay (interactions.spec.ts)
+- [x] Added `RequireAuth` component test (in app.spec.ts auth-required pages section)
+- [x] Added full auth lifecycle tests (registration, login, logout, token persistence, redirects)
+- [x] Added exam page state machine tests (INTRO, PROCTORING, RESULT)
+- [x] Added tests with real face images for AI service
 - [ ] Add tests for all 31 backend endpoints (currently only 24 tests)
+
+---
+
+## 🧪 E2E Test Status (2026-07-08)
+
+### Overview
+| Metric | Value |
+|--------|-------|
+| **Playwright test files** | 4 (app, auth-flow, exam, interactions) |
+| **Total tests** | 81 |
+| **Currently passing** | **64 ✅** |
+| **Currently failing** | **17 ❌** |
+| **Improvement** | Up from 32 ✅ (fixed `res.status()` bug + CardTitle heading selector) |
+
+### Failing Tests (17) — Priority Order for Tomorrow
+
+#### P0: Login flow & auth persistence (5 tests)
+| Test | Root Cause |
+|------|-----------|
+| `auth-flow > Login & Logout Flow > logs in with valid credentials` | `waitForURL` doesn't detect Next.js `router.push('/')` client-side nav — fix applied but untested |
+| `auth-flow > Login & Logout Flow > shows error for invalid credentials` | API error message timing — fix applied but untested |
+| `auth-flow > Login & Logout Flow > supports full logout cycle` | Sign out button timing — fix applied but untested |
+| `auth-flow > Token Persistence > remains logged in after page refresh` | Token null after reload — fix applied but untested |
+| `interactions > Full E2E User Journey` | Login step fails cascading from above — fix applied but untested |
+
+#### P0: authenticatePage reliability (affects 10+ tests)
+Root cause: `authenticatePage` sets localStorage token + reloads, but `/auth/me` XHR might not complete before the next test navigation starts.
+Fix applied: Added `waitUntil: 'networkidle'` + h1 wait in `test-utils.ts`
+
+#### P1: Service page form input selectors (3 tests)
+| Test | Root Cause |
+|------|-----------|
+| `interactions > LL Application` | Inputs have NO `placeholder`/`name`/`id` attributes — locator `[placeholder*="name"]` times out |
+| `interactions > DL Application` | Same issue — bare `<Input>` components with no identifying attributes |
+| `interactions > Appointment Booking` | Confirmation text not found |
+
+**Fix needed**: Replace `input[placeholder*="name"]` with `label:has-text("Full Name") + input` pattern.
+
+#### P1: Service page content selectors (4 tests)
+| Test | Root Cause |
+|------|-----------|
+| `app > Driving License > loads form` | PageHero h1 appears after `/auth/me` resolves — `getByText` runs too early |
+| `app > LL > loads form` | Same timing issue |
+| `app > Fee Calculator > checklist` | Checkboxes inside `FadeInSection` → `opacity-0` (IntersectionObserver) |
+| `app > Download Forms > cards` | Content inside `FadeInSection` → hidden initially |
+
+**Fixes applied but untested**: Added `{ waitUntil: 'networkidle' }` + scroll workaround for FadeInSection.
+
+#### P1: Contact form (1 test)
+| Test | Root Cause |
+|------|-----------|
+| `interactions > Contact form > submits successfully` | Form uses `toast.success()` → sonner toast, not DOM element. Need to verify toast shows. |
+
+#### P2: Exam page tests (4 tests)
+| Test | Root Cause |
+|------|-----------|
+| `exam > start exam button enabled` | `authenticatePage` session doesn't persist across tests within same describe |
+| `exam > camera permission warning` | "Start Exam" button not found — auth state issue |
+| `exam > violation counter` | Same |
+| `exam > pass/fail result` | Same |
+
+**Note**: First exam test (`shows exam rules`) passes — subsequent ones fail. Likely a worker/context isolation issue.
+
+### Commits Made
+```
+c7215d0 fix: res.status property not method + CardTitle div heading selector
+```
+
+### Tomorrow's Plan
+1. **Commit current fixes** (`authenticatePage`, `waitForLoadState`, selectors)
+2. **Run full test suite** to check if P0/P1 fixes resolved the 17 failures
+3. **Fix form interactors** in `interactions.spec.ts` using `label:has-text()` CSS selectors
+4. **Fix contact form** toast detection
+5. **Fix exam page** auth persistence if still failing
+6. Target: **75+ ✅**
 
 ---
 

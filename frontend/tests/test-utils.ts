@@ -41,22 +41,27 @@ export async function registerTestUser(): Promise<AuthSession> {
 // ── authenticatePage ──
 // Sets the auth token in the page's localStorage so the frontend AuthContext
 // picks it up on reload. After calling this, the page behaves as a logged-in user.
+// Uses multiple stabilization steps to ensure the session is fully restored
+// before returning (network idle, spinner gone, content visible).
 export async function authenticatePage(page: Page, session: AuthSession) {
   // Navigate first so we're on an origin where localStorage works
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'networkidle' });
   await page.evaluate((token) => {
     localStorage.setItem('token', token);
   }, session.token);
 
   // Reload to let AuthContext detect the token and call /auth/me
-  await page.reload();
+  await page.reload({ waitUntil: 'networkidle' });
 
   // Wait for auth to fully resolve — the loading spinner should disappear
   await page.waitForFunction(() => {
     return !document.body.textContent?.includes('Checking authentication');
-  }, { timeout: 8000 }).catch(() => {
+  }, { timeout: 10000 }).catch(() => {
     // If it times out, the page might already be loaded without the spinner
   });
+
+  // Extra stabilization: wait for any h1 heading to appear (page content loaded)
+  await page.locator('h1').first().waitFor({ state: 'attached', timeout: 5000 }).catch(() => {});
 }
 
 // ── ADMIN ──
