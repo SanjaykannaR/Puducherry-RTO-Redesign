@@ -75,4 +75,27 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   });
 });
 
+// ── POST /api/auth/forgot-password ──
+// Initiates a password reset. In production, this would send an email/SMS with a reset link.
+// For now, validates the user exists and returns a confirmation message.
+router.post('/forgot-password', async (req: AuthRequest, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    res.status(400).json({ error: 'Email is required' });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    // Don't reveal whether the email exists — return same message for security
+    res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
+    return;
+  }
+
+  // TODO: Integrate email/SMS service to send actual reset link with token
+  console.log(`[forgot-password] Reset requested for: ${email} (user: ${user.id})`);
+
+  res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
+});
+
 export default router;

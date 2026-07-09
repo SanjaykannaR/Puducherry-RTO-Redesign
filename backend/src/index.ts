@@ -24,6 +24,7 @@ import adminRoutes from './routes/admin';
 import vehicleRoutes from './routes/vehicles';
 import licenseRoutes from './routes/licenses';
 import contactRoutes from './routes/contact';
+import rtoRoutes from './routes/rto';
 
 // ── Environment setup ──
 // Load .env so process.env.* is available everywhere
@@ -76,6 +77,7 @@ app.use('/api/exam', examRoutes);                 // Protected: driving test (qu
 app.use('/api/vehicles', vehicleRoutes);           // Protected: user vehicles
 app.use('/api/licenses', licenseRoutes);           // Protected: user licenses
 app.use('/api/contact', contactRoutes);           // Public: contact form submissions
+app.use('/api/rto', rtoRoutes);                   // Public: AI assistant + document verification
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 
 // ── 404 fallback ──

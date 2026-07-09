@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
-import { Car, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Download, ArrowRight } from 'lucide-react';
+import { Car, FileText, Calendar, Calculator, Search, ClipboardList, Activity, Download, MessageCircle, ArrowRight } from 'lucide-react';
 
 // ── Page Metadata: Sets <title> and <meta> for SEO so search engines index the service hub correctly ──
 export const metadata: Metadata = {
