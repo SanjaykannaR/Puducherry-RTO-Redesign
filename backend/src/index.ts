@@ -27,6 +27,7 @@ import licenseRoutes from './routes/licenses';
 import contactRoutes from './routes/contact';
 import rtoRoutes from './routes/rto';
 import digilockerRoutes from './routes/digilocker';
+import googleRoutes from './routes/google';
 
 // ── Environment setup ──
 // Load .env so process.env.* is available everywhere
@@ -83,6 +84,7 @@ app.use('/api/licenses', licenseRoutes);           // Protected: user licenses
 app.use('/api/contact', contactRoutes);           // Public: contact form submissions
 app.use('/api/rto', rtoRoutes);                   // Public: AI assistant + document verification
 app.use('/api/auth/digilocker', digilockerRoutes); // Public: DigiLocker OAuth flow
+app.use('/api/auth/google', googleRoutes);         // Public: Google OAuth flow
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 
 // ── 404 fallback ──

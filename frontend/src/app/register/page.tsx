@@ -9,7 +9,7 @@ import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check } from 'lucide-react';
+import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check, Chrome } from 'lucide-react';
 
 // ── Register Page ──
 // Same full-viewport layout as Login but with a packed two-column form that keeps
@@ -152,19 +152,28 @@ export default function RegisterPage() {
             </div>
 
             {/* ── Alternative Registration Methods ── */}
-            {/* Aadhaar / DigiLocker as quicker alternatives to manual form entry (future). */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="gap-2 h-11" onClick={() => alert('Aadhaar registration coming soon')}>
-                <Fingerprint className="w-4 h-4 text-orange-600" />
-                <span className="text-sm">Aadhaar</span>
+            {/* Aadhaar / DigiLocker / Google — Google works immediately with .env creds */}
+            <div className="grid grid-cols-3 gap-3">
+              <Button variant="outline" className="gap-1.5 h-11 px-2" onClick={() => alert('Aadhaar registration coming soon')}>
+                <Fingerprint className="w-4 h-4 text-orange-600 shrink-0" />
+                <span className="text-xs">Aadhaar</span>
               </Button>
               <Button
                 variant="outline"
-                className="gap-2 h-11"
+                className="gap-1.5 h-11 px-2"
                 onClick={() => window.location.href = 'http://localhost:5000/api/auth/digilocker/login?return=/dashboard'}
               >
-                <Shield className="w-4 h-4 text-blue-600" />
-                <span className="text-sm">DigiLocker</span>
+                <Shield className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="text-xs">DigiLocker</span>
+              </Button>
+              {/* Google — real OAuth, works without org registration */}
+              <Button
+                variant="outline"
+                className="gap-1.5 h-11 px-2"
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/dashboard'}
+              >
+                <Chrome className="w-4 h-4 text-red-500 shrink-0" />
+                <span className="text-xs">Google</span>
               </Button>
             </div>
 

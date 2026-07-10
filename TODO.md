@@ -33,8 +33,11 @@
 | **Vehicle Status** (`/services/vehicle-status`) | Search + vehicle details display (insurance, FC, PUC, tax) | Always returns hardcoded mock data — no real API lookup |
 | **Dashboard sub-pages** (vehicles, licenses, applications, notifications) | Full UI with cards, status badges, mark-read toggles | All use hardcoded static data — no API calls to backend |
 | **Contact form** | Name/email/phone/message fields | No submit handler — doesn't POST anywhere |
-| **Login Aadhaar/DigiLocker buttons** | Buttons render with proper styling | Show `alert('coming soon')` on click |
-| **Register Aadhaar/DigiLocker buttons** | Same as above | Same as above |
+| **Login DigiLocker button** | Redirects to DigiLocker OAuth flow | Needs API Setu org registration for real keys — use mock for demo |
+| **Login Google button** | Redirects to Google OAuth flow | **Ready — just needs `.env` creds from Google Cloud Console** |
+| **Register DigiLocker button** | Same as login | Same as login |
+| **Register Google button** | Same as login | Same as login |
+| **Login/Register Aadhaar buttons** | Buttons render with proper styling | Show `alert('coming soon')` on click — needs UIDAI AUA registration |
 | **Forgot password** | Link on login page | No route exists (`/forgot-password` = 404) |
 
 ---
@@ -85,13 +88,22 @@
 - [ ] Run Prisma migration for existing `Payment` model
 - [ ] Test with Razorpay test mode
 
-### 🔐 DigiLocker + Aadhaar
-- [ ] DigiLocker OAuth: register as requester on apisetu.gov.in
-- [ ] `POST /api/auth/digilocker` backend endpoint
-- [ ] `/auth/digilocker/callback` page
-- [ ] Wire buttons on login/register
-- [ ] Add `loginWithDigiLocker()` to AuthContext
-- [ ] Aadhaar biometric integration (KUA registration with UIDAI)
+### 🔐 Government OAuth (DigiLocker + Aadhaar) — Research Notes
+- [x] `GET /api/auth/digilocker/login` + `/callback` — fully implemented (backend + frontend)
+- [x] Added `digilockerId` field to User model (unique, nullable)
+- [ ] **But:** DigiLocker requires org-level KYC (PAN, GST, incorporation cert). No individual signup path.
+- [ ] **For resume:** Build a local mock OAuth server that simulates DigiLocker's authorize/token/userinfo endpoints
+- [ ] **Aadhaar:** UIDAI provides public sandbox keys anyone can use:
+      - AUA Key: `MG_g7jJVYUIW7cLYXY5yaqKD6D1TuhjTJdQRRKP1qALVyORrG1pf0QU`
+      - Test Aadhaar: `999999990019`
+      - Sandbox: `https://developer.uidai.gov.in/uidkyc/kyc/2.5`
+- [ ] **Google OAuth works today** — no org needed, free for individuals (replaces placeholder)
+
+### 🌐 Google OAuth (Live — For Resume Demo)
+- [x] `GET /api/auth/google/login` + `/callback` — redirects to Google, handles callback
+- [x] Google button on login + register pages
+- [ ] **Setup needed:** Go to https://console.cloud.google.com/apis/credentials → create OAuth 2.0 Client ID (Web application)
+- [ ] Add your `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` to `backend/.env`
 
 ### 📄 Real API Integration for Placeholders
 - [ ] Wire all 9 service forms → `POST /api/applications` (with proper type + formData)

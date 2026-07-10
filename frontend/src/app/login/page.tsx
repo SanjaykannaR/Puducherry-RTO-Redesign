@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogIn, Mail, Lock, Fingerprint, Shield } from 'lucide-react';
+import { LogIn, Mail, Lock, Fingerprint, Shield, Chrome } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -107,6 +107,15 @@ function LoginForm() {
               >
                 <Shield className="w-5 h-5 text-blue-600" />
                 <span>Sign in with <strong>DigiLocker</strong></span>
+              </Button>
+              {/* Google OAuth: works immediately after adding creds to .env — free, no org needed */}
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-3 h-12 text-base"
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/dashboard'}
+              >
+                <Chrome className="w-5 h-5 text-red-500" />
+                <span>Sign in with <strong>Google</strong></span>
               </Button>
             </div>
             <div className="mt-5 pt-4 border-t text-center">

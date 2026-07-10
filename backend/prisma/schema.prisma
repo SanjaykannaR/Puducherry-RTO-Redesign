@@ -23,6 +23,7 @@ model User {
   isMobileVerified Boolean @default(false)
   aadhaarLastFour String?
   digilockerId    String?  @unique
+  googleId        String?  @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
