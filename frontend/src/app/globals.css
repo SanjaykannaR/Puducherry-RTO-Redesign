@@ -150,6 +150,8 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    max-width: 2560px;
+    margin-inline: auto;
   }
   html {
     @apply font-sans;
