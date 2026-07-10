@@ -28,7 +28,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary-dark text-white print:hidden" role="contentinfo">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div className="mx-auto px-4 sm:px-6 py-12">
         {/* ── 4-column grid: about → quick links → citizen services → contact ── */}
         {/* Responsively collapses: 1 col on mobile, 2 on sm, 4 on lg */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">

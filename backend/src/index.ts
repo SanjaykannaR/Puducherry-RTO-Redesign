@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 
@@ -25,6 +26,7 @@ import vehicleRoutes from './routes/vehicles';
 import licenseRoutes from './routes/licenses';
 import contactRoutes from './routes/contact';
 import rtoRoutes from './routes/rto';
+import digilockerRoutes from './routes/digilocker';
 
 // ── Environment setup ──
 // Load .env so process.env.* is available everywhere
@@ -40,6 +42,8 @@ app.use(helmet());
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
 // Request logging in 'dev' format (method, url, status, response-time) for debugging
 app.use(morgan('dev'));
+// Cookie parsing: needed for OAuth state management (DigiLocker)
+app.use(cookieParser());
 // Body parsing: JSON payloads up to 10 MB (enough for form uploads) + URL-encoded
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -78,6 +82,7 @@ app.use('/api/vehicles', vehicleRoutes);           // Protected: user vehicles
 app.use('/api/licenses', licenseRoutes);           // Protected: user licenses
 app.use('/api/contact', contactRoutes);           // Public: contact form submissions
 app.use('/api/rto', rtoRoutes);                   // Public: AI assistant + document verification
+app.use('/api/auth/digilocker', digilockerRoutes); // Public: DigiLocker OAuth flow
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 
 // ── 404 fallback ──

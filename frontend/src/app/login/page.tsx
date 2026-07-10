@@ -100,7 +100,11 @@ function LoginForm() {
                 <Fingerprint className="w-5 h-5 text-orange-600" />
                 <span>Sign in with <strong>Aadhaar</strong></span>
               </Button>
-              <Button variant="outline" className="w-full justify-center gap-3 h-12 text-base" onClick={() => alert('DigiLocker integration coming soon')}>
+              <Button
+                variant="outline"
+                className="w-full justify-center gap-3 h-12 text-base"
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/digilocker/login?return=/dashboard'}
+              >
                 <Shield className="w-5 h-5 text-blue-600" />
                 <span>Sign in with <strong>DigiLocker</strong></span>
               </Button>

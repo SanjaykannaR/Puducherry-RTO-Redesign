@@ -158,7 +158,11 @@ export default function RegisterPage() {
                 <Fingerprint className="w-4 h-4 text-orange-600" />
                 <span className="text-sm">Aadhaar</span>
               </Button>
-              <Button variant="outline" className="gap-2 h-11" onClick={() => alert('DigiLocker registration coming soon')}>
+              <Button
+                variant="outline"
+                className="gap-2 h-11"
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/digilocker/login?return=/dashboard'}
+              >
                 <Shield className="w-4 h-4 text-blue-600" />
                 <span className="text-sm">DigiLocker</span>
               </Button>

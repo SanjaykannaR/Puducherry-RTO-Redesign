@@ -100,7 +100,7 @@ export default function Home() {
         {/* ── Hero Text + CTAs ── */}
         {/* Positioned over the image with a max-width container so text reflows neatly on mobile */}
         <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+          <div className="mx-auto px-4 sm:px-6 w-full">
             <div className="max-w-3xl">
               {/* Government badge — subtle backdrop blur makes it feel modern */}
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm rounded-full px-4 py-1.5 mb-4 border border-white/10">
@@ -173,7 +173,7 @@ export default function Home() {
       {/* shows key metrics to reinforce credibility. Each icon sits in a subtle rounded box. */}
       <FadeInSection>
         <section className="bg-white border-b border-gray-100" aria-label="Key statistics">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <div className="mx-auto px-4 sm:px-6 py-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {highlights.map((h) => {
                 const Icon = h.icon;
@@ -197,7 +197,7 @@ export default function Home() {
       {/* A 1/2/3-column responsive card grid. Each card links to a dedicated service page. */}
       {/* Cards lift on hover with a subtle shadow + border tint to indicate interactivity. */}
       <section className="py-16 md:py-24" aria-label="Quick services" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="mx-auto px-4 sm:px-6">
           <FadeInSection>
             <div className="text-center mb-12">
               <span className="inline-flex items-center gap-2 bg-primary/5 text-primary text-sm font-medium rounded-full px-4 py-1.5 mb-3">
@@ -247,7 +247,7 @@ export default function Home() {
             backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
             backgroundSize: '50px 50px',
           }} />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20 text-center">
+          <div className="relative mx-auto px-4 sm:px-6 py-16 md:py-20 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">{t('cta.title', locale)}</h2>
             <p className="text-blue-200 text-lg mb-8 max-w-xl mx-auto">{t('cta.desc', locale)}</p>
             <Link

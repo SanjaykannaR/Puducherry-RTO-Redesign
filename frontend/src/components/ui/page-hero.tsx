@@ -29,7 +29,7 @@ export default function PageHero({ title, subtitle, badge = 'Government of Puduc
       </div>
       {/* ── Foreground content: absolutely positioned over the gradient ── */}
       <div className="absolute inset-0 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+        <div className="mx-auto px-4 sm:px-6 w-full">
           <div className="max-w-3xl">
             {/* Badge pill: signals government authority with a shield icon */}
             {badge && (

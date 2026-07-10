@@ -77,7 +77,7 @@ export default function DashboardPage() {
             backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
             backgroundSize: '50px 50px',
           }} />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <div className="relative mx-auto px-4 sm:px-6 py-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center border-2 border-white/25">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
         </section>
 
         <section className="bg-gradient-to-b from-gray-50 to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <div className="mx-auto px-4 sm:px-6 py-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {dashboardLinks.map((link, i) => {
                 const Icon = link.icon;

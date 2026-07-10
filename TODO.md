@@ -23,8 +23,8 @@
 
 ---
 
-## 🔶 Mock / Placeholder (UI exists, but no real backend integration)
 
+## 🔶 Mock / Placeholder (UI exists, but no real backend integration)
 | Page | What's done | What's missing |
 |------|-------------|----------------|
 | **9 Service Forms** (vehicle-reg, DL, LL, license-renewal, intl-permit, transfer-ownership, duplicate-rc, appointment, download-forms) | Full form UI with all fields, validation, doc checklists, success screens | Submit just sets `submitted=true` — no `POST /api/applications` call. Download-forms has no real PDF files. |
