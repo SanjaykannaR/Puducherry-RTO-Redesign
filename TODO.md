@@ -1,4 +1,4 @@
-# RTO Portal — Complete Status (2026-07-07)
+# RTO Portal — Complete Status (2026-07-10)
 
 ---
 
@@ -15,6 +15,11 @@
 - [x] **Header redesign** — Hamburger next to logo (mobile), smooth slide-down menu, search-compact nav (desktop), auth-aware button (Dashboard vs Sign In)
 - [x] **Auth flow** — Register → Login (with success toast), Login → Home; register no longer auto-logs-in
 - [x] **Dashboard home** — Fetches live data (challans, applications, notifications), shows summary counts + user profile
+- [x] **Dashboard vehicles** — Add-vehicle form + live list via `GET/POST /api/vehicles`
+- [x] **Dashboard licenses** — Add-license form + live list via `GET/POST /api/licenses`
+- [x] **Dashboard applications** — New-application form + cancel action via `GET/POST /api/applications`
+- [x] **Dashboard notifications** — Inline bell-icon dropdown with mark-read/unread, auto-read on expand
+- [x] **Google OAuth** — Live and working (new creds in `.env`, fixed `dotenv` import-order bug, fixed post-auth token pickup)
 - [x] **All footer pages** — Accessibility, Privacy, Terms, Sitemap (zero 404s across all linked routes)
 - [x] **Sonner toasts** — Installed + `<Toaster />` in layout
 - [x] **Backend tests** — 30 passing (auth, middleware, protected routes, exam, public routes)
@@ -31,10 +36,9 @@
 | **Application Status** (`/services/application-status`) | Search input + status display | Always returns hardcoded "UNDER_REVIEW" — no real API lookup |
 | **Challan Status** (`/services/challan`) | Lists 2 hardcoded challans, Pay Now button | Pay Now just toggles local state — no `POST /api/challans/:id/pay` call |
 | **Vehicle Status** (`/services/vehicle-status`) | Search + vehicle details display (insurance, FC, PUC, tax) | Always returns hardcoded mock data — no real API lookup |
-| **Dashboard sub-pages** (vehicles, licenses, applications, notifications) | Full UI with cards, status badges, mark-read toggles | All use hardcoded static data — no API calls to backend |
 | **Contact form** | Name/email/phone/message fields | No submit handler — doesn't POST anywhere |
 | **Login DigiLocker button** | Redirects to DigiLocker OAuth flow | Needs API Setu org registration for real keys — use mock for demo |
-| **Login Google button** | Redirects to Google OAuth flow | **Ready — just needs `.env` creds from Google Cloud Console** |
+| **Login Google button** | Redirects to Google OAuth flow | ✅ **Working** — new creds set up in `.env` |
 | **Register DigiLocker button** | Same as login | Same as login |
 | **Register Google button** | Same as login | Same as login |
 | **Login/Register Aadhaar buttons** | Buttons render with proper styling | Show `alert('coming soon')` on click — needs UIDAI AUA registration |
@@ -102,8 +106,9 @@
 ### 🌐 Google OAuth (Live — For Resume Demo)
 - [x] `GET /api/auth/google/login` + `/callback` — redirects to Google, handles callback
 - [x] Google button on login + register pages
-- [ ] **Setup needed:** Go to https://console.cloud.google.com/apis/credentials → create OAuth 2.0 Client ID (Web application)
-- [ ] Add your `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` to `backend/.env`
+- [x] **Setup complete** — new OAuth 2.0 Client ID created in Google Cloud Console
+- [x] **Fixed** `dotenv` import-order bug (env vars were undefined at module init)
+- [x] **Fixed** post-OAuth token pickup (`window.location.replace` instead of `router.replace` to remount AuthContext)
 
 ### 📄 Real API Integration for Placeholders
 - [ ] Wire all 9 service forms → `POST /api/applications` (with proper type + formData)
@@ -212,13 +217,48 @@ c7215d0 fix: res.status property not method + CardTitle div heading selector
 
 ---
 
+## ✅ Completed (2026-07-10)
+
+### 🔧 Bug Fixes
+- [x] **Google OAuth `invalid_client`** — Fixed `dotenv` import-order bug in `backend/src/index.ts` (env vars loaded after module imports, so `process.env.GOOGLE_CLIENT_ID` was `undefined`)
+- [x] **Post-OAuth redirect loop** — Fixed `auth/digilocker/callback/page.tsx`: replaced `router.replace()` with `window.location.replace()` so `AuthProvider` remounts and picks up the token from localStorage
+- [x] **Dashboard text colour** — Fixed white-on-light text in summary cards (`text-white` → `text-gray-900` / `text-gray-600`)
+
+### 🎨 UI Polish
+- [x] **Home page hero** — Added `pl-6 md:pl-12 lg:pl-16` to hero content for left padding
+- [x] **Dashboard welcome** — Changed "Welcome back, {name}" → "My Dashboard"
+- [x] **Default OAuth return** — Changed from `/dashboard` to `/` (home page)
+
+### 🆕 Dashboard Sub-Pages (Live API Integration)
+- [x] **My Vehicles** (`/dashboard/vehicles`) — Inline add-vehicle form + live list via `GET/POST /api/vehicles`
+- [x] **My Licenses** (`/dashboard/licenses`) — Inline add-license form + live list via `GET/POST /api/licenses`
+- [x] **My Applications** (`/dashboard/applications`) — New-application form + cancel action via `GET/POST /api/applications`
+- [x] **Notifications** — Removed separate page; inline **round bell icon** in dashboard hero with dropdown panel. Click to expand → auto-mark-read, mark-read/unread toggle, mark-all-read
+
+## 📋 Next Plan
+
+### Short Term
+1. **Wire service forms** — 9 service pages (DL, LL, vehicle-reg, etc.) still use local `submitted=true` instead of `POST /api/applications`
+2. **Wire search tools** — Application Status, Challan Status, Vehicle Status still return hardcoded mock data
+3. **Contact form** — Should `POST /api/contact` instead of doing nothing
+4. **Forgot password** — Create route or remove the link from login page
+5. **Fix E2E tests** — 17 failing tests (login flow timing, form selectors, auth persistence)
+
+### Medium Term
+6. **Payment gateway** — Razorpay integration across fee-calculator, challan pay, appointments
+7. **Admin workflow** — Application approve/reject flow (`PATCH /api/applications/:id/status`)
+8. **Notifications & alerts** — SMS/email gateway, scheduled expiry reminders
+9. **Test expansion** — Add backend tests for all 31 endpoints, frontend tests for new pages
+
+---
+
 ## Summary Dashboard
 
 | Category | Count |
 |----------|-------|
-| **Frontend routes** | 39 (all build, 0 errors) |
-| **Backend endpoints** | 31 (all in-memory, 0 using DB) |
-| **Placeholder/mock pages** | 9 service forms + 4 dashboard sub-pages + 3 search tools + contact form = **17 need real API wiring** |
+| **Frontend routes** | 38 (all build, 0 errors — removed `/dashboard/notifications` in favour of inline bell) |
+| **Backend endpoints** | 31 (all Prisma-backed, real DB) |
+| **Placeholder/mock pages** | 9 service forms + 3 search tools + contact form + forgot-password = **14 need real API wiring** |
 | **Dead code files** | 1 full component (select.tsx) + 4 unused exports + 2 dead vars |
 | **Backend tests** | 30 ✅ |
 | **Frontend tests** | 8 ✅ |

@@ -112,7 +112,7 @@ function LoginForm() {
               <Button
                 variant="outline"
                 className="w-full justify-center gap-3 h-12 text-base"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/dashboard'}
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/'}
               >
                 {/* Inline Google "G" logo — no external dep needed */}
                 <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">

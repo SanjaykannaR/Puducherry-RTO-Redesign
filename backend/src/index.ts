@@ -8,7 +8,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
+// dotenv MUST be loaded before ANY local module imports
+// because those modules read process.env at module-init time
+import 'dotenv/config';
 
 import infoRoutes from './routes/info';
 import directoryRoutes from './routes/directory';
@@ -30,9 +32,7 @@ import digilockerRoutes from './routes/digilocker';
 import googleRoutes from './routes/google';
 
 // ── Environment setup ──
-// Load .env so process.env.* is available everywhere
-dotenv.config();
-
+// .env loaded at top of file via `import 'dotenv/config'` — must happen before module imports
 const app = express();
 const PORT = process.env.PORT || 5000;
 

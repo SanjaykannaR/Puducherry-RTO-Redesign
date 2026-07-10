@@ -170,7 +170,7 @@ export default function RegisterPage() {
               <Button
                 variant="outline"
                 className="gap-1.5 h-11 px-2"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/dashboard'}
+                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/'}
               >
                 {/* Inline Google "G" logo */}
                 <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden="true">

@@ -53,3 +53,10 @@ Service pages (LL, DL, etc.) use bare `<Input>` with NO `name`, `placeholder`, o
 - 64 ✅ / 17 ❌ (up from 32 ✅ after fixing `res.status()` bug)
 - Main remaining issues: form input locators, login flow timing, auth persistence across tests
 - See TODO.md for detailed breakdown
+
+## OAuth Issue (2026-07-10)
+- Google OAuth returned `401 invalid_client: The OAuth client was not found` — old credentials referred to a deleted client
+- **FIXED**: Updated `backend/.env` with new Google OAuth credentials
+  - Client ID: `1096842073969-7d7dm60f4qeok6a6h44lpa01lggbr1al.apps.googleusercontent.com`
+  - Redirect URI: `http://localhost:5000/api/auth/google/callback` (must match Google Cloud Console)
+- Code in `backend/src/routes/google.ts` is correct — only credentials were replaced
