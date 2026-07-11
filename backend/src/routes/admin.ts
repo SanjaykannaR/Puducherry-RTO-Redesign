@@ -1,10 +1,11 @@
 // ── Admin routes: user management, stats, system-wide data updates ──
 // All routes are gated behind authenticate + adminOnly middleware.
-// Only users with role === 'admin' may access these endpoints.
+// Only users with role === 'ADMIN' may access these endpoints.
 
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { adminOnly } from '../middleware/admin';
+import { hashPassword, verifyPassword } from '../services/auth';
 import prisma from '../services/prisma';
 
 const router = Router();
@@ -81,6 +82,64 @@ router.put('/services', (_req: AuthRequest, res: Response) => {
 // Replaces the in-memory office directory (data sent in body).
 router.put('/directory', (_req: AuthRequest, res: Response) => {
   res.json({ message: 'Directory updated' });
+});
+
+// ── PATCH /api/admin/settings/email ──
+// Admin changes their own email. Requires current password for security.
+router.patch('/settings/email', async (req: AuthRequest, res: Response) => {
+  const { email, currentPassword } = req.body;
+  if (!email || !currentPassword) {
+    res.status(400).json({ error: 'New email and current password are required' });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
+  if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+    res.status(401).json({ error: 'Current password is incorrect' });
+    return;
+  }
+
+  // Check if email is already taken by another user
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing && existing.id !== user.id) {
+    res.status(409).json({ error: 'Email is already in use' });
+    return;
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { email },
+    select: { id: true, email: true, mobile: true, name: true, role: true },
+  });
+  res.json(updated);
+});
+
+// ── PATCH /api/admin/settings/password ──
+// Admin changes their own password. Requires current password for security.
+router.patch('/settings/password', async (req: AuthRequest, res: Response) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ error: 'Current password and new password are required' });
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    res.status(400).json({ error: 'New password must be at least 6 characters' });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
+  if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+    res.status(401).json({ error: 'Current password is incorrect' });
+    return;
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash },
+  });
+  res.json({ message: 'Password updated successfully' });
 });
 
 export default router;
