@@ -1,4 +1,4 @@
-# RTO Portal — Complete Status (2026-07-10)
+# RTO Portal — Complete Status (2026-07-11)
 
 ---
 
@@ -25,6 +25,13 @@
 - [x] **Backend tests** — 30 passing (auth, middleware, protected routes, exam, public routes)
 - [x] **Frontend tests** — 8 passing (AuthContext, Exam, Dashboard)
 - [x] **Auto-commit pre-push hook**
+- [x] **Admin users page** — Fully connected to backend (Prisma `id` field, `{ users }` response unwrapping, `ADMIN`/`CITIZEN` role values)
+- [x] **Register page** — Uses `useAuth().register()` from AuthContext (consistent with login pattern)
+- [x] **DigiLocker callback** — Fixed React cascading renders (derived state from `searchParams` instead of `setState` in effect)
+- [x] **SearchBar click-away** — Uses `pointerdown` for cross-browser/touch reliability
+- [x] **Contact form** — Wired to `POST /api/contact` with toast feedback
+- [x] **Forgot password** — Page exists at `/forgot-password`, calls `POST /api/auth/forgot-password`
+- [x] **select.tsx** — Deleted (unused component)
 
 ---
 
@@ -36,13 +43,13 @@
 | **Application Status** (`/services/application-status`) | Search input + status display | Always returns hardcoded "UNDER_REVIEW" — no real API lookup |
 | **Challan Status** (`/services/challan`) | Lists 2 hardcoded challans, Pay Now button | Pay Now just toggles local state — no `POST /api/challans/:id/pay` call |
 | **Vehicle Status** (`/services/vehicle-status`) | Search + vehicle details display (insurance, FC, PUC, tax) | Always returns hardcoded mock data — no real API lookup |
-| **Contact form** | Name/email/phone/message fields | No submit handler — doesn't POST anywhere |
+| **Contact form** | Name/email/phone/message fields | ✅ **Wired** — POSTs to `POST /api/contact` with toast feedback |
 | **Login DigiLocker button** | Redirects to DigiLocker OAuth flow | Needs API Setu org registration for real keys — use mock for demo |
 | **Login Google button** | Redirects to Google OAuth flow | ✅ **Working** — new creds set up in `.env` |
 | **Register DigiLocker button** | Same as login | Same as login |
 | **Register Google button** | Same as login | Same as login |
 | **Login/Register Aadhaar buttons** | Buttons render with proper styling | Show `alert('coming soon')` on click — needs UIDAI AUA registration |
-| **Forgot password** | Link on login page | No route exists (`/forgot-password` = 404) |
+| **Forgot password** | Link on login page | ✅ **Wired** — Page at `/forgot-password`, calls `POST /api/auth/forgot-password` |
 
 ---
 
@@ -50,11 +57,11 @@
 
 | File | Lines | Issue |
 |------|-------|-------|
-| `src/components/ui/select.tsx` | 208 | **Entire file unused** — all pages use native `<select>` |
+| `src/components/ui/select.tsx` | 208 | **Deleted** — was unused, all pages use native `<select>` |
 | `CardAction` / `CardFooter` exports | 2 exports | Exported but never imported anywhere |
 | `TableFooter` / `TableCaption` exports | 2 exports | Exported but never imported anywhere |
 | `prevIdx` state in `src/app/page.tsx` | lines 62,69,78 | Set but never read |
-| `AuthContext.register()` | lines 68-73 | Defined but never called (register page uses `api.post` directly) |
+| `AuthContext.register()` | — | ✅ **Now used** — register page uses `useAuth().register()` consistently |
 | `Pillow` in `ai/requirements.txt` | listed | Installed but never imported |
 | Hardcoded timestamp in `ai/main.py` | health endpoint | Returns static date instead of `datetime.utcnow()` |
 
@@ -73,15 +80,12 @@
 
 ## 🔜 Major Features Not Yet Started
 
-### 🗄️ Database Migration (Phase 3a)
-- [ ] **Prisma connection** — currently ALL 31 endpoints use in-memory arrays. Data lost on restart.
-- [ ] Migrate auth (register/login/me) to Prisma
-- [ ] Create Vehicle & License routes (models exist in Prisma, no routes for them)
-- [ ] Migrate appointments, applications, challans, notifications to Prisma
+### 🗄️ Database Migration (Phase 3a) — ✅ Prisma Connected
+- [x] **Prisma connection** — All 31 endpoints use Prisma with real DB
+- [x] Auth (register/login/me) migrated to Prisma
+- [x] Vehicle & License routes exist (models in Prisma, CRUD routes working)
+- [x] Appointments, applications, challans, notifications migrated to Prisma
 - [ ] Create `PATCH /api/applications/:id/status` for admin approve/reject workflow
-- [ ] Create vehicle CRUD routes (for dashboard "My Vehicles")
-- [ ] Create license CRUD routes (for dashboard "My Licenses")
-- [ ] Run all Prisma migrations
 - [ ] Seed script for demo data
 
 ### 💳 Payment Gateway
@@ -116,8 +120,8 @@
 - [ ] Wire Challan Status → `GET /api/challans` + `POST /api/challans/:id/pay`
 - [ ] Wire Vehicle Status → new `GET /api/vehicles/search/:regNo`
 - [ ] Wire Dashboard sub-pages → `GET /api/vehicles`, `GET /api/licenses`, `GET /api/applications`, `GET /api/notifications`
-- [ ] Wire Contact form → `POST /api/contact`
-- [ ] Wire Forgot Password → create route, email/SMS reset link
+- [x] **Wire Contact form** → `POST /api/contact` ✅
+- [x] **Wire Forgot Password** → `POST /api/auth/forgot-password` ✅
 - [ ] Create real PDF files for download-forms
 
 ### 📡 Notifications & Alerts
@@ -217,6 +221,24 @@ c7215d0 fix: res.status property not method + CardTitle div heading selector
 
 ---
 
+## ✅ Completed (2026-07-11)
+
+### 🔧 Bug Fixes
+- [x] **Admin users `_id` → `id`** — Fixed Prisma convention mismatch in `admin/users/page.tsx`, unwrapped `{ users }` response, fixed role case (`ADMIN`/`CITIZEN` not `admin`/`user`)
+- [x] **DigiLocker callback cascading renders** — Removed synchronous `setState` calls from `useEffect`, derived `token`/`returnUrl` from `searchParams` during render instead
+- [x] **SearchBar click-away race** — Changed `mousedown` → `pointerdown` for cross-browser reliability
+
+### 🎨 Consistency Fixes
+- [x] **Register page** — Added `register()` to `AuthContext`, register page now uses `useAuth().register()` (consistent with login pattern)
+- [x] **Contact form** — Already wired to `POST /api/contact` with toast feedback (TODO was outdated)
+- [x] **Forgot password** — Page already exists at `/forgot-password`, calls `POST /api/auth/forgot-password` (TODO was outdated)
+
+### 🗑️ Cleanup
+- [x] **select.tsx deleted** — Unused component removed
+- [x] **TODO.md updated** — All 6 🟡 Need Fix / Polish items resolved, marked ✅
+
+---
+
 ## ✅ Completed (2026-07-10)
 
 ### 🔧 Bug Fixes
@@ -240,8 +262,8 @@ c7215d0 fix: res.status property not method + CardTitle div heading selector
 ### Short Term
 1. **Wire service forms** — 9 service pages (DL, LL, vehicle-reg, etc.) still use local `submitted=true` instead of `POST /api/applications`
 2. **Wire search tools** — Application Status, Challan Status, Vehicle Status still return hardcoded mock data
-3. **Contact form** — Should `POST /api/contact` instead of doing nothing
-4. **Forgot password** — Create route or remove the link from login page
+3. ~~**Contact form** — Should `POST /api/contact` instead of doing nothing~~ ✅ Done
+4. ~~**Forgot password** — Create route or remove the link from login page~~ ✅ Done
 5. **Fix E2E tests** — 17 failing tests (login flow timing, form selectors, auth persistence)
 
 ### Medium Term
@@ -258,8 +280,8 @@ c7215d0 fix: res.status property not method + CardTitle div heading selector
 |----------|-------|
 | **Frontend routes** | 38 (all build, 0 errors — removed `/dashboard/notifications` in favour of inline bell) |
 | **Backend endpoints** | 31 (all Prisma-backed, real DB) |
-| **Placeholder/mock pages** | 9 service forms + 3 search tools + contact form + forgot-password = **14 need real API wiring** |
-| **Dead code files** | 1 full component (select.tsx) + 4 unused exports + 2 dead vars |
+| **Placeholder/mock pages** | 9 service forms + 3 search tools = **12 need real API wiring** (contact form + forgot password now wired) |
+| **Dead code files** | 4 unused exports + 2 dead vars (select.tsx deleted, AuthContext.register now used) |
 | **Backend tests** | 30 ✅ |
 | **Frontend tests** | 8 ✅ |
 | **AI tests** | 6 (all negative-path only) |
