@@ -27,8 +27,8 @@ export default function AdminServices() {
 
   // ── Fetch current services on mount ──
   useEffect(() => {
-    api.get<ServiceItem[]>('/services')
-      .then(setServices)
+    api.get<{ services: ServiceItem[] }>('/services')
+      .then((data) => setServices(data.services))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
