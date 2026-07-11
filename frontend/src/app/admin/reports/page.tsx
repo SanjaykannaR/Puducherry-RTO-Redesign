@@ -1,13 +1,16 @@
 'use client';
 
-// ── Data fetching with loading state ──
+// ── Admin Reports — visual charts + summary table ──
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-// ── Icons for each KPI in the summary cards ──
 import { Users, CalendarCheck, FileText, ClipboardList } from 'lucide-react';
 import { api } from '@/lib/api';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell,
+} from 'recharts';
 
 interface AdminStats {
   totalUsers: number;
@@ -16,23 +19,20 @@ interface AdminStats {
   totalChallans: number;
 }
 
-// ── Report metric definitions ──
-// Declared outside the component so the icon/label/key mapping is reusable
-// by both the stat cards and the summary table below.
 const reportItems = [
-  { key: 'totalUsers', label: 'Total Users', icon: Users },
-  { key: 'totalAppointments', label: 'Total Appointments', icon: CalendarCheck },
-  { key: 'totalApplications', label: 'Total Applications', icon: FileText },
-  { key: 'totalChallans', label: 'Total Challans', icon: ClipboardList },
+  { key: 'totalUsers', label: 'Total Users', icon: Users, color: '#3b82f6' },
+  { key: 'totalAppointments', label: 'Total Appointments', icon: CalendarCheck, color: '#22c55e' },
+  { key: 'totalApplications', label: 'Total Applications', icon: FileText, color: '#f59e0b' },
+  { key: 'totalChallans', label: 'Total Challans', icon: ClipboardList, color: '#ef4444' },
 ] as const;
 
+const PIE_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];
+
 export default function AdminReports() {
-  // ── State: stats, loading, error ──
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // ── Fetch aggregate stats on mount ──
   useEffect(() => {
     api.get<AdminStats>('/admin/stats')
       .then(setStats)
@@ -42,28 +42,39 @@ export default function AdminReports() {
 
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-primary mb-6">Reports</h1>
+  // ── Chart data ──
+  const barData = reportItems.map((item) => ({
+    name: item.label.replace('Total ', ''),
+    value: stats ? stats[item.key as keyof AdminStats] : 0,
+    fill: item.color,
+  }));
 
-      {/* ── KPI stat cards ── */}
-      {/* Four large-format cards give a high-level numeric overview. Each card
-          holds one metric with its icon; the value is formatted in Indian locale
-          and displayed prominently (text-4xl) to draw the admin's eye. */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  const pieData = reportItems
+    .map((item) => ({
+      name: item.label.replace('Total ', ''),
+      value: stats ? stats[item.key as keyof AdminStats] : 0,
+    }))
+    .filter((d) => d.value > 0);  // Hide zero-value slices
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold text-primary">Reports</h1>
+
+      {/* ── KPI Stat Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {reportItems.map((item) => {
           const Icon = item.icon;
           const value = stats ? stats[item.key as keyof AdminStats] : undefined;
           return (
-            <Card
-              key={item.key}
-              className="transition-all hover:shadow-md hover:border-primary/30"
-            >
+            <Card key={item.key} className="transition-all hover:shadow-md hover:border-primary/30">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {item.label}
-                </CardTitle>
-                <Icon className="h-5 w-5 text-primary" />
+                <CardTitle className="text-sm font-medium text-muted-foreground">{item.label}</CardTitle>
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: `${item.color}15` }}
+                >
+                  <Icon className="h-5 w-5" style={{ color: item.color }} />
+                </div>
               </CardHeader>
               <CardContent>
                 {loading ? (
@@ -77,13 +88,78 @@ export default function AdminReports() {
         })}
       </div>
 
-      {/* ── Summary table ── */}
-      {/* A tabular view of the same data below the cards, useful for printing or
-          exporting. The table repeats the metric labels with right-aligned counts
-          in monospace font for easy scanning. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Bar Chart ── */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-72 w-full" />
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={barData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {barData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Pie Chart ── */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-72 w-full" />
+            ) : pieData.length === 0 ? (
+              <p className="text-muted-foreground text-center py-16">No data to display.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={110}
+                    paddingAngle={4}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {pieData.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Summary Table ── */}
       <Card>
         <CardHeader>
-          <CardTitle>Summary</CardTitle>
+          <CardTitle className="text-lg">Detailed Summary</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
