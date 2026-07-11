@@ -37,14 +37,29 @@ D:\rto\
 - Python >= 3.10 (3.14.0 used)
 - PostgreSQL (for Prisma — or use SQLite for dev)
 
-### 1. Frontend
+### Run Everything at Once
+```bash
+npm install            # Install root deps (concurrently)
+npm run dev            # Starts frontend + backend + AI together
+```
+
+| Command | What it runs |
+|---------|-------------|
+| `npm run dev` | All 3 services (frontend + backend + AI) |
+| `npm run dev:frontend` | Frontend only → http://localhost:3000 |
+| `npm run dev:backend` | Backend only → http://localhost:5000 |
+| `npm run dev:ai` | AI proctoring only → http://localhost:8000 |
+
+### Run Individually
+
+#### 1. Frontend
 ```bash
 cd frontend
 npm install
 npm run dev        # → http://localhost:3000
 ```
 
-### 2. Backend
+#### 2. Backend
 ```bash
 cd backend
 npm install
@@ -53,11 +68,11 @@ npx prisma db push
 npm run dev        # → http://localhost:5000
 ```
 
-### 3. AI Proctoring
+#### 3. AI Proctoring
 ```bash
 cd ai
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --reload --port 8000
 # → http://localhost:8000
 ```
 
