@@ -5,7 +5,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const { register } = useAuth();
 
   // ── Submit Handler ──
   // Client-side password-match check before hitting the API so the server isn't
@@ -34,7 +35,7 @@ export default function RegisterPage() {
     }
     setSubmitting(true);
     try {
-      await api.post('/auth/register', { name: form.name, email: form.email, mobile: form.mobile, password: form.password });
+      await register(form.name, form.email, form.mobile, form.password);
       router.push('/login?registered=true');
       setError('');
     } catch (err: any) {

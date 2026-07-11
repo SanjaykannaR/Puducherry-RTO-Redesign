@@ -20,7 +20,7 @@ import { api } from '@/lib/api';
 import { Shield, ShieldOff, Trash2 } from 'lucide-react';
 
 interface AdminUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   mobile: string;
@@ -38,8 +38,8 @@ export default function AdminUsers() {
   // Wrapped in useCallback so it can be safely passed as a dependency.
   const fetchUsers = useCallback(async () => {
     try {
-      const data = await api.get<AdminUser[]>('/admin/users');
-      setUsers(data);
+      const data = await api.get<{ users: AdminUser[] }>('/admin/users');
+      setUsers(data.users);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -53,11 +53,11 @@ export default function AdminUsers() {
   // Optimistic update: immediately flip the role in local state, then send the PATCH.
   // If the API call fails, the error is surfaced via alert (could be replaced with toast).
   const toggleRole = async (id: string, currentRole: string) => {
-    const newRole = currentRole === 'admin' ? 'user' : 'admin';
+    const newRole = currentRole === 'ADMIN' ? 'CITIZEN' : 'ADMIN';
     try {
       await api.patch<AdminUser>(`/admin/users/${id}/role`, { role: newRole });
       setUsers((prev) =>
-        prev.map((u) => (u._id === id ? { ...u, role: newRole } : u))
+        prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
       );
     } catch (err: any) {
       alert(err.message);
@@ -69,8 +69,8 @@ export default function AdminUsers() {
   const deleteUser = async () => {
     if (!deleteTarget) return;
     try {
-      await api.delete(`/admin/users/${deleteTarget._id}`);
-      setUsers((prev) => prev.filter((u) => u._id !== deleteTarget._id));
+      await api.delete(`/admin/users/${deleteTarget.id}`);
+      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
       setDeleteTarget(null);
     } catch (err: any) {
       alert(err.message);
@@ -117,13 +117,13 @@ export default function AdminUsers() {
               </TableRow>
             ) : (
               users.map((user) => (
-                <TableRow key={user._id}>
+                <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.mobile}</TableCell>
                   <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'destructive' : 'secondary'}>
-                      {user.role}
+                    <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
+                      {user.role === 'ADMIN' ? 'Admin' : 'User'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -131,15 +131,15 @@ export default function AdminUsers() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => toggleRole(user._id, user.role)}
-                        aria-label={user.role === 'admin' ? 'Remove admin privileges' : 'Make admin'}
+                        onClick={() => toggleRole(user.id, user.role)}
+                        aria-label={user.role === 'ADMIN' ? 'Remove admin privileges' : 'Make admin'}
                       >
-                        {user.role === 'admin' ? (
+                        {user.role === 'ADMIN' ? (
                           <ShieldOff className="h-4 w-4" />
                         ) : (
                           <Shield className="h-4 w-4" />
                         )}
-                        {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
+                        {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
                       </Button>
                       <Button
                         variant="destructive"

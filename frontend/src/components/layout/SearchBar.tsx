@@ -56,11 +56,11 @@ export default function SearchBar({ onToggle }: { onToggle?: (open: boolean) => 
 
   // ── Click-away listener: closes the search panel when user clicks outside ──
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handlePointerDown(e: PointerEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, []);
 
   function navigate(href: string) {

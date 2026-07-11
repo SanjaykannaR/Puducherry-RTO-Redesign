@@ -5,32 +5,25 @@
 // The backend puts the JWT + return URL in query params. We store the token
 // in localStorage and redirect the user to their intended destination.
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 function CallbackHandler() {
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<'processing' | 'error'>('processing');
-  const [errorMsg, setErrorMsg] = useState('');
+  const token = searchParams.get('token');
+  const returnUrl = searchParams.get('return') || '/';
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const returnUrl = searchParams.get('return') || '/';
-
-    if (!token) {
-      setStatus('error');
-      setErrorMsg('No authentication token received from DigiLocker.');
-      return;
-    }
+    if (!token) return;
 
     // Store the JWT exactly like AuthContext.login() does
     localStorage.setItem('token', token);
     // Redirect to the intended page (dashboard by default)
     window.location.replace(returnUrl);
-  }, [searchParams]);
+  }, [token, returnUrl]);
 
-  if (status === 'error') {
+  if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -38,7 +31,7 @@ function CallbackHandler() {
             <span className="text-2xl text-destructive">!</span>
           </div>
           <h1 className="text-xl font-bold mb-2">Authentication Failed</h1>
-          <p className="text-muted-foreground mb-4">{errorMsg}</p>
+          <p className="text-muted-foreground mb-4">No authentication token received from DigiLocker.</p>
           <button
             onClick={() => window.location.href = '/login'}
             className="text-primary hover:underline font-medium"

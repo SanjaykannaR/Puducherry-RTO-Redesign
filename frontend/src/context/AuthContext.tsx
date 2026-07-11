@@ -22,6 +22,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;                     // true while restoring a session from localStorage on mount
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, mobile: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -62,6 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }, []);
 
+  // ── Register ──
+  // Creates a new account. Does not auto-login — caller redirects to /login.
+  const register = useCallback(async (name: string, email: string, mobile: string, password: string) => {
+    await api.post('/auth/register', { name, email, mobile, password });
+  }, []);
+
   // ── Logout ──
   // Clears local state and persistent storage so the user is fully de-authenticated.
   const logout = useCallback(() => {
@@ -72,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Render ──
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

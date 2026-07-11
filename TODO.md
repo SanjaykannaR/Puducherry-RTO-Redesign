@@ -60,14 +60,14 @@
 
 ---
 
-## 🟡 Need Fix / Polish
+## ✅ Need Fix / Polish — All Complete
 
-- [ ] **Fixing** `admin/users/page.tsx` — frontend sends `deleteTarget._id` but backend expects `req.params.id` (MongoDB convention mismatch)
-- [ ] **Fixing** SearchBar click-away listener uses `mousedown` — on some browsers this can race with the toggle click
-- [ ] **Fixing** `src/components/ui/select.tsx` should either be deleted or actually used
-- [ ] **Fixing** Register page uses `api.post` directly instead of `useAuth().register()` — inconsistent pattern
-- [ ] **Fixing** Contact form should POST to a real endpoint
-- [ ] **Fixing** `/forgot-password` route needs to be created or the link removed
+- [x] **Fixed** `admin/users/page.tsx` — Changed `_id` → `id` (Prisma convention), unwrapped `{ users }` response, fixed role case (`ADMIN`/`CITIZEN` not `admin`/`user`)
+- [x] **Fixed** SearchBar click-away listener — changed `mousedown` → `pointerdown` for cross-browser reliability
+- [x] **Fixed** `src/components/ui/select.tsx` — already deleted (unused)
+- [x] **Fixed** Register page — added `register()` to AuthContext, register page now uses `useAuth().register()` consistently
+- [x] **Fixed** Contact form — already POSTs to `POST /api/contact` with toast feedback
+- [x] **Fixed** `/forgot-password` route — page exists at `src/app/forgot-password/page.tsx`, calls `POST /api/auth/forgot-password`
 
 ---
 
