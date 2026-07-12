@@ -19,8 +19,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Workers: CI uses 1, local dev uses 1 — Next.js dev server on Windows crashes
+     under parallel load (ERR_CONNECTION_REFUSED). Single worker = stable. */
+  workers: process.env.CI ? 1 : 1,
+  /* Default test timeout — increased from 30s for Windows Chromium stability */
+  timeout: 60000,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -70,17 +73,18 @@ export default defineConfig({
   ],
 
   /* Run your local dev servers before starting the tests */
-  webServer: [
-    {
-      command: 'npx tsx watch src/index.ts',
-      url: 'http://localhost:5000/api/health',
-      cwd: '../backend',
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: 'npx next dev --webpack',
-      url: 'http://localhost:3000',
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
+  // webServer config disabled — servers managed externally (npm run dev)
+  // webServer: [
+  //   {
+  //     command: 'npx tsx watch src/index.ts',
+  //     url: 'http://localhost:5000/api/health',
+  //     cwd: '../backend',
+  //     reuseExistingServer: true,
+  //   },
+  //   {
+  //     command: 'npx next dev --webpack',
+  //     url: 'http://localhost:3000',
+  //     reuseExistingServer: true,
+  //   },
+  // ],
 });

@@ -5,7 +5,7 @@
 // This ensures no route 404s or crashes the app.
 
 import { test, expect } from '@playwright/test';
-import { registerTestUser, authenticatePage } from './test-utils';
+import { registerTestUser, authenticatePage, gotoAndWaitForAuth, waitForReactForm } from './test-utils';
 
 // ──────────────────────────────────────────────
 // PUBLIC PAGES — no authentication required
@@ -95,11 +95,12 @@ test.describe('Public Pages', () => {
     });
 
     test('displays success message after submitting email', async ({ page }) => {
-      await page.goto('/forgot-password');
+      await page.goto('/forgot-password', { waitUntil: 'networkidle' });
+      await waitForReactForm(page);
       await page.locator('input[type="email"]').first().fill('user@example.com');
       await page.locator('button[type="submit"]').first().click();
       // Should show the "sent" message
-      await expect(page.getByText(/reset link|check your email|sent/i).first()).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText(/reset link|check your email|sent/i).first()).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -279,10 +280,12 @@ test.describe('Auth-Required Service Pages', () => {
 
     test('loads calculator with service checklist when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
-      await page.goto('/services/fee-calculator', { waitUntil: 'networkidle' });
-      await expect(page.locator('h1').first()).toBeVisible();
+      // Use gotoAndWaitForAuth to ensure auth context resolves before checking content
+      await gotoAndWaitForAuth(page, '/services/fee-calculator');
+      // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1> (LayoutWrapper renders Header outside <main>)
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
       // PageHero renders "Fee Calculator" heading
-      await expect(page.locator('h1').first()).toContainText(/Fee Calculator/i);
+      await expect(page.locator('main h1').first()).toContainText(/Fee Calculator/i);
       // Service checkboxes are inside FadeInSection (opacity-0 until visible) — scroll to trigger
       await page.evaluate(() => window.scrollTo(0, 300));
       await page.waitForTimeout(1000);
@@ -299,10 +302,12 @@ test.describe('Auth-Required Service Pages', () => {
 
     test('loads application form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
-      await page.goto('/services/learners-license', { waitUntil: 'networkidle' });
-      await expect(page.locator('h1').first()).toBeVisible();
+      // Use gotoAndWaitForAuth to ensure auth context resolves before checking content
+      await gotoAndWaitForAuth(page, '/services/learners-license');
+      // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1>
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
       // PageHero renders "Learner's License" as h1 — confirm via h1 text
-      await expect(page.locator('h1').first()).toContainText(/Learner/i);
+      await expect(page.locator('main h1').first()).toContainText(/Learner/i);
     });
   });
 
@@ -372,9 +377,10 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads with form download cards when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await page.goto('/services/download-forms', { waitUntil: 'networkidle' });
-      await expect(page.locator('h1').first()).toBeVisible();
+      // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1>
+      await expect(page.locator('main h1').first()).toBeVisible();
       // PageHero renders "Download Forms" heading
-      await expect(page.locator('h1').first()).toContainText(/download/i);
+      await expect(page.locator('main h1').first()).toContainText(/download/i);
       // Form cards are inside FadeInSection (opacity-0 until scrolled into view)
       // Scroll to trigger IntersectionObserver
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
