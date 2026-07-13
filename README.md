@@ -121,7 +121,8 @@ src/
 │   ├── calculator.ts           # Fee calculator
 │   ├── challan.ts              # Challan payment
 │   ├── notifications.ts        # Lifecycle alerts
-│   └── exam.ts                 # Exam Q&A + scoring
+│   ├── exam.ts                 # Exam Q&A + scoring
+│   └── payments.ts             # GRAS payment flow
 ├── middleware/auth.ts           # JWT middleware
 ├── services/auth.ts            # Password hashing, tokens
 └── prisma/schema.prisma        # 8 database models

@@ -30,6 +30,7 @@ import contactRoutes from './routes/contact';
 import rtoRoutes from './routes/rto';
 import digilockerRoutes from './routes/digilocker';
 import googleRoutes from './routes/google';
+import paymentRoutes from './routes/payments';
 
 // ── Environment setup ──
 // .env loaded at top of file via `import 'dotenv/config'` — must happen before module imports
@@ -92,6 +93,7 @@ app.use('/api/contact', contactRoutes);           // Public: contact form submis
 app.use('/api/rto', rtoRoutes);                   // Public: AI assistant + document verification
 app.use('/api/auth/digilocker', digilockerRoutes); // Public: DigiLocker OAuth flow
 app.use('/api/auth/google', googleRoutes);         // Public: Google OAuth flow
+app.use('/api/payments', paymentRoutes);            // Protected: GRAS payments
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 
 // ── 404 fallback ──

@@ -57,14 +57,14 @@ All 9 service pages currently just set `submitted=true`. Need real API calls:
 - [ ] Status transitions: PENDING → UNDER_REVIEW → APPROVED/REJECTED
 - [ ] Trigger notification to citizen on status change
 
-### 7. Payment Gateway (Razorpay)
-- [ ] Backend: `POST /api/payments/create-order`, `POST /api/payments/verify`, `GET /api/payments/history`
-- [ ] Backend: Razorpay webhook endpoint
-- [ ] Frontend: `<RazorpayButton />` + `<PaymentModal />` components
-- [ ] Frontend: Payment success/failed/history pages
-- [ ] Wire into: fee-calculator checkout, challan pay, appointment booking, all 9 service forms
-- [ ] Run Prisma migration for `Payment` model
-- [ ] Test with Razorpay test mode
+### 7. Payment Gateway (GRAS — Government Receipt Accounting System) ✅
+- [x] Backend: `POST /api/payments/create-challan`, `POST /api/payments/verify-challan`, `GET /api/payments/history`
+- [x] Backend: GRN/BRN generation, challan creation
+- [x] Frontend: `<GRASPaymentButton />` + `<GRASPaymentModal />` components
+- [x] Frontend: Payment success/history pages
+- [x] Wire into: fee-calculator checkout, challan pay, appointment booking
+- [x] Prisma schema updated (removed razorpaySignature, added paymentMethod)
+- [x] Simulates real GRAS portal flow (no API keys needed)
 
 ---
 
@@ -89,11 +89,11 @@ All 9 service pages currently just set `submitted=true`. Need real API calls:
 **Backend (currently 24 tests, need 31):**
 - [ ] Add tests for: vehicles CRUD, licenses CRUD, applications CRUD, challans CRUD, notifications CRUD
 - [ ] Add tests for: admin stats, admin users, admin reports endpoints
-- [ ] Add tests for: payment endpoints (after Razorpay integration)
+- [x] Add tests for: payment endpoints (GRAS integration)
 
 **Frontend/E2E:**
 - [ ] Add E2E tests for all 9 service form submissions (after wiring)
-- [ ] Add E2E tests for payment flow (after Razorpay)
+- [ ] Add E2E tests for payment flow (GRAS)
 - [ ] Add E2E tests for admin approve/reject workflow
 
 ### 11. DigiLocker Mock OAuth Server

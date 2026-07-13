@@ -10,6 +10,7 @@ import RequireAuth from '@/components/auth/RequireAuth';
 import { Calendar, Clock, ClipboardCheck, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
+import PaymentModal from '@/components/payment/PaymentModal';
 
 // ── AppointmentPage: 2-step stepper for booking an RTO appointment.
 //     Step 1 picks date + time slot; Step 2 picks purpose and shows document checklist.
@@ -21,6 +22,8 @@ export default function AppointmentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [step, setStep] = useState(1);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const APPOINTMENT_FEE = 100; // ₹100 booking fee
 
   // ── Static options for dropdowns, kept here so the form fields are easy to modify ──
   const timeSlots = ['10:00-10:30', '10:30-11:00', '11:00-11:30', '12:00-12:30', '14:00-14:30', '15:00-15:30'];
@@ -31,7 +34,8 @@ export default function AppointmentPage() {
     try {
       const res = await api.post<{ id: string }>('/appointments', { date: form.date, timeSlot: form.timeSlot, purpose: form.purpose });
       setSubmittedId(res.id);
-      setSubmitted(true);
+      // Open payment modal — appointment is created but not confirmed until payment
+      setPaymentOpen(true);
     } catch (err: any) {
       toast.error(err.message || 'Booking failed');
     }
@@ -203,6 +207,9 @@ export default function AppointmentPage() {
                                 <li>Passport size photographs (2 copies)</li>
                               </ul>
                             </div>
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
+                              <p>Booking fee: <strong>₹{APPOINTMENT_FEE}</strong> (non-refundable)</p>
+                            </div>
                             <div className="flex gap-3">
                               <Button type="button" variant="outline" onClick={() => setStep(1)}>
                                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -260,6 +267,16 @@ export default function AppointmentPage() {
           </div>
         </div>
       </section>
+      <PaymentModal
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        amount={APPOINTMENT_FEE}
+        title="Appointment Booking Fee"
+        description={`Booking: ${form.purpose} on ${form.date} at ${form.timeSlot}`}
+        applicationId={submittedId}
+        onSuccess={() => { setPaymentOpen(false); setSubmitted(true); }}
+        onError={(err) => toast.error(err)}
+      />
       </>
     </RequireAuth>
   );

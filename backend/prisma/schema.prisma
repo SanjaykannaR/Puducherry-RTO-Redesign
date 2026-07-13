@@ -136,13 +136,14 @@ model Appointment {
 
 // ── Payment ──
 model Payment {
-  id            String    @id @default(cuid())
-  amount        Float
-  transactionId String    @unique
-  gatewayRefNo  String?
-  status        String    @default("PENDING")
-  paidAt        DateTime?
-  createdAt     DateTime  @default(now())
+  id              String    @id @default(cuid())
+  amount          Float
+  transactionId   String    @unique   // GRN (Government Reference Number)
+  gatewayRefNo    String?             // BRN (Bank Reference Number)
+  paymentMethod   String?             // UPI, Card, Net Banking
+  status          String    @default("PENDING")
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
 
   user          User      @relation(fields: [userId], references: [id])
   userId        String

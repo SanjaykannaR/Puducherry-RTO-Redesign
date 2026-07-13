@@ -8,6 +8,7 @@ import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { Calculator, CheckCircle } from 'lucide-react';
+import PaymentModal from '@/components/payment/PaymentModal';
 
 // ── Fee-calculator Data: static catalog of services with their base fees.
 //     Each entry has a unique ID, display label, and fee amount used for calculation.
@@ -32,6 +33,7 @@ const services = [
 export default function FeeCalculatorPage() {
   // ── Selected Services: array of service IDs, toggled on/off via checkbox ──
   const [selected, setSelected] = useState<string[]>([]);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   // ── toggle: adds or removes a service ID from the selection array ──
   function toggle(id: string) {
@@ -131,6 +133,12 @@ export default function FeeCalculatorPage() {
                         <div className="flex justify-between font-bold text-base pt-2 border-t">
                           <span>Total</span><span className="text-primary">₹{total}</span>
                         </div>
+                        <button
+                          onClick={() => setPaymentOpen(true)}
+                          className="w-full mt-4 bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                        >
+                          Pay ₹{total} Now
+                        </button>
                       </div>
                     </>
                   )}
@@ -140,6 +148,16 @@ export default function FeeCalculatorPage() {
           </div>
         </div>
       </section>
+
+      <PaymentModal
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        amount={total}
+        title="Pay RTO Service Fees"
+        description={`Payment for ${items.map(i => i.label).join(', ')}`}
+        onSuccess={() => { setPaymentOpen(false); setSelected([]); }}
+        onError={(err) => console.error(err)}
+      />
       </>
     </RequireAuth>
   );

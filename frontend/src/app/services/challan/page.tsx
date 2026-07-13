@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
 import RequireAuth from '@/components/auth/RequireAuth';
+import PaymentModal from '@/components/payment/PaymentModal';
 import { ClipboardList, CheckCircle, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
@@ -14,6 +15,8 @@ import { toast } from 'sonner';
 export default function ChallanPage() {
   const [challans, setChallans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [selectedChallan, setSelectedChallan] = useState<any>(null);
 
   useEffect(() => {
     async function load() {
@@ -29,14 +32,18 @@ export default function ChallanPage() {
     load();
   }, []);
 
-  async function payChallan(id: string) {
-    try {
-      await api.post(`/challans/${id}/pay`, {});
-      setChallans((prev) => prev.map((c) => c.id === id ? { ...c, status: 'COMPLETED' } : c));
-      toast.success('Payment successful');
-    } catch (err: any) {
-      toast.error(err.message || 'Payment failed');
+  function openPayment(challan: any) {
+    setSelectedChallan(challan);
+    setPaymentOpen(true);
+  }
+
+  function handlePaymentSuccess() {
+    if (selectedChallan) {
+      setChallans((prev) => prev.map((c) => c.id === selectedChallan.id ? { ...c, status: 'COMPLETED' } : c));
     }
+    toast.success('Challan payment successful');
+    setPaymentOpen(false);
+    setSelectedChallan(null);
   }
 
   return (
@@ -60,9 +67,6 @@ export default function ChallanPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {/* ── Challan Table: lists vehicle, offense, date, amount, and status for each challan.
-                     PENDING rows show a red badge + "Pay Now" button; PAID rows show a green checkmark.
-                     Status updates are local-only (mock). ── */}
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -97,7 +101,7 @@ export default function ChallanPage() {
                           </TableCell>
                           <TableCell>
                             {!isPaid && (
-                              <Button size="sm" onClick={() => payChallan(c.id)} className="whitespace-nowrap">
+                              <Button size="sm" onClick={() => openPayment(c)} className="whitespace-nowrap">
                                 Pay Now
                               </Button>
                             )}
@@ -112,6 +116,16 @@ export default function ChallanPage() {
           </FadeInSection>
         </div>
       </section>
+
+      <PaymentModal
+        open={paymentOpen}
+        onOpenChange={setPaymentOpen}
+        amount={selectedChallan?.amount || 0}
+        title="Pay Challan"
+        description={`Challan for ${selectedChallan?.vehicleNo || selectedChallan?.description || ''}`}
+        onSuccess={handlePaymentSuccess}
+        onError={(err) => toast.error(err)}
+      />
       </>
     </RequireAuth>
   );
