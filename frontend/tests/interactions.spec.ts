@@ -74,12 +74,15 @@ test.describe('Contact Form Submission', () => {
 test.describe('Fee Calculator Interaction', () => {
   test('calculates fees when toggling services', async ({ page }) => {
     await authenticatePage(page, session);
-    // Use networkidle like working app.spec.ts tests — ensures auth + page content fully settle
-    await page.goto('/services/fee-calculator', { waitUntil: 'networkidle' });
+    // Use gotoAndWaitForAuth — FadeInSection wraps checkboxes in opacity-0
+    // until IntersectionObserver fires after scroll; gotoAndWaitForAuth ensures
+    // auth resolves before we interact.
+    await gotoAndWaitForAuth(page, '/services/fee-calculator');
 
-    // Check a service checkbox — wait for auth content to render
+    // Check a service checkbox — scroll into view to trigger FadeInSection animation
     const checkboxes = page.locator('input[type="checkbox"]');
     const firstCheckbox = checkboxes.first();
+    await firstCheckbox.scrollIntoViewIfNeeded();
 
     await expect(firstCheckbox).toBeVisible({ timeout: 15000 });
     await firstCheckbox.check();
@@ -105,7 +108,10 @@ test.describe('Fee Calculator Interaction', () => {
 test.describe("Learner's License Application", () => {
   test('submits LL application successfully', async ({ page }) => {
     await authenticatePage(page, session);
-    await page.goto('/services/learners-license', { waitUntil: 'networkidle' });
+    // Use gotoAndWaitForAuth instead of goto+networkidle to avoid
+    // Windows Chromium STATUS_STACK_OVERFLOW (code 3221225794)
+    await gotoAndWaitForAuth(page, '/services/learners-license');
+    await waitForReactForm(page);
 
     // LL form inputs have NO name/id/placeholder — they are bare <Input> with sibling <label>
     // Use CSS sibling selector: label:has-text("X") ~ input

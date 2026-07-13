@@ -51,14 +51,21 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Rate limiting ──
 // Throttle /api endpoints to 100 requests per 15-minute window per IP
-// Prevents abuse / brute-force attacks on auth endpoints
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use('/api', limiter);
+// Prevents abuse / brute-force attacks on auth endpoints.
+// Skipped when PLAYWRIGHT_TEST is set (E2E suites make hundreds of
+// requests in a short burst which would hit the limit instantly).
+// To start backend for E2E: PLAYWRIGHT_TEST=1 npx tsx watch src/index.ts
+if (!process.env.PLAYWRIGHT_TEST) {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip rate limiting for health checks (used by Playwright and load balancers)
+    skip: (req) => req.path === '/health',
+  });
+  app.use('/api', limiter);
+}
 
 // ── Health check ──
 // Lightweight endpoint for monitoring / load balancer probes

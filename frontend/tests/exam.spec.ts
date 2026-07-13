@@ -24,10 +24,12 @@ test.describe('Exam Page - UI States', () => {
 
   test.describe('INTRO State', () => {
     test('shows exam rules and start button', async ({ page }) => {
-      // networkidle ensures auth context resolves before checking content
-      await page.goto('/exam', { waitUntil: 'networkidle' });
+      // gotoAndWaitForAuth ensures auth resolves before checking content —
+      // networkidle alone is not sufficient because RequireAuth gates the content
+      await gotoAndWaitForAuth(page, '/exam');
       // Wait for auth to resolve and exam content to render (RequireAuth wraps the content)
-      await page.getByText(/start exam/i).first().waitFor({ state: 'visible', timeout: 20000 });
+      // 30s timeout — auth context + React hydration can be slow on Windows
+      await page.getByText(/start exam/i).first().waitFor({ state: 'visible', timeout: 30000 });
 
       // Should show the page header
       await expect(page.locator('h1').first()).toBeVisible();
@@ -99,7 +101,7 @@ test.describe('Exam Page - UI States', () => {
       await page.goto('/exam', { waitUntil: 'networkidle' });
       // Wait for auth to resolve and Start Exam to be visible
       const startBtn2 = page.getByText(/start exam/i).first();
-      await startBtn2.waitFor({ state: 'visible', timeout: 20000 });
+      await startBtn2.waitFor({ state: 'visible', timeout: 30000 });
       await startBtn2.click();
       await page.waitForTimeout(3000);
 
@@ -112,7 +114,7 @@ test.describe('Exam Page - UI States', () => {
       await page.goto('/exam', { waitUntil: 'networkidle' });
       // Wait for auth to resolve and Start Exam to be visible
       const startBtn3 = page.getByText(/start exam/i).first();
-      await startBtn3.waitFor({ state: 'visible', timeout: 20000 });
+      await startBtn3.waitFor({ state: 'visible', timeout: 30000 });
       await startBtn3.click();
 
       // Wait a bit for the proctoring UI to appear with camera issue
@@ -165,7 +167,7 @@ test.describe('Exam Page - UI States', () => {
       await gotoAndWaitForAuth(page, '/exam');
       // Wait for Start Exam button to appear (auth must resolve first)
       const startBtn = page.getByText(/start exam/i).first();
-      await startBtn.waitFor({ state: 'visible', timeout: 20000 });
+      await startBtn.waitFor({ state: 'visible', timeout: 30000 });
       await startBtn.click();
 
       // Camera will fail in headless — wait for either questions or proctoring UI

@@ -2,23 +2,28 @@
 
 ---
 
-## 🔴 P1 — CRITICAL (Do First — Blocks Everything Else)
+## 🔴 P1 — CRITICAL (Do First — Blocks Everything Else) ✅ COMPLETE
 
-### 1. Fix 2 Flaky E2E Tests → 112/112
-Current: **91 passed / 2 failed / 19 did not run**
+### 1. Fix Flaky E2E Tests → 112/112 ✅
+Result: **112 passed / 0 failed / 0 did not run**
 
-| # | Test | File:Line | Fix |
-|---|------|-----------|-----|
-| 1a | "System Info section" | `admin.spec.ts:104` | Change to `getByText('System Info').first()` or add timeout |
-| 1b | "exam rules and start button" | `exam.spec.ts:26` | Increase timeout 20s→30s |
+| # | Root Cause | Fix |
+|---|-----------|-----|
+| 1a | `System Info` missing `.first()` + timeout | Added `.first()` + 15s timeout |
+| 1b | Exam "start exam" timeout too low | Bumped all exam timeouts 20s→30s |
+| 1c | Admin Users page `goto` without auth wait | Switched to `gotoAndWaitForAuth()` |
+| 1d | "Detailed Summary" heading not found (CardTitle) | Changed to `getByText().first()` + timeout |
+| 1e | "Change Email"/"Change Password" CardTitle ≠ heading | Changed to `getByText().first()` + timeout |
+| 1f | Fee Calculator checkboxes invisible (FadeInSection) | Added `scrollIntoViewIfNeeded()` |
+| 1g | LL Application `networkidle` → STATUS_STACK_OVERFLOW | Switched to `gotoAndWaitForAuth()` + `waitForReactForm()` |
 
-### 2. Create E2E Discoveries Document
-Create `frontend/tests/E2E-DISCOVERIES.md` with all key patterns (7 discoveries listed in Session 5 notes).
+### 2. Create E2E Discoveries Document ✅
+Created `frontend/tests/E2E-DISCOVERIES.md` with 8 documented patterns.
 
-### 3. Seed Script for Demo Data
-- [ ] Create `backend/seed.js` — auto-populate admin user, sample vehicles, licenses, applications, challans, notifications
-- [ ] Run on `npm run dev` startup or `npx prisma db seed`
-- [ ] Needed for: live demo, admin dashboard stats, application workflow
+### 3. Seed Script for Demo Data ✅
+- [x] Created `backend/seed.js` — admin, 3 citizens, 4 vehicles, 3 licenses, 5 applications, 3 appointments, 2 payments, 4 notifications
+- [x] Wired to `npx prisma db seed` via `prisma.config.ts`
+- [x] Idempotent — safe to re-run (uses upsert + findOrCreate + count checks)
 
 ---
 
@@ -178,7 +183,7 @@ All 9 service pages currently just set `submitted=true`. Need real API calls:
 | **Mock/placeholder pages** | **12 need real API wiring** |
 | **Backend tests** | 30 ✅ |
 | **Frontend tests** | 8 ✅ |
-| **E2E tests** | **91 passing / 2 flaky** |
+| **E2E tests** | **112 passing ✅** |
 | **AI tests** | 6 (negative-path only) |
 
 ---

@@ -102,7 +102,10 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('shows System Info section', async ({ page }) => {
-      await expect(page.getByText('System Info')).toBeVisible();
+      // System Info is a CardTitle (div) at the bottom of the admin dashboard —
+      // it may take time to render if stats API is slow. Use .first() to avoid
+      // strict mode if "System Info" appears elsewhere, and add explicit timeout.
+      await expect(page.getByText('System Info').first()).toBeVisible({ timeout: 15000 });
     });
   });
 
@@ -113,7 +116,7 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Users', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin/users', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin/users');
     });
 
     test('loads with Users Management heading', async ({ page }) => {
@@ -177,7 +180,7 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('shows detailed summary table', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Detailed Summary' })).toBeVisible();
+      await expect(page.getByText('Detailed Summary').first()).toBeVisible({ timeout: 15000 });
       await expect(page.locator('table')).toBeVisible();
     });
   });
@@ -233,14 +236,14 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('shows Change Email form', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Change Email' })).toBeVisible();
+      await expect(page.getByText('Change Email').first()).toBeVisible({ timeout: 15000 });
       await expect(page.locator('#new-email')).toBeVisible();
       await expect(page.locator('#email-pw')).toBeVisible();
       await expect(page.getByRole('button', { name: /Update Email/i })).toBeVisible();
     });
 
     test('shows Change Password form', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Change Password' })).toBeVisible();
+      await expect(page.getByText('Change Password').first()).toBeVisible({ timeout: 15000 });
       await expect(page.locator('#current-pw')).toBeVisible();
       await expect(page.locator('#new-pw')).toBeVisible();
       await expect(page.locator('#confirm-pw')).toBeVisible();
