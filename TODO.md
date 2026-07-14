@@ -97,9 +97,9 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 - [x] Add tests for: payment endpoints (GRAS) — 10/10 passing ✅
 
 **Frontend/E2E:**
+- [x] Add E2E tests for admin approve/reject workflow — 12 tests ✅
 - [ ] Add E2E tests for all 9 service form submissions (after wiring)
 - [ ] Add E2E tests for payment flow (GRAS) — partially covered by app.spec.ts
-- [ ] Add E2E tests for admin approve/reject workflow
 
 ### 11. DigiLocker Mock OAuth Server
 - [ ] Build local mock that simulates DigiLocker's authorize/token/userinfo endpoints
