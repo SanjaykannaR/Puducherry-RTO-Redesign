@@ -87,8 +87,12 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 
 ### 10. Testing Expansion
 
-**Backend (currently 40 tests):**
-- [ ] Add tests for: vehicles CRUD, licenses CRUD, applications CRUD, challans CRUD, notifications CRUD
+**Backend (currently 78 tests):**
+- [x] Add tests for: admin applications CRUD + status transitions + notifications — 12/12 passing ✅
+- [x] Add tests for: vehicles CRUD — 10/10 passing ✅
+- [x] Add tests for: licenses CRUD — 8/8 passing ✅
+- [x] Add tests for: challans CRUD — 4/4 passing ✅
+- [x] Add tests for: notifications CRUD — 4/4 passing ✅
 - [ ] Add tests for: admin stats, admin users, admin reports endpoints
 - [x] Add tests for: payment endpoints (GRAS) — 10/10 passing ✅
 
@@ -200,7 +204,7 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 | **Frontend routes** | 38 | All build, 0 errors ✅ |
 | **Backend endpoints** | 36 | All Prisma-backed ✅ |
 | **P2 Items Complete** | 4/4 | All wired ✅ |
-| **Backend tests** | 40 | ✅ |
+| **Backend tests** | 78 | ✅ |
 | **Frontend tests** | 8 | ✅ |
 | **E2E tests** | 112 | Passing ✅ |
 | **AI tests** | 6 | Negative-path only |
