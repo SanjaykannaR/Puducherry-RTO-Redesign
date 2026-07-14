@@ -14,3 +14,4 @@ ai/__pycache__/
 *.egg-info/
 *.db
 nul
+frontend/public/downloads/*.pdf

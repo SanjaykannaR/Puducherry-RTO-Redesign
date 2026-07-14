@@ -6,37 +6,36 @@
 import RequireAuth from '@/components/auth/RequireAuth';
 import PageHero from '@/components/ui/page-hero';
 import FadeInSection from '@/components/ui/fade-in-section';
-import { Download, FileText, Car, FileSignature, ClipboardCheck, Shield } from 'lucide-react';
-import Link from 'next/link';
+import { Download, FileText, Car, FileSignature, ClipboardCheck } from 'lucide-react';
 
-// ── Form Categories: organized by type, each with a list of forms (name, description, icon).
+// ── Form Categories: organized by type, each with a list of forms (name, description, icon, file).
 //     Static — adding a new form here makes it appear in the grid automatically. ──
 const formCategories = [
   {
     title: 'Registration Forms',
     forms: [
-      { name: 'Form 20', desc: 'Application for registration of motor vehicle', icon: Car },
-      { name: 'Form 21', desc: 'Sale certificate from dealer', icon: FileSignature },
-      { name: 'Form 22', desc: 'Road worthiness certificate', icon: ClipboardCheck },
-      { name: 'Form 29', desc: 'Notice of transfer of ownership', icon: FileText },
-      { name: 'Form 30', desc: 'Report of transfer of ownership', icon: FileText },
+      { name: 'Form 20', desc: 'Application for registration of motor vehicle', icon: Car, file: 'form-20.pdf' },
+      { name: 'Form 21', desc: 'Sale certificate from dealer', icon: FileSignature, file: 'form-21.pdf' },
+      { name: 'Form 22', desc: 'Road worthiness certificate', icon: ClipboardCheck, file: 'form-22.pdf' },
+      { name: 'Form 29', desc: 'Notice of transfer of ownership', icon: FileText, file: 'form-29.pdf' },
+      { name: 'Form 30', desc: 'Report of transfer of ownership', icon: FileText, file: 'form-30.pdf' },
     ],
   },
   {
     title: 'License Forms',
     forms: [
-      { name: 'Form 1', desc: "Application for learner's license", icon: FileText },
-      { name: 'Form 2', desc: "Application for driving license", icon: FileText },
-      { name: 'Form 3', desc: 'Application for international permit', icon: FileText },
-      { name: 'Form 4', desc: 'Application for renewal of license', icon: FileText },
+      { name: 'Form 1', desc: "Application for learner's license", icon: FileText, file: 'form-1.pdf' },
+      { name: 'Form 2', desc: 'Application for driving license', icon: FileText, file: 'form-2.pdf' },
+      { name: 'Form 3', desc: 'Application for international permit', icon: FileText, file: 'form-3.pdf' },
+      { name: 'Form 4', desc: 'Application for renewal of license', icon: FileText, file: 'form-4.pdf' },
     ],
   },
   {
     title: 'Other Forms',
     forms: [
-      { name: 'Form 35', desc: 'Application for duplicate RC', icon: FileText },
-      { name: 'Form 7', desc: 'Application for duplicate license', icon: FileText },
-      { name: 'Form 14', desc: 'Application for registration of trailer', icon: Car },
+      { name: 'Form 35', desc: 'Application for duplicate RC', icon: FileText, file: 'form-35.pdf' },
+      { name: 'Form 7', desc: 'Application for duplicate license', icon: FileText, file: 'form-7.pdf' },
+      { name: 'Form 14', desc: 'Application for registration of trailer', icon: Car, file: 'form-14.pdf' },
     ],
   },
 ];
@@ -48,8 +47,6 @@ export default function DownloadFormsPage() {
         <PageHero title="Download Forms" subtitle="Download RTO application forms in PDF format for various services" />
       <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-5xl mx-auto px-4 py-12">
-          {/* ── Form Category Sections: loops through Registration, License, and Other forms,
-               each in a grid of cards with form name, description, and download link. ── */}
           {formCategories.map((cat, i) => (
             <FadeInSection key={i} delay={i * 100}>
               <div className="mb-12">
@@ -61,7 +58,12 @@ export default function DownloadFormsPage() {
                   {cat.forms.map((form, j) => {
                     const Icon = form.icon;
                     return (
-                      <div key={j} className="bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-all overflow-hidden group cursor-pointer">
+                      <a
+                        key={j}
+                        href={`/downloads/${form.file}`}
+                        download
+                        className="bg-white rounded-xl border-0 shadow-sm hover:shadow-md transition-all overflow-hidden group cursor-pointer block"
+                      >
                         <div className="h-1 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent group-hover:from-primary group-hover:via-primary-light transition-all" />
                         <div className="p-5">
                           <div className="flex items-center gap-3 mb-2">
@@ -73,7 +75,7 @@ export default function DownloadFormsPage() {
                             <span className="text-xs text-primary flex items-center gap-1"><Download className="w-3 h-3" />Download PDF</span>
                           </div>
                         </div>
-                      </div>
+                      </a>
                     );
                   })}
                 </div>

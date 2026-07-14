@@ -80,20 +80,20 @@ All 3 search tools already use `api.get()` to fetch real data from the backend.
 ### 8. Dead Code Cleanup ✅
 Already clean — no unused exports found (CardAction/CardFooter, TableFooter/TableCaption, prevIdx, Pillow all removed).
 
-### 9. PDF Downloads
-- [ ] Create real PDF files for all 9 service form templates
-- [ ] Store in `public/downloads/` or serve via backend
-- [ ] Wire download buttons to actual files
+### 9. PDF Downloads ✅
+- [x] Created `backend/scripts/generate-pdfs.js` — generates 12 realistic RTO form PDFs via pdfkit
+- [x] Generated PDFs stored in `frontend/public/downloads/` (12 files: form-1, 2, 3, 4, 7, 14, 20, 21, 22, 29, 30, 35)
+- [x] Wired download page cards to actual `<a href="/downloads/form-XX.pdf" download>` links
 
 ### 10. Testing Expansion
 
-**Backend (currently 78 tests):**
+**Backend (currently 101 tests):**
 - [x] Add tests for: admin applications CRUD + status transitions + notifications — 12/12 passing ✅
 - [x] Add tests for: vehicles CRUD — 10/10 passing ✅
 - [x] Add tests for: licenses CRUD — 8/8 passing ✅
 - [x] Add tests for: challans CRUD — 4/4 passing ✅
 - [x] Add tests for: notifications CRUD — 4/4 passing ✅
-- [ ] Add tests for: admin stats, admin users, admin reports endpoints
+- [x] Add tests for: admin stats, admin users, admin role/settings/fares/services/directory — 23/23 passing ✅
 - [x] Add tests for: payment endpoints (GRAS) — 10/10 passing ✅
 
 **Frontend/E2E:**
@@ -204,7 +204,7 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 | **Frontend routes** | 38 | All build, 0 errors ✅ |
 | **Backend endpoints** | 36 | All Prisma-backed ✅ |
 | **P2 Items Complete** | 4/4 | All wired ✅ |
-| **Backend tests** | 78 | ✅ |
+| **Backend tests** | 101 | ✅ |
 | **Frontend tests** | 8 | ✅ |
 | **E2E tests** | 113 | Passing (3 Windows-only crashes) ✅ |
 | **AI tests** | 6 | Negative-path only |
