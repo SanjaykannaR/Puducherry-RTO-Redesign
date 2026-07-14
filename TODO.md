@@ -64,11 +64,14 @@ All 3 search tools already use `api.get()` to fetch real data from the backend.
 - [x] Backend tests: 10/10 passing
 - [x] Removed Razorpay dependency entirely
 
-### 7. Admin Application Approve/Reject Workflow ❌ ← NEXT
-- [ ] Create `PATCH /api/applications/:id/status` endpoint
-- [ ] Admin panel: add approve/reject buttons on applications list
-- [ ] Status transitions: PENDING → UNDER_REVIEW → APPROVED/REJECTED
-- [ ] Trigger notification to citizen on status change
+### 7. Admin Application Approve/Reject Workflow ✅
+- [x] Create `PATCH /api/admin/applications/:id/status` endpoint (approve/reject/under_review)
+- [x] Create `GET /api/admin/applications` endpoint (list all with applicant info)
+- [x] Admin panel: new `/admin/applications` page with approve/reject/review buttons
+- [x] Status transitions: SUBMITTED → UNDER_REVIEW → APPROVED/REJECTED
+- [x] Trigger notification to citizen on status change (auto-created via Prisma)
+- [x] Added "Applications" to admin sidebar + dashboard quick action
+- [x] Committed as 5bbd2a9
 
 ---
 
@@ -195,13 +198,15 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 | Category | Count | Status |
 |----------|-------|--------|
 | **Frontend routes** | 38 | All build, 0 errors ✅ |
-| **Backend endpoints** | 34 | All Prisma-backed ✅ |
+| **Backend endpoints** | 36 | All Prisma-backed ✅ |
 | **P2 Items Complete** | 4/4 | All wired ✅ |
 | **Backend tests** | 40 | ✅ |
 | **Frontend tests** | 8 | ✅ |
 | **E2E tests** | 112 | Passing ✅ |
 | **AI tests** | 6 | Negative-path only |
 | **Payment system** | GRAS | Mock government portal ✅ |
+| **Admin workflow** | Approve/Reject | Notifications wired ✅ |
+| **CI/CD** | GitHub Actions | CI + E2E report pipeline ✅ |
 | **Mock/placeholder pages** | **0** | All wired to real APIs ✅ |
 
 ---
@@ -210,8 +215,8 @@ Already clean — no unused exports found (CardAction/CardFooter, TableFooter/Ta
 
 | # | Task | Effort | Impact |
 |---|------|--------|--------|
-| 1 | Admin approve/reject workflow (P2.7) | 2-3 hours | HIGH — completes admin loop |
-| 2 | Dead code cleanup (P3.8) | 30 min | LOW — reduces bundle |
-| 3 | PDF downloads (P3.9) | 2-3 hours | MEDIUM — user convenience |
-| 4 | Testing expansion (P3.10) | 3-4 hours | MEDIUM — coverage |
-| 5 | DigiLocker mock (P3.11) | 2-3 hours | MEDIUM — demo completeness |
+| 1 | Testing expansion (P3.10) | 3-4 hours | MEDIUM — coverage for new admin workflow |
+| 2 | PDF downloads (P3.9) | 2-3 hours | MEDIUM — user convenience |
+| 3 | DigiLocker mock (P3.11) | 2-3 hours | MEDIUM — demo completeness |
+| 4 | Aadhaar sandbox (P3.12) | 1-2 hours | LOW — needs UIDAI key |
+| 5 | CI/CD setup | DONE ✅ | GitHub Actions pipeline created |
