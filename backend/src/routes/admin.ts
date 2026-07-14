@@ -66,6 +66,64 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
   res.json({ totalUsers, totalAppointments, totalApplications, totalChallans: 0 });
 });
 
+// ── GET /api/admin/applications ──
+// Lists all applications across all users, newest first.
+// Includes applicant name/email for admin context.
+router.get('/applications', async (_req: AuthRequest, res: Response) => {
+  const applications = await prisma.application.findMany({
+    include: {
+      applicant: { select: { id: true, name: true, email: true } },
+      documents: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json({ applications });
+});
+
+// ── PATCH /api/admin/applications/:id/status ──
+// Updates an application's status (APPROVED, REJECTED, UNDER_REVIEW).
+// Creates a notification for the applicant on status change.
+const VALID_STATUSES = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'];
+router.patch('/applications/:id/status', async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+  const { status } = req.body;
+  if (!status || !VALID_STATUSES.includes(status)) {
+    res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+    return;
+  }
+  try {
+    const app = await prisma.application.findUnique({ where: { id } });
+    if (!app) {
+      res.status(404).json({ error: 'Application not found' });
+      return;
+    }
+    const updated = await prisma.application.update({
+      where: { id },
+      data: { status },
+    });
+    // Create notification for the applicant
+    const statusMessages: Record<string, { title: string; message: string }> = {
+      UNDER_REVIEW: { title: 'Application Under Review', message: `Your ${app.type} application is now under review.` },
+      APPROVED: { title: 'Application Approved', message: `Your ${app.type} application has been approved!` },
+      REJECTED: { title: 'Application Rejected', message: `Your ${app.type} application has been rejected. Please contact the RTO for details.` },
+    };
+    const notif = statusMessages[status];
+    if (notif) {
+      await prisma.notification.create({
+        data: {
+          title: notif.title,
+          message: notif.message,
+          type: status === 'APPROVED' ? 'SUCCESS' : status === 'REJECTED' ? 'ERROR' : 'INFO',
+          userId: app.applicantId,
+        },
+      });
+    }
+    res.json(updated);
+  } catch {
+    res.status(404).json({ error: 'Application not found' });
+  }
+});
+
 // ── PUT /api/admin/fares ──
 // Replaces the in-memory fee structure (data sent in body).
 router.put('/fares', (_req: AuthRequest, res: Response) => {

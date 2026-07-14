@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import {
   Users, CalendarCheck, FileText, ClipboardList,
   UserPlus, Settings, BarChart3, DollarSign,
-  Wrench, ArrowRight, Shield, Mail
+  Wrench, ArrowRight, Shield, Mail, Clock
 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -63,6 +63,7 @@ export default function AdminDashboard() {
 
   const quickActions = [
     { label: 'Manage Users', href: '/admin/users', icon: Users, color: 'text-blue-600' },
+    { label: 'Review Applications', href: '/admin/applications', icon: FileText, color: 'text-amber-600' },
     { label: 'Edit Fares', href: '/admin/fares', icon: DollarSign, color: 'text-green-600' },
     { label: 'Edit Services', href: '/admin/services', icon: Wrench, color: 'text-amber-600' },
     { label: 'View Reports', href: '/admin/reports', icon: BarChart3, color: 'text-purple-600' },
