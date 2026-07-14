@@ -74,14 +74,8 @@ All 3 search tools already use `api.get()` to fetch real data from the backend.
 
 ## 🟡 P3 — MEDIUM (Quality & Polish)
 
-### 8. Dead Code Cleanup
-| File | Issue |
-|------|-------|
-| `CardAction` / `CardFooter` exports | Exported but never imported |
-| `TableFooter` / `TableCaption` exports | Exported but never imported |
-| `prevIdx` state in `src/app/page.tsx` | Set but never read |
-| `Pillow` in `ai/requirements.txt` | Installed but never imported |
-| Hardcoded timestamp in `ai/main.py` | Should use `datetime.utcnow()` |
+### 8. Dead Code Cleanup ✅
+Already clean — no unused exports found (CardAction/CardFooter, TableFooter/TableCaption, prevIdx, Pillow all removed).
 
 ### 9. PDF Downloads
 - [ ] Create real PDF files for all 9 service form templates
