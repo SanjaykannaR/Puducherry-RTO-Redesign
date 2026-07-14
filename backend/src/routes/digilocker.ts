@@ -77,7 +77,7 @@ router.post('/mock/submit', (req: Request, res: Response) => {
   }
 
   const { returnUrl } = oauthStateStore.get(state)!;
-  oauthStateStore.delete(state);
+  // NOTE: Do NOT delete state here — let /callback consume it (normal OAuth pattern)
 
   // Generate a mock authorization code (we'll decode it in the callback)
   const mockData = { name: name || 'DigiLocker User', email: email || '', mobile: mobile || '9999999999' };

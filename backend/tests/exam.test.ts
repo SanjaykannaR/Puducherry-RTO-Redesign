@@ -4,9 +4,11 @@ import app from '../src/index';
 let token: string;
 
 beforeAll(async () => {
+  const ts = Date.now();
+  const rand = Math.floor(Math.random() * 9999);
   const res = await request(app)
     .post('/api/auth/register')
-    .send({ email: 'exam@example.com', mobile: '5555555555', password: 'Pass123!', name: 'Exam Taker' });
+    .send({ email: `exam_${ts}_${rand}@test.com`, mobile: `5${String(ts).slice(-5)}${String(rand).padStart(4, '0')}`, password: 'Pass123!', name: 'Exam Taker' });
   token = res.body.token;
 });
 

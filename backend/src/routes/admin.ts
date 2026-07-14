@@ -124,6 +124,75 @@ router.patch('/applications/:id/status', async (req: AuthRequest, res: Response)
   }
 });
 
+// ── GET /api/admin/revenue ──
+// Revenue dashboard data: totals, monthly breakdown, payment methods, recent transactions.
+router.get('/revenue', async (_req: AuthRequest, res: Response) => {
+  try {
+    const now = new Date();
+    const sixMonthsAgo = new Date(now);
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const [completedPayments, pendingPayments, allPayments] = await Promise.all([
+      prisma.payment.findMany({ where: { status: 'COMPLETED' } }),
+      prisma.payment.findMany({ where: { status: 'PENDING' } }),
+      prisma.payment.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        include: { user: { select: { name: true, email: true } } },
+      }),
+    ]);
+
+    const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const completedCount = completedPayments.length;
+    const pendingCount = pendingPayments.length;
+    const pendingAmount = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+    const avgTransaction = completedCount > 0 ? Math.round(totalRevenue / completedCount) : 0;
+
+    // Monthly revenue (last 6 months)
+    const monthlyMap = new Map<string, { revenue: number; count: number }>();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      monthlyMap.set(key, { revenue: 0, count: 0 });
+    }
+    for (const p of completedPayments) {
+      const key = `${p.paidAt?.getFullYear()}-${String((p.paidAt?.getMonth() ?? 0) + 1).padStart(2, '0')}`;
+      const entry = monthlyMap.get(key);
+      if (entry) {
+        entry.revenue += p.amount;
+        entry.count++;
+      }
+    }
+    const monthlyRevenue = Array.from(monthlyMap.entries()).map(([month, data]) => ({ month, ...data }));
+
+    // Revenue by payment method
+    const methodMap = new Map<string, { count: number; total: number }>();
+    for (const p of completedPayments) {
+      const method = p.paymentMethod || 'Unknown';
+      const entry = methodMap.get(method) || { count: 0, total: 0 };
+      entry.count++;
+      entry.total += p.amount;
+      methodMap.set(method, entry);
+    }
+    const byMethod = Array.from(methodMap.entries()).map(([method, data]) => ({ method, ...data }));
+
+    res.json({
+      totalRevenue,
+      completedPayments: completedCount,
+      pendingPayments: pendingCount,
+      pendingAmount,
+      avgTransaction,
+      monthlyRevenue,
+      byMethod,
+      recentTransactions: allPayments,
+    });
+  } catch (err: any) {
+    console.error('Revenue query error:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch revenue data' });
+  }
+});
+
 // ── PUT /api/admin/fares ──
 // Replaces the in-memory fee structure (data sent in body).
 router.put('/fares', (_req: AuthRequest, res: Response) => {

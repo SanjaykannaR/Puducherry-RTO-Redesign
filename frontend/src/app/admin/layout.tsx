@@ -4,13 +4,14 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Users, BarChart3, DollarSign, Wrench, Settings, Menu, X, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, DollarSign, Wrench, Settings, Menu, X, FileText, TrendingUp } from 'lucide-react';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/applications', label: 'Applications', icon: FileText },
   { href: '/admin/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp },
   { href: '/admin/fares', label: 'Fares', icon: DollarSign },
   { href: '/admin/services', label: 'Services', icon: Wrench },
   { href: '/admin/settings', label: 'Settings', icon: Settings },

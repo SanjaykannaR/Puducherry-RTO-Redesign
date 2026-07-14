@@ -15,3 +15,4 @@ ai/__pycache__/
 *.db
 nul
 frontend/public/downloads/*.pdf
+backend/backups/

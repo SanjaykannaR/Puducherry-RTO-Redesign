@@ -52,6 +52,16 @@ router.post('/create-challan', authenticate, async (req: AuthRequest, res: Respo
     const challanId = generateChallanId();
     const grn = generateGRN();
 
+    // Validate applicationId if provided (prevents FK constraint violation)
+    let validApplicationId: string | undefined = undefined;
+    if (applicationId) {
+      const app = await prisma.application.findUnique({ where: { id: applicationId } });
+      if (app) {
+        validApplicationId = app.id;
+      }
+      // If application not found, proceed without linking — payment is still valid
+    }
+
     // Create pending payment record
     const payment = await prisma.payment.create({
       data: {
@@ -59,7 +69,7 @@ router.post('/create-challan', authenticate, async (req: AuthRequest, res: Respo
         transactionId: grn, // Store GRN as transaction ID
         status: 'PENDING',
         userId: req.user!.userId,
-        applicationId: applicationId || undefined,
+        ...(validApplicationId ? { applicationId: validApplicationId } : {}),
       },
     });
 

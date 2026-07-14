@@ -13,7 +13,7 @@ test.describe('Registration Flow', () => {
     const email = `reg_flow_${Date.now()}@test.com`;
     const password = 'Test@123';
 
-    await page.goto('/register');
+    await page.goto('/register', { waitUntil: "domcontentloaded" });
 
     // Fill registration form — the fields may have various selectors
     const nameInput = page.locator('input[name="name"], input[id="name"], input[placeholder*="name" i]').first();
@@ -55,7 +55,7 @@ test.describe('Registration Flow', () => {
     });
 
     // Try registering the same email again via UI — should get a conflict error
-    await page.goto('/register');
+    await page.goto('/register', { waitUntil: "domcontentloaded" });
 
     await page.locator('input[name="name"], input[id="name"], input[placeholder*="name" i]').first().fill('Duplicate User');
     await page.locator('input[type="email"]').first().fill(email);
@@ -88,8 +88,8 @@ test.describe('Login & Logout Flow', () => {
   });
 
   test('logs in with valid credentials', async ({ page }) => {
-    await page.goto('/login', { waitUntil: 'networkidle' });
-    // Explicitly wait for React form hydration — networkidle is NOT sufficient
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    // Explicitly wait for React form hydration
     await waitForReactForm(page);
     // Wait for the form to be interactive (React hydration + Suspense boundary)
     await page.locator('button[type="submit"]').first().waitFor({ state: 'visible', timeout: 15000 });
@@ -125,8 +125,8 @@ test.describe('Login & Logout Flow', () => {
   });
 
   test('shows error for invalid credentials', async ({ page }) => {
-    await page.goto('/login', { waitUntil: 'networkidle' });
-    // Explicitly wait for React form hydration — networkidle is NOT sufficient
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    // Explicitly wait for React form hydration
     await waitForReactForm(page);
     await page.locator('button[type="submit"]').first().waitFor({ state: 'visible', timeout: 15000 });
 
@@ -163,8 +163,8 @@ test.describe('Login & Logout Flow', () => {
 
   test('supports full logout cycle', async ({ page }) => {
     // Login via UI — more reliable than API-based authenticatePage for this test
-    await page.goto('/login', { waitUntil: 'networkidle' });
-    // Explicitly wait for React form hydration — networkidle is NOT sufficient
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    // Explicitly wait for React form hydration
     await waitForReactForm(page);
     await page.locator('button[type="submit"]').first().waitFor({ state: 'visible', timeout: 15000 });
 
@@ -257,7 +257,7 @@ test.describe('Protected Route Redirects', () => {
   });
 
   test('redirects to login when accessing admin without auth', async ({ page }) => {
-    await page.goto('/admin');
+    await page.goto('/admin', { waitUntil: "domcontentloaded" });
     await page.waitForURL('/login', { timeout: 10000 }).catch(() => {
       // Admin layout redirects to /login via router.push
     });
@@ -270,7 +270,7 @@ test.describe('Protected Route Redirects', () => {
     await authenticatePage(page, session);
 
     // Try accessing admin
-    await page.goto('/admin');
+    await page.goto('/admin', { waitUntil: "domcontentloaded" });
 
     // Admin layout redirects non-admin users to /login
     await page.waitForURL('/login', { timeout: 10000 }).catch(() => {
@@ -283,6 +283,7 @@ test.describe('Protected Route Redirects', () => {
   });
 
   test('service pages redirect to sign-in when not authenticated', async ({ page }) => {
+    test.setTimeout(90000);
     // RequireAuth shows a "Sign In Required" card when user is not logged in.
     // Test a representative sample of auth-required service pages.
     const protectedRoutes = [
@@ -292,10 +293,10 @@ test.describe('Protected Route Redirects', () => {
     ];
 
     for (const route of protectedRoutes) {
-      await page.goto(route);
-      await page.waitForLoadState('networkidle');
+      await page.goto(route, { waitUntil: 'domcontentloaded' });
       // Should show sign-in prompt card (RequireAuth component)
-      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 15000 });
+      // Increased timeout — this test runs late in the suite when browser is under memory pressure
+      await expect(page.getByText(/sign in required/i).first()).toBeVisible({ timeout: 20000 });
     }
   });
 });

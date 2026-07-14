@@ -62,6 +62,8 @@ model Vehicle {
   owner           User     @relation(fields: [ownerId], references: [id])
   ownerId         String
 
+  @@index([ownerId])
+  @@index([status])
   @@map("vehicles")
 }
 
@@ -84,6 +86,8 @@ model License {
   holder    User     @relation(fields: [holderId], references: [id])
   holderId  String
 
+  @@index([holderId])
+  @@index([status])
   @@map("licenses")
 }
 
@@ -101,6 +105,9 @@ model Application {
   documents   Document[]
   payment     Payment?
 
+  @@index([applicantId])
+  @@index([status])
+  @@index([type])
   @@map("applications")
 }
 
@@ -131,6 +138,9 @@ model Appointment {
   applicant   User     @relation(fields: [applicantId], references: [id])
   applicantId String
 
+  @@index([applicantId])
+  @@index([status])
+  @@index([date])
   @@map("appointments")
 }
 
@@ -150,6 +160,9 @@ model Payment {
   applicationId String? @unique
   application   Application? @relation(fields: [applicationId], references: [id])
 
+  @@index([userId])
+  @@index([status])
+  @@index([paidAt])
   @@map("payments")
 }
 
@@ -159,11 +172,14 @@ model Notification {
   title     String
   message   String
   type      String   @default("INFO")
+  channel   String   @default("IN_APP")  // IN_APP, SMS, EMAIL
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id])
   userId    String
 
+  @@index([userId, isRead])
+  @@index([createdAt])
   @@map("notifications")
 }

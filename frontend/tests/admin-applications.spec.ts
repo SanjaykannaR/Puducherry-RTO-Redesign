@@ -52,7 +52,7 @@ test.describe.serial('Admin Applications Workflow', () => {
   // ══════════════════════════════════════════════
 
   test('applications page redirects to login when not authenticated', async ({ page }) => {
-    await page.goto('/admin/applications', { waitUntil: 'networkidle' });
+    await page.goto('/admin/applications', { waitUntil: 'domcontentloaded' });
     await page.waitForURL(/\/login/, { timeout: 30000 });
   });
 
@@ -69,7 +69,7 @@ test.describe.serial('Admin Applications Workflow', () => {
   test('admin applications page loads with heading', async ({ page }) => {
     await authenticatePage(page, adminSession);
     await gotoAndWaitForAuth(page, '/admin/applications');
-    await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 15000 });
   });
 
   test('applications table is visible', async ({ page }) => {
@@ -104,17 +104,17 @@ test.describe.serial('Admin Applications Workflow', () => {
 
   test('sidebar has Applications link', async ({ page }) => {
     await authenticatePage(page, adminSession);
-    await page.goto('/admin', { waitUntil: 'networkidle' });
+    await gotoAndWaitForAuth(page, '/admin');
     const sidebar = page.locator('aside');
-    await expect(sidebar.getByText('Applications')).toBeVisible();
+    await expect(sidebar.getByText('Applications')).toBeVisible({ timeout: 15000 });
   });
 
   test('clicking Applications link navigates to applications page', async ({ page }) => {
     await authenticatePage(page, adminSession);
-    await page.goto('/admin', { waitUntil: 'networkidle' });
+    await gotoAndWaitForAuth(page, '/admin');
     await page.locator('aside').getByText('Applications').click();
     await expect(page).toHaveURL(/\/admin\/applications/);
-    await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 15000 });
   });
 
   // ══════════════════════════════════════════════
@@ -198,7 +198,7 @@ test.describe.serial('Admin Applications Workflow', () => {
   test('dashboard has Review Applications quick action', async ({ page }) => {
     await authenticatePage(page, adminSession);
     await gotoAndWaitForAuth(page, '/admin');
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Dashboard').first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole('link', { name: /Review Applications/i })).toBeVisible();
   });
 

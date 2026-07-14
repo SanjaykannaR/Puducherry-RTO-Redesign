@@ -13,10 +13,15 @@ let appointmentId: string;
 let applicationId: string;
 
 // Register a test user once before all tests and store the token
+// Use unique email/mobile to avoid 409 collisions across re-runs
 beforeAll(async () => {
+  const ts = Date.now();
+  const rand = Math.floor(Math.random() * 9999);
+  const email = `protected_${ts}_${rand}@test.com`;
+  const mobile = `6${String(ts).slice(-5)}${String(rand).padStart(4, '0')}`;
   const res = await request(app)
     .post('/api/auth/register')
-    .send({ email: 'protected@example.com', mobile: '6666666666', password: 'Pass123!', name: 'Protected User' });
+    .send({ email, mobile, password: 'Pass123!', name: 'Protected User' });
   token = res.body.token;
 });
 

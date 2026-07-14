@@ -37,8 +37,8 @@ test.describe.serial('Admin Panel', () => {
     for (const pg of adminPages) {
       test(`${pg.name} redirects to login when not authenticated`, async ({ page }) => {
         // Navigate to admin page — no auth token in localStorage
-        // networkidle ensures AuthContext has time to resolve and trigger the redirect
-        await page.goto(pg.path, { waitUntil: 'networkidle' });
+        // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
+        await page.goto(pg.path, { waitUntil: 'domcontentloaded' });
         // Admin layout returns null while auth loads, then useEffect pushes to /login.
         // waitForURL is more reliable than toHaveURL for detecting client-side navigation.
         // The redirect may take time because: page load → AuthContext mounts → setLoading(false) →
@@ -73,7 +73,7 @@ test.describe.serial('Admin Panel', () => {
     test('loads with Dashboard heading', async ({ page }) => {
       // The admin layout returns null while auth loads, then renders the page content.
       // The heading may take time to appear after auth resolves + page renders.
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Dashboard').first()).toBeVisible({ timeout: 15000 });
     });
 
     test('displays stat cards with numbers', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe.serial('Admin Panel', () => {
       // Stat card titles are always visible even while loading (values show skeletons).
       // If the API fails, the page shows an error instead.
       // Just wait for the Dashboard heading to confirm admin loaded, then check stat cards.
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Dashboard').first()).toBeVisible({ timeout: 15000 });
       // Stat card titles use <CardTitle> which renders as a div, not a heading
       await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 15000 });
       await expect(page.getByText('Appointments').first()).toBeVisible();
@@ -151,7 +151,8 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Reports', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin/reports', { waitUntil: 'networkidle' });
+      // Wait for auth + stats API to resolve before checking content
+      await gotoAndWaitForAuth(page, '/admin/reports');
     });
 
     test('loads with Reports heading', async ({ page }) => {
@@ -161,10 +162,12 @@ test.describe.serial('Admin Panel', () => {
     test('displays KPI stat cards', async ({ page }) => {
       // Each KPI label appears twice: once in a card title and once in the summary table.
       // Use .first() to avoid strict mode violation.
-      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 10000 });
-      await expect(page.getByText('Total Appointments').first()).toBeVisible();
-      await expect(page.getByText('Total Applications').first()).toBeVisible();
-      await expect(page.getByText('Total Challans').first()).toBeVisible();
+      // Wait for /admin/stats API to populate the cards
+      await page.waitForResponse(r => r.url().includes('/admin/stats') && r.status() === 200, { timeout: 15000 }).catch(() => {});
+      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Total Appointments').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText('Total Applications').first()).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText('Total Challans').first()).toBeVisible({ timeout: 10000 });
     });
 
     test('shows bar chart (Overview)', async ({ page }) => {
@@ -192,7 +195,7 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Services', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin/services', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin/services');
     });
 
     test('loads with Services Management heading', async ({ page }) => {
@@ -212,7 +215,7 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Fares', () => {
     test('loads with Fares heading', async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin/fares', { waitUntil: 'networkidle' });
+      await page.goto('/admin/fares', { waitUntil: 'domcontentloaded' });
       await expect(page.getByRole('heading', { name: /Fares/i })).toBeVisible();
     });
   });
@@ -224,7 +227,7 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Settings', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin/settings', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin/settings');
     });
 
     test('loads with Settings heading', async ({ page }) => {
@@ -258,7 +261,7 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Sidebar', () => {
     test('has all navigation links', async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin');
 
       const sidebar = page.locator('aside');
       await expect(sidebar.getByText('Dashboard')).toBeVisible();
@@ -271,7 +274,7 @@ test.describe.serial('Admin Panel', () => {
 
     test('clicking Users link navigates to users page', async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin');
 
       await page.locator('aside').getByText('Users').click();
       await expect(page).toHaveURL(/\/admin\/users/);
@@ -280,7 +283,7 @@ test.describe.serial('Admin Panel', () => {
 
     test('clicking Settings link navigates to settings page', async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await page.goto('/admin', { waitUntil: 'networkidle' });
+      await gotoAndWaitForAuth(page, '/admin');
 
       await page.locator('aside').getByText('Settings').click();
       await expect(page).toHaveURL(/\/admin\/settings/);

@@ -31,6 +31,7 @@ import rtoRoutes from './routes/rto';
 import digilockerRoutes from './routes/digilocker';
 import googleRoutes from './routes/google';
 import paymentRoutes from './routes/payments';
+import schedulerRoutes from './routes/scheduler';
 
 // ── Environment setup ──
 // .env loaded at top of file via `import 'dotenv/config'` — must happen before module imports
@@ -95,6 +96,7 @@ app.use('/api/auth/digilocker', digilockerRoutes); // Public: DigiLocker OAuth f
 app.use('/api/auth/google', googleRoutes);         // Public: Google OAuth flow
 app.use('/api/payments', paymentRoutes);            // Protected: GRAS payments
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
+app.use('/api/admin/scheduler', schedulerRoutes); // Protected + admin-only: scheduler
 
 // ── 404 fallback ──
 // Catch-all for unmatched routes — return JSON error (not HTML)

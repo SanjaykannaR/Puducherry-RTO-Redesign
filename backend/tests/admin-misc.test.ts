@@ -2,7 +2,7 @@
 // Tests admin stats, users, user role management, settings, and service/fares endpoints.
 // Follows the same pattern as admin-applications.test.ts.
 
-import { describe, it, expect, beforeAll } from 'vitest';
+// Jest globals (describe, it, expect, beforeAll) are available globally — no import needed
 import request from 'supertest';
 import app from '../src/index';
 
