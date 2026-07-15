@@ -96,7 +96,8 @@
 | **Prisma Migrations** | 2 migrations | init + audit_log + refund fields ✅ |
 | **Backup/Restore** | 2 scripts + cron | Daily at 3 AM IST ✅ |
 | **Audit Logging** | AuditLog model | Role change, app status, refunds ✅ |
-| **CI/CD** | GitHub Actions | All 3 jobs green ✅ |
+| **CI** | GitHub Actions | 3 jobs: tests, build, E2E ✅ |
+| **CD** | GitHub Actions | Auto-deploy on push to main (ghcr.io + SSH) ✅ |
 | **E2E Sharding** | 2 shards | Windows Chromium stable ✅ |
 | **Accessibility** | Skip-link + Focus rings + ARIA + Labels | WCAG baseline ✅ |
 | **Responsive** | Tables + Grids | Mobile-friendly ✅ |
