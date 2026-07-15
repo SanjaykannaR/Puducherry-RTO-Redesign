@@ -19,6 +19,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <>
+      {/* Skip-to-content link — visible only on keyboard focus for screen reader / keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:text-sm focus:font-medium"
+      >
+        Skip to main content
+      </a>
       {!isAuth && <Header />}
       <main id="main-content" className="flex-1" role="main">{children}</main>
       {!isAuth && <Footer />}

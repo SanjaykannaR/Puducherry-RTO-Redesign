@@ -87,7 +87,7 @@ export default function AdminUsers() {
           and action buttons. Skeleton rows are shown during loading; an empty state
           is shown when no users exist. Each row has "Make Admin/Remove Admin" and
           "Delete" buttons, the latter triggering a confirmation dialog. */}
-      <div className="rounded-lg border bg-white">
+      <div className="rounded-lg border bg-white overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>

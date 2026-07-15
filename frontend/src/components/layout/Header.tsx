@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import SearchBar from './SearchBar';
+import NotificationBell from './NotificationBell';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
@@ -80,9 +81,10 @@ export default function Header() {
             <Navbar searchOpen={searchOpen} />
           </div>
 
-          {/* ── Right: Search, Language, Auth ── */}
+          {/* ── Right: Search, Notifications, Language, Auth ── */}
           <div className="flex items-center gap-1 sm:gap-2">
             <SearchBar onToggle={setSearchOpen} />
+            {user && <NotificationBell />}
 
             <div className="relative">
               <select

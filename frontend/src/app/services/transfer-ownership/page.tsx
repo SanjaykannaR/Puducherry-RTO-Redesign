@@ -84,12 +84,12 @@ export default function TransferOwnershipPage() {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium mb-1.5">Seller Name</label><Input value={form.sellerName} onChange={(e) => setForm({ ...form, sellerName: e.target.value })} required placeholder="Seller's full name" /></div>
-                    <div><label className="block text-sm font-medium mb-1.5">Buyer Name</label><Input value={form.buyerName} onChange={(e) => setForm({ ...form, buyerName: e.target.value })} required placeholder="Buyer's full name" /></div>
+                    <div><label htmlFor="to-seller" className="block text-sm font-medium mb-1.5">Seller Name</label><Input id="to-seller" value={form.sellerName} onChange={(e) => setForm({ ...form, sellerName: e.target.value })} required placeholder="Seller's full name" /></div>
+                    <div><label htmlFor="to-buyer" className="block text-sm font-medium mb-1.5">Buyer Name</label><Input id="to-buyer" value={form.buyerName} onChange={(e) => setForm({ ...form, buyerName: e.target.value })} required placeholder="Buyer's full name" /></div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium mb-1.5">Registration No.</label><Input value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
-                    <div><label className="block text-sm font-medium mb-1.5">Sale Date</label><Input type="date" value={form.saleDate} onChange={(e) => setForm({ ...form, saleDate: e.target.value })} required /></div>
+                    <div><label htmlFor="to-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="to-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
+                    <div><label htmlFor="to-date" className="block text-sm font-medium mb-1.5">Sale Date</label><Input id="to-date" type="date" value={form.saleDate} onChange={(e) => setForm({ ...form, saleDate: e.target.value })} required /></div>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                     <p className="font-medium">Required: Form 29 & 30, sale letter, ID proofs of both parties</p>

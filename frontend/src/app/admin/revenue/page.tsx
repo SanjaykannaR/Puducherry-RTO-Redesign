@@ -163,6 +163,7 @@ export default function AdminRevenue() {
           {loading ? (
             <div className="h-40 bg-gray-100 animate-pulse rounded" />
           ) : (data?.recentTransactions?.length ?? 0) > 0 ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -193,6 +194,7 @@ export default function AdminRevenue() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           ) : (
             <p className="text-muted-foreground text-center py-8">No transactions yet</p>
           )}

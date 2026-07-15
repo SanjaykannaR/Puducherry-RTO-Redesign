@@ -14,8 +14,18 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const notifications = await prisma.notification.findMany({
     where: { userId: req.user!.userId },
     orderBy: { createdAt: 'desc' },
+    take: 50,
   });
   res.json({ notifications });
+});
+
+// ── GET /api/notifications/unread-count ──
+// Returns the count of unread notifications (lightweight, for the bell badge).
+router.get('/unread-count', authenticate, async (req: AuthRequest, res: Response) => {
+  const count = await prisma.notification.count({
+    where: { userId: req.user!.userId, isRead: false },
+  });
+  res.json({ count });
 });
 
 // ── PATCH /api/notifications/:id/read ──
@@ -34,6 +44,16 @@ router.patch('/:id/read', authenticate, async (req: AuthRequest, res: Response) 
     data: { isRead: true },
   });
   res.json(updated);
+});
+
+// ── PATCH /api/notifications/mark-all-read ──
+// Marks all notifications as read for the authenticated user.
+router.patch('/mark-all-read', authenticate, async (req: AuthRequest, res: Response) => {
+  await prisma.notification.updateMany({
+    where: { userId: req.user!.userId, isRead: false },
+    data: { isRead: true },
+  });
+  res.json({ success: true });
 });
 
 export default router;

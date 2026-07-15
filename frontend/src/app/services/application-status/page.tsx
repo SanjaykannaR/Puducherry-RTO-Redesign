@@ -64,6 +64,7 @@ export default function ApplicationStatusPage() {
                     value={appId}
                     onChange={(e) => setAppId(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    aria-label="Application ID"
                   />
                   <Button onClick={handleSearch}>
                     <Search className="h-4 w-4 mr-2" />

@@ -110,42 +110,42 @@ export default function VehicleRegistrationPage() {
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Make</label>
-                      <Input value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required placeholder="e.g. Honda" />
+                      <label htmlFor="vr-make" className="block text-sm font-medium mb-1.5">Make</label>
+                      <Input id="vr-make" value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required placeholder="e.g. Honda" />
                       {errors.make && <p className="text-destructive text-xs mt-1">{errors.make}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Model</label>
-                      <Input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required placeholder="e.g. Activa 6G" />
+                      <label htmlFor="vr-model" className="block text-sm font-medium mb-1.5">Model</label>
+                      <Input id="vr-model" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required placeholder="e.g. Activa 6G" />
                       {errors.model && <p className="text-destructive text-xs mt-1">{errors.model}</p>}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Year</label>
-                      <Input type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="e.g. 2026" />
+                      <label htmlFor="vr-year" className="block text-sm font-medium mb-1.5">Year</label>
+                      <Input id="vr-year" type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="e.g. 2026" />
                       {errors.year && <p className="text-destructive text-xs mt-1">{errors.year}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Fuel Type</label>
-                      <Input value={form.fuelType} onChange={(e) => setForm({ ...form, fuelType: e.target.value })} required placeholder="e.g. Petrol" />
+                      <label htmlFor="vr-fuel" className="block text-sm font-medium mb-1.5">Fuel Type</label>
+                      <Input id="vr-fuel" value={form.fuelType} onChange={(e) => setForm({ ...form, fuelType: e.target.value })} required placeholder="e.g. Petrol" />
                       {errors.fuelType && <p className="text-destructive text-xs mt-1">{errors.fuelType}</p>}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Color</label>
-                    <Input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} required placeholder="e.g. Red" />
+                    <label htmlFor="vr-color" className="block text-sm font-medium mb-1.5">Color</label>
+                    <Input id="vr-color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} required placeholder="e.g. Red" />
                     {errors.color && <p className="text-destructive text-xs mt-1">{errors.color}</p>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Chassis No.</label>
-                      <Input value={form.chassisNo} onChange={(e) => setForm({ ...form, chassisNo: e.target.value })} required placeholder="17-character VIN" />
+                      <label htmlFor="vr-chassis" className="block text-sm font-medium mb-1.5">Chassis No.</label>
+                      <Input id="vr-chassis" value={form.chassisNo} onChange={(e) => setForm({ ...form, chassisNo: e.target.value })} required placeholder="17-character VIN" />
                       {errors.chassisNo && <p className="text-destructive text-xs mt-1">{errors.chassisNo}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Engine No.</label>
-                      <Input value={form.engineNo} onChange={(e) => setForm({ ...form, engineNo: e.target.value })} required />
+                      <label htmlFor="vr-engine" className="block text-sm font-medium mb-1.5">Engine No.</label>
+                      <Input id="vr-engine" value={form.engineNo} onChange={(e) => setForm({ ...form, engineNo: e.target.value })} required />
                       {errors.engineNo && <p className="text-destructive text-xs mt-1">{errors.engineNo}</p>}
                     </div>
                   </div>

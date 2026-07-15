@@ -1,9 +1,11 @@
 // ── Notification Service ──
 // Centralized service for sending notifications across channels (IN_APP, SMS, EMAIL).
-// In demo mode, SMS/EMAIL are logged to console with prefixes.
+// SMS/EMAIL use real services when configured, console logs in demo mode.
 // Includes expiry alert generation for vehicles and licenses.
 
 import prisma from './prisma';
+import { sendSMS } from './sms';
+import { sendEmail } from './email';
 
 // ── Channel Types ──
 type Channel = 'IN_APP' | 'SMS' | 'EMAIL';
@@ -28,11 +30,24 @@ export async function sendNotification(
     data: { title, message, type, channel, userId },
   });
 
-  // Mock SMS/EMAIL delivery
-  if (channel === 'SMS') {
-    console.log(`[SMS] To user ${userId}: ${message}`);
-  } else if (channel === 'EMAIL') {
-    console.log(`[EMAIL] To user ${userId}: ${title} — ${message}`);
+  // Look up user contact info for SMS/EMAIL delivery
+  if (channel === 'SMS' || channel === 'EMAIL') {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { mobile: true, email: true, name: true },
+    });
+
+    if (!user) {
+      console.warn(`[Notification] User ${userId} not found — cannot send ${channel}`);
+      return;
+    }
+
+    if (channel === 'SMS' && user.mobile) {
+      await sendSMS(user.mobile, message);
+    } else if (channel === 'EMAIL' && user.email) {
+      const html = `<p style="font-family:Arial,sans-serif;line-height:1.6;"><strong>${title}</strong><br><br>${message.replace(/\n/g, '<br>')}</p>`;
+      await sendEmail(user.email, title, html);
+    }
   }
 }
 
@@ -116,7 +131,7 @@ export async function getExpiringItems(daysThreshold = 30): Promise<ExpiringItem
         userId: l.holderId,
         userName: l.holder.name,
         type: 'license',
-        itemDetail: `${l.type} License (${l.licenseNo}) — ${l.expiryField || 'Expiry'}`,
+        itemDetail: `${l.type} License (${l.licenseNo}) — Expiry`,
         expiryField: 'Expiry',
         expiryDate: l.expiryDate,
         daysUntilExpiry: daysUntil,

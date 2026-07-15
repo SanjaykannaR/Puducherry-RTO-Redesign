@@ -178,6 +178,8 @@ export default function AIAssistantPage() {
                       Context (optional — helps the AI give more relevant answers):
                     </label>
                     <Input
+                      id="ai-context"
+                      aria-label="Additional context for your question"
                       value={currentStep}
                       onChange={(e) => setCurrentStep(e.target.value)}
                       placeholder="e.g. filling vehicle registration form"
@@ -189,6 +191,8 @@ export default function AIAssistantPage() {
                 {/* ── Input form ── */}
                 <form onSubmit={handleSubmit} className="flex gap-2">
                   <Input
+                    id="ai-message"
+                    aria-label="Type your question about RTO services"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your question..."

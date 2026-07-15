@@ -75,8 +75,8 @@ export default function DuplicateRCPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div><label className="block text-sm font-medium mb-1.5">Registration No.</label><Input value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
-                <div><label className="block text-sm font-medium mb-1.5">Full Name (as on RC)</label><Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
+                <div><label htmlFor="drc-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="drc-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
+                <div><label htmlFor="drc-name" className="block text-sm font-medium mb-1.5">Full Name (as on RC)</label><Input id="drc-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
                 <div><label className="block text-sm font-medium mb-1.5">Reason</label>
                   <select value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} required className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="">Select reason</option>

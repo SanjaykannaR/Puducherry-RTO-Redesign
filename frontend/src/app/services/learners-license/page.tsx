@@ -73,11 +73,11 @@ export default function LearnersLicensePage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-sm font-medium mb-1.5">Full Name</label><Input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
-                  <div><label className="block text-sm font-medium mb-1.5">Date of Birth</label><Input type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required /></div>
+                  <div><label htmlFor="ll-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="ll-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
+                  <div><label htmlFor="ll-dob" className="block text-sm font-medium mb-1.5">Date of Birth</label><Input id="ll-dob" type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required /></div>
                 </div>
-                <div><label className="block text-sm font-medium mb-1.5">Address</label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
-                <div><label className="block text-sm font-medium mb-1.5">Mobile</label><Input type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required /></div>
+                <div><label htmlFor="ll-address" className="block text-sm font-medium mb-1.5">Address</label><Input id="ll-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
+                <div><label htmlFor="ll-mobile" className="block text-sm font-medium mb-1.5">Mobile</label><Input id="ll-mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required /></div>
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                   <p className="font-medium">Eligibility: Minimum 16 years (MC 50cc) or 18 years (all others)</p>
                 </div>

@@ -74,6 +74,7 @@ export default function VehicleStatusPage() {
                     value={regNo}
                     onChange={(e) => setRegNo(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    aria-label="Vehicle registration number"
                   />
                   <Button onClick={handleSearch}>
                     <Search className="h-4 w-4 mr-2" />

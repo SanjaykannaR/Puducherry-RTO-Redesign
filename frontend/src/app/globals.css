@@ -148,6 +148,16 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  /* Visible focus ring for keyboard users — only on focus-visible, not on mouse click */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-2 outline-offset-2;
+    outline-color: var(--primary);
+  }
   body {
     @apply bg-background text-foreground;
     max-width: 2560px;

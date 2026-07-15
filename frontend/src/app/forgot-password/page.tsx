@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
                 {error && <p className="text-sm text-destructive">{error}</p>}
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="pl-10" />
+                  <Input id="fp-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="pl-10" aria-label="Email address for password reset" />
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Mail className="w-4 h-4 mr-2" />}
