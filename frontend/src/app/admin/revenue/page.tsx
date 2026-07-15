@@ -1,7 +1,6 @@
 'use client';
 
 // ── Revenue Dashboard: shows payment revenue, monthly trends, and recent transactions ──
-// Uses the same chart library (recharts) and card pattern as the Reports page.
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { IndianRupee, CreditCard, Clock, TrendingUp } from 'lucide-react';
 import { api } from '@/lib/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import type { LucideIcon } from 'lucide-react';
+
+// ── Types ──
+
+interface Transaction {
+  id: string;
+  amount: number;
+  status: string;
+  paymentMethod: string | null;
+  paidAt: string | null;
+  user?: { name: string; email: string };
+}
 
 interface RevenueData {
   totalRevenue: number;
@@ -18,12 +29,20 @@ interface RevenueData {
   avgTransaction: number;
   monthlyRevenue: { month: string; revenue: number; count: number }[];
   byMethod: { method: string; count: number; total: number }[];
-  recentTransactions: any[];
+  recentTransactions: Transaction[];
+}
+
+interface KpiCard {
+  key: keyof Pick<RevenueData, 'totalRevenue' | 'completedPayments' | 'pendingPayments' | 'avgTransaction'>;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  prefix?: string;
 }
 
 const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-const kpiCards = [
+const kpiCards: KpiCard[] = [
   { key: 'totalRevenue', label: 'Total Revenue', icon: IndianRupee, color: '#22c55e', prefix: '₹' },
   { key: 'completedPayments', label: 'Completed Payments', icon: CreditCard, color: '#3b82f6' },
   { key: 'pendingPayments', label: 'Pending Payments', icon: Clock, color: '#f59e0b' },
@@ -38,16 +57,11 @@ export default function AdminRevenue() {
   useEffect(() => {
     api.get<RevenueData>('/admin/revenue')
       .then(setData)
-      .catch((err) => setError(err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
   if (error) return <div className="text-red-500">Error: {error}</div>;
-
-  const getValue = (key: string) => {
-    if (!data) return 0;
-    return (data as any)[key] ?? 0;
-  };
 
   return (
     <div className="space-y-8">
@@ -57,7 +71,7 @@ export default function AdminRevenue() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {kpiCards.map((item) => {
           const Icon = item.icon;
-          const value = getValue(item.key);
+          const value = data ? data[item.key] : 0;
           return (
             <Card key={item.key} className="transition-all hover:shadow-md hover:border-primary/30">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -98,7 +112,7 @@ export default function AdminRevenue() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']} />
+                  <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Revenue']} />
                   <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -124,13 +138,13 @@ export default function AdminRevenue() {
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
-                    label={({ method, percent }) => `${method} ${(percent * 100).toFixed(0)}%`}
+                    label={({ method, percent }) => `${method ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`}
                   >
-                    {(data?.byMethod || []).map((_, i) => (
+                    {(data?.byMethod || []).map((_entry, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => `₹${value.toLocaleString('en-IN')}`} />
+                  <Tooltip formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -160,7 +174,7 @@ export default function AdminRevenue() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.recentTransactions.map((txn: any) => (
+                {data?.recentTransactions.map((txn) => (
                   <TableRow key={txn.id}>
                     <TableCell>{txn.user?.name || 'Unknown'}</TableCell>
                     <TableCell className="font-semibold">₹{txn.amount.toLocaleString('en-IN')}</TableCell>
