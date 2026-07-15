@@ -140,4 +140,4 @@
 | 9 | 2026-07-14 | P3/P4 complete + networkidle elimination + test stability | 3d0b67e |
 | 10 | 2026-07-15 | E2E sharding + rate limiting + test fixes | — |
 | 11 | 2026-07-15 | SMS/email notifications + notification bell + accessibility audit | 3fbf6a6 |
-| **12** | **2026-07-15** | **Skeletons + migration #2 + full task audit — ALL REMAINING DONE** | **pending** |
+| **12** | **2026-07-15** | **Skeletons + migration #2 + full task audit — ALL REMAINING DONE** | **2f03098** |
