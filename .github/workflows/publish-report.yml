@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Download Playwright Report artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: playwright-report
           run-id: ${{ github.event.workflow_run.id }}
@@ -37,4 +37,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
