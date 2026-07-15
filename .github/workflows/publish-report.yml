@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Download Playwright Report artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: playwright-report
           run-id: ${{ github.event.workflow_run.id }}
@@ -31,7 +31,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
