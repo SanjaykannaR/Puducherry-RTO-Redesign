@@ -8,6 +8,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import cron from 'node-cron';
+import { execSync } from 'child_process';
 // dotenv MUST be loaded before ANY local module imports
 // because those modules read process.env at module-init time
 import 'dotenv/config';
@@ -32,6 +34,7 @@ import digilockerRoutes from './routes/digilocker';
 import googleRoutes from './routes/google';
 import paymentRoutes from './routes/payments';
 import schedulerRoutes from './routes/scheduler';
+import { sanitizeInput } from './middleware/sanitize';
 
 // ── Environment setup ──
 // .env loaded at top of file via `import 'dotenv/config'` — must happen before module imports
@@ -41,8 +44,22 @@ const PORT = process.env.PORT || 5000;
 // ── Global middleware stack ──
 // Security: sets HTTP headers (X-Frame-Options, CSP, etc.) to prevent common attacks
 app.use(helmet());
-// CORS: allows the frontend (default localhost:3000) to call this API
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
+// CORS: supports multiple origins (comma-separated in CORS_ORIGIN env var)
+// In production, lock to your actual domain; in dev, localhost:3000 is fine.
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 // Request logging in 'dev' format (method, url, status, response-time) for debugging
 app.use(morgan('dev'));
 // Cookie parsing: needed for OAuth state management (DigiLocker)
@@ -50,23 +67,82 @@ app.use(cookieParser());
 // Body parsing: JSON payloads up to 10 MB (enough for form uploads) + URL-encoded
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+// Sanitize user input — strips HTML tags from strings to prevent stored XSS
+app.use(sanitizeInput);
 
-// ── Rate limiting ──
-// Throttle /api endpoints to 100 requests per 15-minute window per IP
-// Prevents abuse / brute-force attacks on auth endpoints.
-// Skipped when PLAYWRIGHT_TEST is set (E2E suites make hundreds of
+// ── Rate limiting (per-endpoint tuned) ──
+// Skipped entirely when PLAYWRIGHT_TEST is set (E2E suites make hundreds of
 // requests in a short burst which would hit the limit instantly).
-// To start backend for E2E: PLAYWRIGHT_TEST=1 npx tsx watch src/index.ts
 if (!process.env.PLAYWRIGHT_TEST) {
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    // Skip rate limiting for health checks (used by Playwright and load balancers)
+  const windowMs = 15 * 60 * 1000; // 15 minutes
+  const baseOpts = { standardHeaders: true, legacyHeaders: false };
+
+  // ── Strict: auth endpoints (brute-force protection) ──
+  const authLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 15,
     skip: (req) => req.path === '/health',
   });
-  app.use('/api', limiter);
+
+  // ── Public reads: generous for citizen browsing ──
+  const publicReadLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 300,
+  });
+
+  // ── Contact form: spam prevention ──
+  const contactLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 5,
+  });
+
+  // ── Protected writes: moderate for logged-in actions ──
+  const writeLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 80,
+  });
+
+  // ── Admin: generous for admin workflow ──
+  const adminLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 200,
+  });
+
+  // ── Default: catch-all for anything not explicitly covered ──
+  const defaultLimiter = rateLimit({
+    ...baseOpts,
+    windowMs,
+    max: 100,
+    skip: (req) => req.path === '/health',
+  });
+
+  // Apply per-route limiters
+  app.use('/api/auth', authLimiter);                // 15/15min — brute-force protection
+  app.use('/api/auth/digilocker', authLimiter);     // same bucket
+  app.use('/api/auth/google', authLimiter);         // same bucket
+  app.use('/api/info', publicReadLimiter);           // 300/15min
+  app.use('/api/directory', publicReadLimiter);      // 300/15min
+  app.use('/api/fares', publicReadLimiter);          // 300/15min
+  app.use('/api/services', publicReadLimiter);       // 300/15min
+  app.use('/api/calculator', publicReadLimiter);     // 300/15min
+  app.use('/api/contact', contactLimiter);           // 5/15min — spam prevention
+  app.use('/api/applications', writeLimiter);        // 80/15min
+  app.use('/api/appointments', writeLimiter);        // 80/15min
+  app.use('/api/vehicles', writeLimiter);            // 80/15min
+  app.use('/api/licenses', writeLimiter);            // 80/15min
+  app.use('/api/challans', writeLimiter);            // 80/15min
+  app.use('/api/exam', writeLimiter);                // 80/15min
+  app.use('/api/payments', writeLimiter);            // 80/15min
+  app.use('/api/notifications', defaultLimiter);     // 100/15min
+  app.use('/api/admin', adminLimiter);               // 200/15min
+  app.use('/api/admin/scheduler', adminLimiter);     // same bucket
+  app.use('/api/rto', defaultLimiter);               // 100/15min
+  app.use('/api', defaultLimiter);                   // global fallback
 }
 
 // ── Health check ──
@@ -109,6 +185,33 @@ app.use((_req, res) => {
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`RTO Backend running on port ${PORT}`);
+
+    // ── Cron: Daily expiry alerts at 8:00 AM IST (2:30 UTC) ──
+    // Checks licenses/vehicles expiring within 30 days and creates notifications.
+    // Only runs in development/production, not during tests.
+    cron.schedule('30 2 * * *', async () => {
+      console.log('[CRON] Running daily expiry alert check...');
+      try {
+        const { createExpiryAlerts } = await import('./services/notifications');
+        const result = await createExpiryAlerts();
+        console.log(`[CRON] Expiry check done: ${result.alertsCreated} alerts, ${result.usersNotified} users notified`);
+      } catch (err) {
+        console.error('[CRON] Expiry check failed:', err);
+      }
+    }, { timezone: 'Asia/Kolkata' });
+    console.log('[CRON] Scheduled daily expiry alerts at 08:00 IST');
+
+    // ── Cron: Daily database backup at 03:00 AM IST (21:30 UTC prev day) ──
+    cron.schedule('30 21 * * *', () => {
+      console.log('[CRON] Running daily database backup...');
+      try {
+        execSync('node scripts/backup-db.js', { cwd: __dirname + '/..', stdio: 'inherit' });
+        console.log('[CRON] Database backup completed');
+      } catch (err) {
+        console.error('[CRON] Database backup failed:', err);
+      }
+    }, { timezone: 'Asia/Kolkata' });
+    console.log('[CRON] Scheduled daily DB backup at 03:00 IST');
   });
 }
 

@@ -9,11 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LogIn, Mail, Lock, Fingerprint, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { validators } from '@/lib/validation';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -28,6 +30,13 @@ function LoginForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
+    const errs: Record<string, string> = {};
+    const emailErr = validators.email(email);
+    const passErr = validators.password(password);
+    if (emailErr) errs.email = emailErr;
+    if (passErr) errs.password = passErr;
+    if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+    setFieldErrors({});
     setSubmitting(true);
     try {
       await login(email, password);
@@ -75,6 +84,7 @@ function LoginForm() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="pl-10" />
+                  {fieldErrors.email && <p className="text-destructive text-xs mt-1">{fieldErrors.email}</p>}
                 </div>
               </div>
               <div>
@@ -82,6 +92,7 @@ function LoginForm() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pl-10" />
+                  {fieldErrors.password && <p className="text-destructive text-xs mt-1">{fieldErrors.password}</p>}
                 </div>
               </div>
               <div className="flex justify-end">

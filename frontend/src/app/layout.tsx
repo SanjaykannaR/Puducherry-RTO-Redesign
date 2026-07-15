@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import LayoutWrapper from './layout-wrapper';
 import { AuthProvider } from '@/context/AuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import './globals.css';
 
 // ── SEO / Social Metadata ──
@@ -27,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     // html is marked h-full + scroll-smooth for consistent full-height pages and smooth anchor scrolling
-    <html lang="en" className="h-full scroll-smooth">
+    <html lang="en" className="h-full scroll-smooth" suppressHydrationWarning>
       <head>
             {/* ── Fonts ── */}
         {/* Preconnect to Google Fonts CDN to reduce latency; Noto Sans for Latin text, */}

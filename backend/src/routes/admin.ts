@@ -37,6 +37,16 @@ router.patch('/users/:id/role', async (req: AuthRequest, res: Response) => {
       data: { role },
       select: { id: true, email: true, mobile: true, name: true, role: true },
     });
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        action: 'USER_ROLE_CHANGED',
+        targetType: 'USER',
+        targetId: id,
+        details: JSON.stringify({ newRole: role }),
+        actorId: req.user!.userId,
+      },
+    });
     res.json(user);
   } catch {
     res.status(404).json({ error: 'User not found' });
@@ -82,7 +92,7 @@ router.get('/applications', async (_req: AuthRequest, res: Response) => {
 
 // ── PATCH /api/admin/applications/:id/status ──
 // Updates an application's status (APPROVED, REJECTED, UNDER_REVIEW).
-// Creates a notification for the applicant on status change.
+// Creates a notification for the applicant on status change + audit log.
 const VALID_STATUSES = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'];
 router.patch('/applications/:id/status', async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
@@ -97,6 +107,7 @@ router.patch('/applications/:id/status', async (req: AuthRequest, res: Response)
       res.status(404).json({ error: 'Application not found' });
       return;
     }
+    const oldStatus = app.status;
     const updated = await prisma.application.update({
       where: { id },
       data: { status },
@@ -118,10 +129,30 @@ router.patch('/applications/:id/status', async (req: AuthRequest, res: Response)
         },
       });
     }
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        action: `APPLICATION_${status}`,
+        targetType: 'APPLICATION',
+        targetId: id,
+        details: JSON.stringify({ oldStatus, newStatus: status, applicationType: app.type }),
+        actorId: req.user!.userId,
+      },
+    });
     res.json(updated);
   } catch {
     res.status(404).json({ error: 'Application not found' });
   }
+});
+
+// ── GET /api/admin/payments ──
+// Lists all payments across all users for admin management.
+router.get('/payments', async (_req: AuthRequest, res: Response) => {
+  const payments = await prisma.payment.findMany({
+    include: { user: { select: { id: true, name: true, email: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json({ payments });
 });
 
 // ── GET /api/admin/revenue ──
@@ -267,6 +298,209 @@ router.patch('/settings/password', async (req: AuthRequest, res: Response) => {
     data: { passwordHash },
   });
   res.json({ message: 'Password updated successfully' });
+});
+
+// ── GET /api/admin/analytics ──
+// Service usage analytics: which services are most popular, monthly trends, conversion rates.
+router.get('/analytics', async (_req: AuthRequest, res: Response) => {
+  try {
+    const now = new Date();
+
+    // Applications by type (service popularity)
+    const allApps = await prisma.application.findMany({ select: { type: true, status: true, createdAt: true } });
+    const byType = new Map<string, { total: number; approved: number; rejected: number; pending: number }>();
+    for (const app of allApps) {
+      const entry = byType.get(app.type) || { total: 0, approved: 0, rejected: 0, pending: 0 };
+      entry.total++;
+      if (app.status === 'APPROVED') entry.approved++;
+      else if (app.status === 'REJECTED') entry.rejected++;
+      else entry.pending++;
+      byType.set(app.type, entry);
+    }
+    const serviceUsage = Array.from(byType.entries())
+      .map(([type, data]) => ({
+        type,
+        ...data,
+        conversionRate: data.total > 0 ? Math.round((data.approved / data.total) * 100) : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
+
+    // Monthly application trends (last 6 months)
+    const monthlyMap = new Map<string, { submitted: number; approved: number; rejected: number }>();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      monthlyMap.set(key, { submitted: 0, approved: 0, rejected: 0 });
+    }
+    for (const app of allApps) {
+      const key = `${app.createdAt.getFullYear()}-${String(app.createdAt.getMonth() + 1).padStart(2, '0')}`;
+      const entry = monthlyMap.get(key);
+      if (entry) {
+        entry.submitted++;
+        if (app.status === 'APPROVED') entry.approved++;
+        else if (app.status === 'REJECTED') entry.rejected++;
+      }
+    }
+    const monthlyTrends = Array.from(monthlyMap.entries()).map(([month, data]) => ({ month, ...data }));
+
+    // Overall conversion rate
+    const totalApps = allApps.length;
+    const totalApproved = allApps.filter((a) => a.status === 'APPROVED').length;
+    const overallConversion = totalApps > 0 ? Math.round((totalApproved / totalApps) * 100) : 0;
+
+    // Payment stats
+    const [completedPayments, refundedPayments] = await Promise.all([
+      prisma.payment.findMany({ where: { status: 'COMPLETED' }, select: { amount: true } }),
+      prisma.payment.findMany({ where: { status: 'REFUNDED' }, select: { amount: true } }),
+    ]);
+    const totalCollected = completedPayments.reduce((s, p) => s + p.amount, 0);
+    const totalRefunded = refundedPayments.reduce((s, p) => s + p.amount, 0);
+
+    res.json({
+      serviceUsage,
+      monthlyTrends,
+      overallConversion,
+      totalApplications: totalApps,
+      totalCollected,
+      totalRefunded,
+      netRevenue: totalCollected - totalRefunded,
+    });
+  } catch (err: any) {
+    console.error('Analytics error:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch analytics' });
+  }
+});
+
+// ── POST /api/admin/applications/bulk-status ──
+// Bulk approve or reject multiple applications at once.
+// Body: { ids: string[], status: 'APPROVED' | 'REJECTED', reason?: string }
+router.post('/applications/bulk-status', async (req: AuthRequest, res: Response) => {
+  const { ids, status, reason } = req.body;
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    res.status(400).json({ error: 'ids array is required' });
+    return;
+  }
+  if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+    res.status(400).json({ error: 'Status must be APPROVED or REJECTED' });
+    return;
+  }
+  if (ids.length > 50) {
+    res.status(400).json({ error: 'Maximum 50 applications per batch' });
+    return;
+  }
+
+  const results = { updated: 0, failed: 0, errors: [] as string[] };
+
+  for (const id of ids) {
+    try {
+      const app = await prisma.application.findUnique({ where: { id } });
+      if (!app) { results.failed++; results.errors.push(`${id}: not found`); continue; }
+
+      const oldStatus = app.status;
+      await prisma.application.update({ where: { id }, data: { status } });
+
+      // Notify
+      const msg = status === 'APPROVED'
+        ? `Your ${app.type} application has been approved!`
+        : `Your ${app.type} application has been rejected.${reason ? ` Reason: ${reason}` : ''}`;
+      await prisma.notification.create({
+        data: {
+          title: `Application ${status}`,
+          message: msg,
+          type: status === 'APPROVED' ? 'SUCCESS' : 'ERROR',
+          userId: app.applicantId,
+        },
+      });
+
+      // Audit log
+      await prisma.auditLog.create({
+        data: {
+          action: `APPLICATION_${status}`,
+          targetType: 'APPLICATION',
+          targetId: id,
+          details: JSON.stringify({ oldStatus, newStatus: status, bulk: true, reason: reason || null }),
+          actorId: req.user!.userId,
+        },
+      });
+
+      results.updated++;
+    } catch (err: any) {
+      results.failed++;
+      results.errors.push(`${id}: ${err.message}`);
+    }
+  }
+
+  res.json({ message: `Bulk ${status.toLowerCase()} complete`, ...results });
+});
+
+// ── GET /api/admin/audit-log ──
+// Lists recent audit log entries for compliance tracking.
+router.get('/audit-log', async (req: AuthRequest, res: Response) => {
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  const logs = await prisma.auditLog.findMany({
+    include: { actor: { select: { name: true, email: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  res.json({ logs });
+});
+
+// ── PATCH /api/admin/payments/:id/refund ──
+// Issues a refund for a completed payment. Marks status as REFUNDED.
+// Body: { reason: string }
+router.patch('/payments/:id/refund', async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+  const { reason } = req.body;
+  if (!reason || !reason.trim()) {
+    res.status(400).json({ error: 'Refund reason is required' });
+    return;
+  }
+  try {
+    const payment = await prisma.payment.findUnique({ where: { id } });
+    if (!payment) {
+      res.status(404).json({ error: 'Payment not found' });
+      return;
+    }
+    if (payment.status === 'REFUNDED') {
+      res.status(400).json({ error: 'Payment already refunded' });
+      return;
+    }
+    if (payment.status !== 'COMPLETED') {
+      res.status(400).json({ error: 'Only completed payments can be refunded' });
+      return;
+    }
+    const updated = await prisma.payment.update({
+      where: { id },
+      data: {
+        status: 'REFUNDED',
+        refundedAt: new Date(),
+        refundReason: reason.trim(),
+      },
+    });
+    // Notify the user about the refund
+    await prisma.notification.create({
+      data: {
+        title: 'Payment Refunded',
+        message: `Your payment of ₹${payment.amount} has been refunded. Reason: ${reason.trim()}`,
+        type: 'INFO',
+        userId: payment.userId,
+      },
+    });
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        action: 'PAYMENT_REFUNDED',
+        targetType: 'PAYMENT',
+        targetId: id,
+        details: JSON.stringify({ amount: payment.amount, reason: reason.trim(), grn: payment.transactionId }),
+        actorId: req.user!.userId,
+      },
+    });
+    res.json({ message: 'Payment refunded successfully', payment: updated });
+  } catch {
+    res.status(404).json({ error: 'Payment not found' });
+  }
 });
 
 export default router;

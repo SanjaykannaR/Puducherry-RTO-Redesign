@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check } from 'lucide-react';
+import { validators, validateForm } from '@/lib/validation';
 
 // ── Register Page ──
 // Same full-viewport layout as Login but with a packed two-column form that keeps
@@ -19,6 +20,7 @@ export default function RegisterPage() {
   // ── Form State ──
   const [form, setForm] = useState({ name: '', email: '', mobile: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const { register } = useAuth();
@@ -29,10 +31,17 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
+    const { valid, errors: errs } = validateForm(form, {
+      name: validators.name,
+      email: validators.email,
+      mobile: validators.mobile,
+      password: validators.password,
+    });
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
-      return;
+      errs.confirmPassword = 'Passwords do not match';
     }
+    if (!valid || Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+    setFieldErrors({});
     setSubmitting(true);
     try {
       await register(form.name, form.email, form.mobile, form.password);
@@ -105,6 +114,7 @@ export default function RegisterPage() {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="John Doe" className="pl-10" />
+                  {fieldErrors.name && <p className="text-destructive text-xs mt-1">{fieldErrors.name}</p>}
                 </div>
               </div>
               {/* Email + Mobile side-by-side */}
@@ -114,6 +124,7 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="reg-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required placeholder="you@example.com" className="pl-10" />
+                    {fieldErrors.email && <p className="text-destructive text-xs mt-1">{fieldErrors.email}</p>}
                   </div>
                 </div>
                 <div>
@@ -121,6 +132,7 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required placeholder="9876543210" className="pl-10" />
+                    {fieldErrors.mobile && <p className="text-destructive text-xs mt-1">{fieldErrors.mobile}</p>}
                   </div>
                 </div>
               </div>
@@ -131,6 +143,7 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="reg-password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="••••••••" className="pl-10" />
+                    {fieldErrors.password && <p className="text-destructive text-xs mt-1">{fieldErrors.password}</p>}
                   </div>
                 </div>
                 <div>
@@ -138,6 +151,7 @@ export default function RegisterPage() {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input id="confirm-password" type="password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} required placeholder="••••••••" className="pl-10" />
+                    {fieldErrors.confirmPassword && <p className="text-destructive text-xs mt-1">{fieldErrors.confirmPassword}</p>}
                   </div>
                 </div>
               </div>

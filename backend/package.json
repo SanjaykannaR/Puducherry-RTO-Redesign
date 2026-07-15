@@ -48,7 +48,9 @@
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "node-cron": "^4.6.0",
+    "xss": "^1.0.15"
   },
   "prisma": {
     "seed": "node seed.js"

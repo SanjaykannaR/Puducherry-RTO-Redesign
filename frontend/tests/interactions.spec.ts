@@ -74,16 +74,16 @@ test.describe('Contact Form Submission', () => {
 test.describe('Fee Calculator Interaction', () => {
   test('calculates fees when toggling services', async ({ page }) => {
     await authenticatePage(page, session);
-    // Use gotoAndWaitForAuth — FadeInSection wraps checkboxes in opacity-0
-    // until IntersectionObserver fires after scroll; gotoAndWaitForAuth ensures
-    // auth resolves before we interact.
     await gotoAndWaitForAuth(page, '/services/fee-calculator');
 
-    // Check a service checkbox — scroll into view to trigger FadeInSection animation
+    // FadeInSection starts at opacity-0 — scroll the whole page down to trigger
+    // IntersectionObserver so the checkbox panel becomes visible.
+    await page.evaluate(() => window.scrollBy(0, 400));
+    await page.waitForTimeout(1000); // let FadeInSection animate
+
+    // Check a service checkbox
     const checkboxes = page.locator('input[type="checkbox"]');
     const firstCheckbox = checkboxes.first();
-    await firstCheckbox.scrollIntoViewIfNeeded();
-
     await expect(firstCheckbox).toBeVisible({ timeout: 15000 });
     await firstCheckbox.check();
 

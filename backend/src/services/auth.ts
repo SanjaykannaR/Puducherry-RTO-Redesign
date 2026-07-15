@@ -4,6 +4,7 @@
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 // Fallback secret is only for dev; must be set via env in production
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-secure-random-string';
@@ -11,30 +12,42 @@ const JWT_SECRET = process.env.JWT_SECRET || 'change-me-to-a-secure-random-strin
 const SALT_ROUNDS = 12;
 
 // ── Password hashing ──
-// Hash a plaintext password before storing it (never store plaintext)
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS);
 }
 
 // ── Password verification ──
-// Compare login attempt against stored bcrypt hash (constant-time comparison)
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
-// ── JWT token generation ──
-// Sign a short-lived token (24h) embedding userId + role for stateless auth
+// ── Access token (short-lived: 15 min) ──
 export function generateToken(payload: { userId: string; role: string }): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
 }
 
-// ── JWT token verification ──
-// Decode + validate a token. Returns null (not throws) on expiry / malformation
-// so callers can return 401 uniformly
+// ── Refresh token (random 40-byte hex, stored as bcrypt hash in DB) ──
+export function generateRefreshToken(): string {
+  return crypto.randomBytes(40).toString('hex');
+}
+
+// ── Hash a refresh token for storage ──
+export async function hashRefreshToken(token: string): Promise<string> {
+  return bcrypt.hash(token, SALT_ROUNDS);
+}
+
+// ── Verify access token ──
+// Returns null on expiry / malformation so callers can return 401 uniformly
 export function verifyToken(token: string): { userId: string; role: string } | null {
   try {
     return jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
   } catch {
     return null;
   }
+}
+
+// ── Verify refresh token (compares against stored bcrypt hash) ──
+export async function verifyRefreshToken(token: string, storedHash: string | null): Promise<boolean> {
+  if (!storedHash || !token) return false;
+  return bcrypt.compare(token, storedHash);
 }

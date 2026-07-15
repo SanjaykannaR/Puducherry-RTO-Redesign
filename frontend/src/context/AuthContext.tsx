@@ -7,7 +7,6 @@ import { api } from '@/lib/api';
 
 // ── Types ──
 
-// Drives the shape of global auth state consumed across the app
 interface User {
   id: string;
   email: string;
@@ -16,11 +15,10 @@ interface User {
   role: string;
 }
 
-// Contract that AuthProvider fulfills; any component can call useAuth() to access this
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  loading: boolean;                     // true while restoring a session from localStorage on mount
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, mobile: string, password: string) => Promise<void>;
   logout: () => void;
@@ -33,51 +31,51 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // ── Provider ──
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // ── State ──
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // ── Session Restore ──
-  // On mount, check localStorage for a persisted token and validate it via /auth/me.
-  // Avoids forcing the user to re-login on every page refresh or tab close.
   useEffect(() => {
     const t = localStorage.getItem('token');
     if (t) {
       setToken(t);
       api.get<{ user: User }>('/auth/me')
         .then((data) => setUser(data.user))
-        .catch(() => localStorage.removeItem('token'))   // Token expired or tampered with – clean up silently
+        .catch(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+        })
         .finally(() => setLoading(false));
     } else {
-      setLoading(false);                                 // No saved session – skip the API call
+      setLoading(false);
     }
   }, []);
 
   // ── Login ──
-  // Credentials are exchanged for a JWT; we persist the token so the session survives refreshes.
   const login = useCallback(async (email: string, password: string) => {
-    const data = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
+    const data = await api.post<{ token: string; refreshToken: string; user: User }>('/auth/login', { email, password });
     localStorage.setItem('token', data.token);
+    localStorage.setItem('refreshToken', data.refreshToken);
     setToken(data.token);
     setUser(data.user);
   }, []);
 
   // ── Register ──
-  // Creates a new account. Does not auto-login — caller redirects to /login.
   const register = useCallback(async (name: string, email: string, mobile: string, password: string) => {
     await api.post('/auth/register', { name, email, mobile, password });
   }, []);
 
   // ── Logout ──
-  // Clears local state and persistent storage so the user is fully de-authenticated.
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try { await api.post('/auth/logout', {}); } catch { /* ignore */ }
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
   }, []);
 
-  // ── Render ──
   return (
     <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
       {children}
@@ -85,8 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// ── Hook ──
-// Safely exposes the auth context; throws if called outside the provider tree.
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

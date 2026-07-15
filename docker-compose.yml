@@ -1,0 +1,40 @@
+# ── Docker Compose: RTO Portal ──
+# Usage: docker compose up --build
+# First deploy: docker compose up --build -d
+# Logs: docker compose logs -f backend
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rto-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env.production
+    volumes:
+      - db-data:/app/prisma
+      - backups:/app/prisma/backups
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rto-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  backups:

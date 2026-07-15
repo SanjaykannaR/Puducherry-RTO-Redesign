@@ -10,6 +10,7 @@ import RequireAuth from '@/components/auth/RequireAuth';
 import { Car, CheckCircle, ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
+import { validators, validateForm } from '@/lib/validation';
 
 // ── VehicleRegistrationPage: Single-page form for new vehicle registration.
 //     Collects vehicle specs (make, model, year, fuel type, color, chassis & engine numbers)
@@ -20,11 +21,23 @@ export default function VehicleRegistrationPage() {
   const [form, setForm] = useState({
     make: '', model: '', year: '', fuelType: '', color: '', chassisNo: '', engineNo: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const { valid, errors: errs } = validateForm(form, {
+      make: validators.required('Make'),
+      model: validators.required('Model'),
+      year: validators.year,
+      fuelType: validators.required('Fuel type'),
+      color: validators.required('Color'),
+      chassisNo: validators.vin,
+      engineNo: validators.engineNo,
+    });
+    if (!valid) { setErrors(errs); return; }
+    setErrors({});
     try {
       const res = await api.post<{ id: string }>('/applications', { type: 'VEHICLE_REGISTRATION', formData: form });
       setSubmittedId(res.id);
@@ -99,34 +112,41 @@ export default function VehicleRegistrationPage() {
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Make</label>
                       <Input value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required placeholder="e.g. Honda" />
+                      {errors.make && <p className="text-destructive text-xs mt-1">{errors.make}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Model</label>
                       <Input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required placeholder="e.g. Activa 6G" />
+                      {errors.model && <p className="text-destructive text-xs mt-1">{errors.model}</p>}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Year</label>
                       <Input type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="e.g. 2026" />
+                      {errors.year && <p className="text-destructive text-xs mt-1">{errors.year}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Fuel Type</label>
                       <Input value={form.fuelType} onChange={(e) => setForm({ ...form, fuelType: e.target.value })} required placeholder="e.g. Petrol" />
+                      {errors.fuelType && <p className="text-destructive text-xs mt-1">{errors.fuelType}</p>}
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5">Color</label>
                     <Input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} required placeholder="e.g. Red" />
+                    {errors.color && <p className="text-destructive text-xs mt-1">{errors.color}</p>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Chassis No.</label>
                       <Input value={form.chassisNo} onChange={(e) => setForm({ ...form, chassisNo: e.target.value })} required placeholder="17-character VIN" />
+                      {errors.chassisNo && <p className="text-destructive text-xs mt-1">{errors.chassisNo}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1.5">Engine No.</label>
                       <Input value={form.engineNo} onChange={(e) => setForm({ ...form, engineNo: e.target.value })} required />
+                      {errors.engineNo && <p className="text-destructive text-xs mt-1">{errors.engineNo}</p>}
                     </div>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">

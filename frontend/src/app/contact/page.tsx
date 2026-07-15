@@ -9,6 +9,7 @@ import FadeInSection from '@/components/ui/fade-in-section';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
+import { validators, validateForm } from '@/lib/validation';
 
 // ── Department-specific helplines ──
 // Each major service has a dedicated number so callers are routed correctly without
@@ -30,10 +31,18 @@ const regionalOffices = [
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const { valid, errors: errs } = validateForm(form, {
+      name: validators.name,
+      email: validators.email,
+      message: validators.message,
+    });
+    if (!valid) { setErrors(errs); return; }
+    setErrors({});
     setSubmitting(true);
     try {
       await api.post('/contact', form);
@@ -121,12 +130,14 @@ export default function ContactPage() {
                         Full Name <span className="text-destructive">*</span>
                       </label>
                       <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                      {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-1">
                         Email <span className="text-destructive">*</span>
                       </label>
                       <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+                      {errors.email && <p className="text-destructive text-xs mt-1">{errors.email}</p>}
                     </div>
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone</label>
@@ -144,6 +155,7 @@ export default function ContactPage() {
                         required
                         className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                       />
+                      {errors.message && <p className="text-destructive text-xs mt-1">{errors.message}</p>}
                     </div>
                     <Button type="submit" className="w-full" disabled={submitting}>
                       <Send className="w-4 h-4 mr-2" />

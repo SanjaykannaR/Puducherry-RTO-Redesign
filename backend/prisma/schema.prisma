@@ -24,6 +24,7 @@ model User {
   aadhaarLastFour String?
   digilockerId    String?  @unique
   googleId        String?  @unique
+  refreshToken    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -33,6 +34,7 @@ model User {
   licenses        License[]
   payments        Payment[]
   notifications   Notification[]
+  auditLogs       AuditLog[]
 
   @@map("users")
 }
@@ -151,8 +153,10 @@ model Payment {
   transactionId   String    @unique   // GRN (Government Reference Number)
   gatewayRefNo    String?             // BRN (Bank Reference Number)
   paymentMethod   String?             // UPI, Card, Net Banking
-  status          String    @default("PENDING")
+  status          String    @default("PENDING")  // PENDING, COMPLETED, REFUNDED
   paidAt          DateTime?
+  refundedAt      DateTime?
+  refundReason    String?
   createdAt       DateTime  @default(now())
 
   user          User      @relation(fields: [userId], references: [id])
@@ -182,4 +186,22 @@ model Notification {
   @@index([userId, isRead])
   @@index([createdAt])
   @@map("notifications")
+}
+
+// ── Audit Log ──
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g. APPLICATION_APPROVED, PAYMENT_REFUNDED, USER_ROLE_CHANGED
+  targetType String   // APPLICATION, PAYMENT, USER, etc.
+  targetId   String
+  details    String?  // JSON with extra context (old/new values)
+  createdAt  DateTime @default(now())
+
+  actor      User     @relation(fields: [actorId], references: [id])
+  actorId    String
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

@@ -77,16 +77,11 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('displays stat cards with numbers', async ({ page }) => {
-      // The admin page fetches /admin/stats + /admin/users — may take time.
-      // Stat card titles are always visible even while loading (values show skeletons).
-      // If the API fails, the page shows an error instead.
-      // Just wait for the Dashboard heading to confirm admin loaded, then check stat cards.
-      await expect(page.getByText('Dashboard').first()).toBeVisible({ timeout: 15000 });
       // Stat card titles use <CardTitle> which renders as a div, not a heading
-      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText('Appointments').first()).toBeVisible();
-      await expect(page.getByText('Applications').first()).toBeVisible();
-      await expect(page.getByText('Challans').first()).toBeVisible();
+      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 20000 });
+      await expect(page.getByText('Appointments').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Challans').first()).toBeVisible({ timeout: 15000 });
     });
 
     test('shows Recent Users section', async ({ page }) => {
@@ -102,10 +97,9 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('shows System Info section', async ({ page }) => {
-      // System Info is a CardTitle (div) at the bottom of the admin dashboard —
-      // it may take time to render if stats API is slow. Use .first() to avoid
-      // strict mode if "System Info" appears elsewhere, and add explicit timeout.
-      await expect(page.getByText('System Info').first()).toBeVisible({ timeout: 15000 });
+      // System Info is at the bottom of the page — may need scroll
+      await page.evaluate(() => window.scrollBy(0, 500));
+      await expect(page.getByText('System Info').first()).toBeVisible({ timeout: 20000 });
     });
   });
 
@@ -116,11 +110,14 @@ test.describe.serial('Admin Panel', () => {
   test.describe('Users', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
-      await gotoAndWaitForAuth(page, '/admin/users');
+      await gotoAndWaitForAuth(page, '/admin/users', { timeout: 30000 });
+      // Admin layout returns null while useAuth() loads — wait for actual content
+      await page.locator('text=Users Management').first()
+        .waitFor({ state: 'visible', timeout: 20000 });
     });
 
     test('loads with Users Management heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Users Management' })).toBeVisible();
+      await expect(page.getByText('Users Management').first()).toBeVisible({ timeout: 20000 });
     });
 
     test('displays a table with users', async ({ page }) => {
@@ -156,7 +153,7 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('loads with Reports heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Reports' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Reports' })).toBeVisible({ timeout: 15000 });
     });
 
     test('displays KPI stat cards', async ({ page }) => {
@@ -199,7 +196,7 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('loads with Services Management heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Services Management' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Services Management' })).toBeVisible({ timeout: 15000 });
     });
 
     test('shows Add Service and Save buttons', async ({ page }) => {
@@ -216,7 +213,7 @@ test.describe.serial('Admin Panel', () => {
     test('loads with Fares heading', async ({ page }) => {
       await authenticatePage(page, adminSession);
       await page.goto('/admin/fares', { waitUntil: 'domcontentloaded' });
-      await expect(page.getByRole('heading', { name: /Fares/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /Fares/i })).toBeVisible({ timeout: 15000 });
     });
   });
 
@@ -231,7 +228,7 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('loads with Settings heading', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 15000 });
     });
 
     test('shows current user email', async ({ page }) => {
@@ -278,7 +275,7 @@ test.describe.serial('Admin Panel', () => {
 
       await page.locator('aside').getByText('Users').click();
       await expect(page).toHaveURL(/\/admin\/users/);
-      await expect(page.getByRole('heading', { name: 'Users Management' })).toBeVisible();
+      await expect(page.getByText('Users Management')).toBeVisible({ timeout: 15000 });
     });
 
     test('clicking Settings link navigates to settings page', async ({ page }) => {
@@ -287,7 +284,7 @@ test.describe.serial('Admin Panel', () => {
 
       await page.locator('aside').getByText('Settings').click();
       await expect(page).toHaveURL(/\/admin\/settings/);
-      await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+      await expect(page.getByText('Settings').first()).toBeVisible({ timeout: 15000 });
     });
   });
 

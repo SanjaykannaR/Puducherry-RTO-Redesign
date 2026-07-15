@@ -336,7 +336,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/duplicate-rc');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Duplicate RC').first()).toBeVisible({ timeout: 15000 });
     });
   });
 

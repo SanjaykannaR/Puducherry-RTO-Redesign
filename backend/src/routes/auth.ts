@@ -1,17 +1,15 @@
 // ── Auth routes: register, login, and current-user lookup ──
 // Public endpoints for account creation and authentication (JWT-based).
-// The /me endpoint requires a valid Bearer token.
+// Access tokens expire in 15 min; refresh tokens are 7-day rotating.
 
 import { Router, Response } from 'express';
-import { hashPassword, verifyPassword, generateToken } from '../services/auth';
+import { hashPassword, verifyPassword, generateToken, generateRefreshToken, hashRefreshToken, verifyRefreshToken } from '../services/auth';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import prisma from '../services/prisma';
 
 const router = Router();
 
 // ── POST /api/auth/register ──
-// Creates a new citizen account. Validates required fields, checks for
-// duplicate email/mobile, hashes the password, and returns a JWT.
 router.post('/register', async (req: AuthRequest, res: Response) => {
   const { email, mobile, password, name } = req.body;
   if (!email || !mobile || !password || !name) {
@@ -28,20 +26,22 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
   }
 
   const passwordHash = await hashPassword(password);
+  const refreshToken = generateRefreshToken();
+  const refreshTokenHash = await hashRefreshToken(refreshToken);
+
   const user = await prisma.user.create({
-    data: { email, mobile, passwordHash, name, role: 'CITIZEN' },
+    data: { email, mobile, passwordHash, name, role: 'CITIZEN', refreshToken: refreshTokenHash },
   });
 
   const token = generateToken({ userId: user.id, role: user.role });
   res.status(201).json({
     token,
+    refreshToken,
     user: { id: user.id, email: user.email, mobile: user.mobile, name: user.name, role: user.role },
   });
 });
 
 // ── POST /api/auth/login ──
-// Authenticates with email + password. Returns JWT and user profile
-// on success. Uses bcrypt constant-time comparison.
 router.post('/login', async (req: AuthRequest, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -55,15 +55,61 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     return;
   }
 
+  // Generate new refresh token (rotate on every login)
+  const refreshToken = generateRefreshToken();
+  const refreshTokenHash = await hashRefreshToken(refreshToken);
+  await prisma.user.update({ where: { id: user.id }, data: { refreshToken: refreshTokenHash } });
+
   const token = generateToken({ userId: user.id, role: user.role });
   res.json({
     token,
+    refreshToken,
     user: { id: user.id, email: user.email, mobile: user.mobile, name: user.name, role: user.role },
   });
 });
 
+// ── POST /api/auth/refresh ──
+// Exchange a valid refresh token for a new access token (token rotation).
+// Body: { refreshToken: string }
+router.post('/refresh', async (req: AuthRequest, res: Response) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    res.status(400).json({ error: 'Refresh token required' });
+    return;
+  }
+
+  // Find user by comparing refresh token against all stored hashes
+  const users = await prisma.user.findMany({ where: { refreshToken: { not: null } }, select: { id: true, role: true, refreshToken: true } });
+  let matchedUser: typeof users[number] | null = null;
+  for (const u of users) {
+    if (await verifyRefreshToken(refreshToken, u.refreshToken)) {
+      matchedUser = u;
+      break;
+    }
+  }
+
+  if (!matchedUser) {
+    res.status(401).json({ error: 'Invalid or expired refresh token' });
+    return;
+  }
+
+  // Rotate: issue new access + new refresh token
+  const newRefreshToken = generateRefreshToken();
+  const newRefreshTokenHash = await hashRefreshToken(newRefreshToken);
+  await prisma.user.update({ where: { id: matchedUser.id }, data: { refreshToken: newRefreshTokenHash } });
+
+  const token = generateToken({ userId: matchedUser.id, role: matchedUser.role });
+  res.json({ token, refreshToken: newRefreshToken });
+});
+
+// ── POST /api/auth/logout ──
+// Clears the refresh token (invalidates future refreshes).
+router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => {
+  await prisma.user.update({ where: { id: req.user!.userId }, data: { refreshToken: null } });
+  res.json({ message: 'Logged out' });
+});
+
 // ── GET /api/auth/me ──
-// Returns the authenticated user's profile. Requires a valid Bearer token.
 router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
   if (!user) {
@@ -76,8 +122,6 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
 });
 
 // ── POST /api/auth/forgot-password ──
-// Initiates a password reset. In production, this would send an email/SMS with a reset link.
-// For now, validates the user exists and returns a confirmation message.
 router.post('/forgot-password', async (req: AuthRequest, res: Response) => {
   const { email } = req.body;
   if (!email) {
@@ -87,14 +131,11 @@ router.post('/forgot-password', async (req: AuthRequest, res: Response) => {
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    // Don't reveal whether the email exists — return same message for security
     res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
     return;
   }
 
-  // TODO: Integrate email/SMS service to send actual reset link with token
   console.log(`[forgot-password] Reset requested for: ${email} (user: ${user.id})`);
-
   res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
 });
 
