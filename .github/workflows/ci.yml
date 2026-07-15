@@ -102,7 +102,7 @@ jobs:
         working-directory: backend
         run: |
           npx prisma generate
-          npx prisma db push --skip-generate
+          npx prisma db push
           node seed.js
         env:
           DATABASE_URL: "file:./dev.db"
