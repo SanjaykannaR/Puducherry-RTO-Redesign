@@ -71,6 +71,21 @@
 
 ---
 
+## 📋 REMAINING TASKS
+
+### 🚀 Deployment (Tomorrow)
+
+| # | Task | Why | Effort | Status |
+|---|------|-----|--------|--------|
+| 1 | **Get a VPS server** — Oracle Cloud free tier (recommended) or DigitalOcean $4/mo | Need a server to deploy to | 15 min | ⏳ TODO |
+| 2 | **Run setup script** — `bash scripts/setup-server.sh` on the VPS | One-time server setup (Docker, Node.js, Git) | 10 min | ⏳ TODO |
+| 3 | **Configure GitHub Secrets** — DEPLOY_HOST, DEPLOY_USER, DEPLOY_KEY | Enables CD pipeline | 10 min | ⏳ TODO |
+| 4 | **First manual deploy** — `bash scripts/deploy.sh` on the VPS | Get the app running live | 10 min | ⏳ TODO |
+| 5 | **Verify live app** — Check http://your-server-ip:3000 (frontend) and :5000 (backend) | Confirm everything works | 5 min | ⏳ TODO |
+| 6 | **CD auto-deploy test** — Push to main, verify CD triggers | Confirm automation works | 5 min | ⏳ TODO |
+
+---
+
 ## 📊 Final Dashboard
 
 | Category | Count | Status |
