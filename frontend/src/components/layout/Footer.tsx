@@ -35,8 +35,14 @@ export default function Footer() {
           {/* ── Column 1: Brand & description ── */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-primary font-bold text-sm">RTO</span>
+              <div className="w-11 h-11 rounded-full overflow-hidden shadow-md bg-white/10 flex-shrink-0">
+                <img 
+                  src="/puducherry-emblem.svg" 
+                  alt="Government of Puducherry Emblem" 
+                  className="w-full h-full object-contain p-0.5"
+                  width="44"
+                  height="44"
+                />
               </div>
               <div>
                 <h3 className="font-bold text-white">{t('site.title', locale)}</h3>

@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 380" fill="none">
+  <!-- 
+    Emblem of the Government of Puducherry
+    Features: Aayi Mandapam (Park Monument) in Bharati Park
+    French-influenced architectural heritage
+  -->
+  
+  <defs>
+    <!-- Blue for the monument line art -->
+    <linearGradient id="blueArt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a3c6e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0e2a52;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- AAYI MANDAPAM MONUMENT - Blue Line Art      -->
+  <!-- French-influenced neoclassical architecture -->
+  <!-- ═══════════════════════════════════════════ -->
+  <g transform="translate(200, 160)" stroke="url(#blueArt)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- ── Base Platform / Steps ── -->
+    <rect x="-110" y="80" width="220" height="6" rx="1" fill="url(#blueArt)" opacity="0.15"/>
+    <line x1="-115" y1="86" x2="115" y2="86" stroke-width="1.5"/>
+    <line x1="-110" y1="92" x2="110" y2="92" stroke-width="1"/>
+    <line x1="-105" y1="96" x2="105" y2="96" stroke-width="0.8"/>
+
+    <!-- ── Lower Plinth ── -->
+    <rect x="-95" y="72" width="190" height="10" rx="1" fill="url(#blueArt)" opacity="0.08"/>
+    <line x1="-95" y1="72" x2="95" y2="72" stroke-width="1.5"/>
+    <line x1="-95" y1="82" x2="95" y2="82" stroke-width="1"/>
+
+    <!-- ═══ MAIN BUILDING BODY ═══ -->
+    <!-- Left wall -->
+    <line x1="-85" y1="-30" x2="-85" y2="72" stroke-width="1.8"/>
+    <!-- Right wall -->
+    <line x1="85" y1="-30" x2="85" y2="72" stroke-width="1.8"/>
+    <!-- Front face baseline -->
+    <line x1="-85" y1="72" x2="85" y2="72" stroke-width="1.5"/>
+
+    <!-- ═══ OUTER COLUMNS (4 pairs flanking the building) ═══ -->
+    <!-- Far left column -->
+    <rect x="-82" y="-28" width="5" height="98" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="-82" y1="-28" x2="-82" y2="70" stroke-width="1.2"/>
+    <line x1="-77" y1="-28" x2="-77" y2="70" stroke-width="1.2"/>
+    <ellipse cx="-79.5" cy="-30" rx="4" ry="2" stroke-width="0.8"/>
+
+    <!-- Inner left column -->
+    <rect x="-70" y="-28" width="5" height="98" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="-70" y1="-28" x2="-70" y2="70" stroke-width="1.2"/>
+    <line x1="-65" y1="-28" x2="-65" y2="70" stroke-width="1.2"/>
+    <ellipse cx="-67.5" cy="-30" rx="4" ry="2" stroke-width="0.8"/>
+
+    <!-- Inner right column -->
+    <rect x="65" y="-28" width="5" height="98" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="65" y1="-28" x2="65" y2="70" stroke-width="1.2"/>
+    <line x1="70" y1="-28" x2="70" y2="70" stroke-width="1.2"/>
+    <ellipse cx="67.5" cy="-30" rx="4" ry="2" stroke-width="0.8"/>
+
+    <!-- Far right column -->
+    <rect x="77" y="-28" width="5" height="98" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="77" y1="-28" x2="77" y2="70" stroke-width="1.2"/>
+    <line x1="82" y1="-28" x2="82" y2="70" stroke-width="1.2"/>
+    <ellipse cx="79.5" cy="-30" rx="4" ry="2" stroke-width="0.8"/>
+
+    <!-- ═══ CENTRAL ARCHWAY (Grand Arch) ═══ -->
+    <!-- Arch opening -->
+    <path d="M-28,-30 L-28,45 Q-28,55 -22,62 L-18,68" stroke-width="1.5" fill="url(#blueArt)" fill-opacity="0.06"/>
+    <path d="M28,-30 L28,45 Q28,55 22,62 L18,68" stroke-width="1.5" fill="url(#blueArt)" fill-opacity="0.06"/>
+    <!-- Arch curve -->
+    <path d="M-28,45 Q-28,72 0,80 Q28,72 28,45" stroke-width="1.8" fill="url(#blueArt)" fill-opacity="0.04"/>
+    
+    <!-- Arch inner detail -->
+    <path d="M-22,40 Q-22,65 0,72 Q22,65 22,40" stroke-width="0.8"/>
+    
+    <!-- Arch keystone -->
+    <path d="M-4,78 L0,83 L4,78" stroke-width="1.2"/>
+
+    <!-- Arch columns (pair on each side of arch) -->
+    <!-- Left arch column -->
+    <rect x="-35" y="-30" width="4" height="100" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="-35" y1="-30" x2="-35" y2="70" stroke-width="1.3"/>
+    <line x1="-31" y1="-30" x2="-31" y2="70" stroke-width="1.3"/>
+    <ellipse cx="-33" cy="-32" rx="3.5" ry="2" stroke-width="0.8"/>
+    <!-- Column base -->
+    <rect x="-37" y="64" width="8" height="4" rx="0.5" stroke-width="0.6"/>
+
+    <!-- Right arch column -->
+    <rect x="31" y="-30" width="4" height="100" rx="1" fill="url(#blueArt)" opacity="0.12"/>
+    <line x1="31" y1="-30" x2="31" y2="70" stroke-width="1.3"/>
+    <line x1="35" y1="-30" x2="35" y2="70" stroke-width="1.3"/>
+    <ellipse cx="33" cy="-32" rx="3.5" ry="2" stroke-width="0.8"/>
+    <!-- Column base -->
+    <rect x="29" y="64" width="8" height="4" rx="0.5" stroke-width="0.6"/>
+
+    <!-- ═══ ENTABLATURE (Horizontal beam above columns) ═══ -->
+    <rect x="-88" y="-38" width="176" height="10" rx="1" fill="url(#blueArt)" opacity="0.08"/>
+    <line x1="-90" y1="-38" x2="90" y2="-38" stroke-width="1.5"/>
+    <line x1="-88" y1="-33" x2="88" y2="-33" stroke-width="0.6"/>
+    <line x1="-88" y1="-28" x2="88" y2="-28" stroke-width="1.2"/>
+
+    <!-- Triglyphs (decorative notches on entablature) -->
+    <line x1="-75" y1="-38" x2="-75" y2="-28" stroke-width="0.5"/>
+    <line x1="-55" y1="-38" x2="-55" y2="-28" stroke-width="0.5"/>
+    <line x1="-35" y1="-38" x2="-35" y2="-28" stroke-width="0.5"/>
+    <line x1="35" y1="-38" x2="35" y2="-28" stroke-width="0.5"/>
+    <line x1="55" y1="-38" x2="55" y2="-28" stroke-width="0.5"/>
+    <line x1="75" y1="-38" x2="75" y2="-28" stroke-width="0.5"/>
+
+    <!-- ═══ UPPER LEVEL (Attic / Pediment Area) ═══ -->
+    <rect x="-75" y="-58" width="150" height="20" rx="1" fill="url(#blueArt)" opacity="0.06"/>
+    <line x1="-75" y1="-58" x2="75" y2="-58" stroke-width="1.3"/>
+    <line x1="-75" y1="-38" x2="-75" y2="-58" stroke-width="1"/>
+    <line x1="75" y1="-38" x2="75" y2="-58" stroke-width="1"/>
+
+    <!-- Decorative panels on upper level -->
+    <rect x="-60" y="-54" width="20" height="12" rx="1" stroke-width="0.6"/>
+    <rect x="-30" y="-54" width="20" height="12" rx="1" stroke-width="0.6"/>
+    <rect x="10" y="-54" width="20" height="12" rx="1" stroke-width="0.6"/>
+    <rect x="40" y="-54" width="20" height="12" rx="1" stroke-width="0.6"/>
+
+    <!-- ═══ DOME BASE (Drum) ═══ -->
+    <rect x="-50" y="-68" width="100" height="12" rx="2" fill="url(#blueArt)" opacity="0.06"/>
+    <line x1="-50" y1="-68" x2="50" y2="-68" stroke-width="1.3"/>
+    <line x1="-50" y1="-56" x2="50" y2="-56" stroke-width="1"/>
+    
+    <!-- Drum columns (small decorative pilasters) -->
+    <line x1="-40" y1="-68" x2="-40" y2="-56" stroke-width="0.6"/>
+    <line x1="-20" y1="-68" x2="-20" y2="-56" stroke-width="0.6"/>
+    <line x1="0" y1="-68" x2="0" y2="-56" stroke-width="0.6"/>
+    <line x1="20" y1="-68" x2="20" y2="-56" stroke-width="0.6"/>
+    <line x1="40" y1="-68" x2="40" y2="-56" stroke-width="0.6"/>
+
+    <!-- ═══ ORNATE CUPOLA / DOME ═══ -->
+    <!-- Main dome -->
+    <path d="M-45,-68 Q-45,-105 0,-115 Q45,-105 45,-68" stroke-width="1.8" fill="url(#blueArt)" fill-opacity="0.03"/>
+    <!-- Dome inner ribs -->
+    <path d="M-30,-68 Q-30,-100 0,-108 Q30,-100 30,-68" stroke-width="0.5"/>
+    <path d="M-15,-68 Q-15,-95 0,-102 Q15,-95 15,-68" stroke-width="0.4"/>
+
+    <!-- Cupola lantern (small structure on top of dome) -->
+    <rect x="-12" y="-120" width="24" height="10" rx="2" stroke-width="1"/>
+    <line x1="-12" y1="-115" x2="12" y2="-115" stroke-width="0.5"/>
+    
+    <!-- Cupola mini-dome -->
+    <path d="M-10,-120 Q-10,-132 0,-136 Q10,-132 10,-120" stroke-width="1.2" fill="url(#blueArt)" fill-opacity="0.04"/>
+    
+    <!-- Finial / Pinnacle -->
+    <line x1="0" y1="-136" x2="0" y2="-148" stroke-width="1.2"/>
+    <circle cx="0" cy="-150" r="3" stroke-width="1" fill="url(#blueArt)" fill-opacity="0.2"/>
+    
+    <!-- Small decorative balls on finial -->
+    <circle cx="0" cy="-143" r="1.5" stroke-width="0.6"/>
+    <circle cx="0" cy="-155" r="1.5" stroke-width="0.6"/>
+
+    <!-- ═══ SIDE DECORATIONS (Garlands / Swags) ═══ -->
+    <!-- Left decorative swag -->
+    <path d="M-90,-25 Q-95,-10 -90,5" stroke-width="0.6" fill="none"/>
+    <path d="M-87,-25 Q-92,-10 -87,5" stroke-width="0.4" fill="none"/>
+    
+    <!-- Right decorative swag -->
+    <path d="M90,-25 Q95,-10 90,5" stroke-width="0.6" fill="none"/>
+    <path d="M87,-25 Q92,-10 87,5" stroke-width="0.4" fill="none"/>
+  </g>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TEXT SECTION                                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  
+  <!-- "GOVERNMENT OF PUDUCHERRY" in bold black caps -->
+  <text 
+    x="200" y="320" 
+    text-anchor="middle" 
+    font-family="'Noto Sans', 'Arial', sans-serif" 
+    font-size="18" 
+    font-weight="800"
+    fill="#000000" 
+    letter-spacing="2"
+  >GOVERNMENT OF PUDUCHERRY</text>
+
+  <!-- Tamil text: புதுச்சேரி அரசு (Puthucheri Arasu) -->
+  <text 
+    x="200" y="350" 
+    text-anchor="middle" 
+    font-family="'Noto Sans Tamil', 'Latha', 'Vijaya', serif" 
+    font-size="22" 
+    font-weight="700"
+    fill="#000000"
+  >புதுச்சேரி அரசு</text>
+</svg>

@@ -24,6 +24,22 @@ services:
       timeout: 5s
       retries: 3
 
+  chatbot:
+    build:
+      context: ./chatbot
+      dockerfile: Dockerfile
+    container_name: rto-chatbot
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./chatbot/.env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
   frontend:
     image: ${FRONTEND_IMAGE:-ghcr.io/sanjaykannar/puducherry-rto-redesign/frontend:latest}
     build:
@@ -35,6 +51,8 @@ services:
       - "3000:3000"
     depends_on:
       backend:
+        condition: service_healthy
+      chatbot:
         condition: service_healthy
 
 volumes:

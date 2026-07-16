@@ -1,0 +1,340 @@
+{
+  "meta": {
+    "source": "Puducherry Transport Department (transport.py.gov.in) & Motor Vehicles Act 1988 (amended 2019)",
+    "last_updated": "2026-07",
+    "language": "en"
+  },
+  "topics": {
+    "learner_license": {
+      "title": "Learner's License (LLR)",
+      "age_requirement": "16 years for motorcycle without gear (with parental consent if under 18); 18 years for other vehicles; 20 years for transport vehicles",
+      "documents_required": [
+        "Application Form 2",
+        "Age proof (birth certificate / school certificate / passport)",
+        "Address proof (Election ID / Passport / Aadhaar)",
+        "Nationality certificate",
+        "Medical Certificate Form 1 (self-declaration)",
+        "Medical Certificate Form 1A (if applying for transport vehicle or age 50+)",
+        "Passport size photographs - 2 numbers",
+        "Parental consent form (if aged 16-18)"
+      ],
+      "process": [
+        "Step 1: Visit https://sarathi.parivahan.gov.in",
+        "Step 2: Select State 'Pondicherry' and your RTO jurisdiction",
+        "Step 3: Click Online Services > Sarathi Services > Apply Online > New Learner's Licence",
+        "Step 4: Fill application details as per original records",
+        "Step 5: Pay the prescribed fees online",
+        "Step 6: Verify payment status and print receipt",
+        "Step 7: Book slot for LL Test",
+        "Step 8: Appear for computer-based test (10 objective questions, 6 correct to pass)",
+        "Step 9: If passed, LLR is printed immediately",
+        "Step 10: If failed, re-test available after fee payment"
+      ],
+      "fees": "Rs. 150 (approximate, varies by vehicle class)",
+      "processing_time": "Same day",
+      "validity": "6 months from date of issue",
+      "online_portal": "https://sarathi.parivahan.gov.in",
+      "notes": [
+        "After 30 days of obtaining LLR, you can apply for permanent Driving License",
+        "LLR is valid for 6 months - apply for DL before expiry",
+        "Preliminary test exempted if already holding LLR or permanent license"
+      ]
+    },
+    "driving_license": {
+      "title": "Driving License (DL)",
+      "types": {
+        "fresh": "New Driving License (after holding LLR for 30+ days)",
+        "renewal": "Renewal of existing Driving License",
+        "duplicate": "Duplicate DL (if lost/damaged)",
+        "address_change": "Change of Address in DL",
+        "additional_endorsement": "Additional Endorsement (AEDL) for new vehicle class"
+      },
+      "documents_required_fresh": [
+        "Valid Learner's License (original)",
+        "Application Form 4",
+        "Age proof",
+        "Address proof",
+        "Medical Certificate Form 1 (under 40) or Form 1A (40 and above)",
+        "Passport size photographs - 2 numbers",
+        "Fee payment receipt"
+      ],
+      "documents_required_renewal": [
+        "Application Form 9 (online)",
+        "Existing Driving License (original)",
+        "Medical Certificate Form 1A (mandatory if age 40 or above)",
+        "Passport size photographs - 2 numbers",
+        "Fee payment receipt"
+      ],
+      "renewal_process": [
+        "Step 1: Visit https://sarathi.parivahan.gov.in",
+        "Step 2: Click Online Services > DL Services > Renewal of DL",
+        "Step 3: Enter DL number and date of birth",
+        "Step 4: Fill applicant details",
+        "Step 5: Upload Medical Certificate Form 1A (if age 40+)",
+        "Step 6: Pay fees online",
+        "Step 7: Print cash receipt",
+        "Step 8: Report to camera room for biometric capture",
+        "Step 9: DL is renewed and sent to your address"
+      ],
+      "renewal_fees": {
+        "normal": "Rs. 550 per COV (Rs. 200 + Rs. 200 + Rs. 150)",
+        "late_1_year": "Rs. 700 (within 1 year after expiry)",
+        "late_2_years": "Rs. 1000 (more than 1 year after expiry)",
+        "with_test": "Additional Rs. 50 per class of vehicle (if expired more than 1 year)"
+      },
+      "validity_rules": {
+        "under_30": "Valid until age 40",
+        "30_to_50": "Valid for 10 years",
+        "50_to_55": "Valid until age 60",
+        "above_55": "Valid for 5 years"
+      },
+      "medical_certificate_rules": {
+        "form_1": "Self-declaration of fitness (for applicants under 40, non-transport vehicles)",
+        "form_1A": "Medical certificate from registered MBBS doctor (mandatory for: age 40+, transport vehicles, renewal after long expiry)",
+        "form_1A_validity": "1 year from date of issue",
+        "form_1A_checks": "Vision test, general physical control, medical history review"
+      },
+      "processing_time": "7 working days",
+      "online_portal": "https://sarathi.parivahan.gov.in",
+      "important_notes": [
+        "Age 40+ renewal REQUIRES Form 1A medical certificate - no exceptions",
+        "Form 1 (self-declaration) is NOT accepted for age 40+ applicants",
+        "If DL expired more than 1 year, you need valid LLR and re-test",
+        "DL test: vehicle must have 'L' board, applicant must wear helmet",
+        "Result is informed on the spot"
+      ]
+    },
+    "vehicle_registration": {
+      "title": "Vehicle Registration",
+      "documents_required": [
+        "Form 19, 20, 21, 22",
+        "Certificate confirming residence (Election Photo ID / Passport)",
+        "Form 60 (for three/four wheelers) or PAN Card copy",
+        "Valid Insurance Cover Note",
+        "Sale Certificate (Form 21 from dealer)",
+        "Certificate of Roadworthiness (Form 22 from manufacturer)"
+      ],
+      "process": [
+        "Step 1: Dealer submits application online through VAHAN 4.0",
+        "Step 2: Pay registration fees and road tax online",
+        "Step 3: Vehicle inspection at RTO (if required)",
+        "Step 4: RC book issued and can be collected after 10 days"
+      ],
+      "fees": {
+        "motorcycle": "Rs. 670 (Rs. 300 + Rs. 200 smart card + Rs. 170 service)",
+        "invalid_carriage": "Rs. 670",
+        "lmv_car": "Rs. 970 (Rs. 600 + Rs. 200 + Rs. 170)",
+        "lpv": "Rs. 970",
+        "mmv": "Rs. 1270 (Rs. 900 + Rs. 200 + Rs. 170)",
+        "hmv_hpv": "Rs. 2770 (Rs. 1500 + Rs. 200 + Rs. 270 + Rs. 800 FC)",
+        "imported_motorcycle": "Rs. 2870",
+        "imported_vehicle": "Rs. 5370"
+      },
+      "road_tax_two_wheeler": {
+        "under_55cc": "Nil",
+        "56_to_75cc": "Rs. 60/year, Rs. 450 lifetime",
+        "76_to_170cc": "Rs. 110/year, Rs. 850 lifetime",
+        "above_170cc": "Rs. 160/year, Rs. 1200 lifetime"
+      },
+      "road_tax_four_wheeler": {
+        "under_700kg": "Rs. 550/year, Rs. 4800 lifetime",
+        "700_to_1500kg": "Rs. 710/year, Rs. 6000 lifetime",
+        "1500_to_2000kg": "Rs. 910/year, Rs. 8000 lifetime",
+        "2000_to_3000kg": "Rs. 940/year, Rs. 8000 lifetime",
+        "above_3000kg": "Rs. 960/year, Rs. 8000 lifetime"
+      },
+      "rc_validity": "15 years for private vehicles, 5 years for transport vehicles",
+      "online_portal": "https://vahan.parivahan.gov.in"
+    },
+    "rc_renewal": {
+      "title": "RC (Registration Certificate) Renewal",
+      "when_required": "After 15 years for private vehicles, after 5 years for transport vehicles",
+      "documents_required": [
+        "Form 25 (application for renewal)",
+        "Existing RC book (original)",
+        "Valid Insurance Certificate",
+        "Fitness Certificate (for transport vehicles)",
+        "Address proof",
+        "Fee payment receipt"
+      ],
+      "fees": {
+        "motorcycle": "Rs. 600 (Rs. 300 + Rs. 200 smart card + Rs. 100 service)",
+        "lmv": "Rs. 400",
+        "mmv": "Rs. 600",
+        "hmv": "Rs. 900"
+      },
+      "online_portal": "https://vahan.parivahan.gov.in"
+    },
+    "transfer_ownership": {
+      "title": "Transfer of Vehicle Ownership",
+      "documents_required": [
+        "Form 29 (in duplicate)",
+        "Form 30",
+        "Original RC book",
+        "Insurance certificate",
+        "Address proof of new owner",
+        "PAN card or Form 60",
+        "NOC from financier (if applicable)"
+      ],
+      "fees": {
+        "motorcycle": "Rs. 500",
+        "lmv": "Rs. 650",
+        "mmv": "Rs. 900",
+        "hmv": "Rs. 1200"
+      }
+    },
+    "challan": {
+      "title": "Traffic Challans and Penalties",
+      "common_violations": {
+        "no_helmet": {"fine": "Rs. 1,000", "section": "129/177 MVA", "note": "3-month license suspension possible"},
+        "no_seatbelt": {"fine": "Rs. 1,000", "section": "194B(1) MVA"},
+        "no_license": {"fine": "Rs. 5,000", "section": "181 MVA"},
+        "no_insurance": {"fine": "Rs. 2,000 first, Rs. 4,000 repeat", "section": "196 MVA", "note": "3 months jail possible"},
+        "overspeeding_lmv": {"fine": "Rs. 1,000 first, Rs. 2,000 repeat", "section": "183(1) MVA"},
+        "overspeeding_hmv": {"fine": "Rs. 2,000 first, Rs. 4,000 repeat", "section": "183(1) MVA"},
+        "dangerous_driving": {"fine": "Rs. 5,000 first, Rs. 10,000 repeat", "section": "184 MVA"},
+        "drunk_driving": {"fine": "Rs. 10,000 and/or 6 months jail first, Rs. 15,000 and/or 2 years jail repeat", "section": "185 MVA"},
+        "mobile_phone_driving": {"fine": "Rs. 5,000 first, Rs. 10,000 repeat", "section": "184 MVA"},
+        "triple_riding": {"fine": "Rs. 1,000", "section": "128/177 MVA", "note": "3-month license suspension"},
+        "no_registration": {"fine": "Rs. 5,000 first, Rs. 10,000 repeat", "section": "192 MVA"},
+        "underage_driving": {"fine": "Rs. 25,000 + 3 years jail for guardian", "section": "199 MVA", "note": "Vehicle registration cancelled"},
+        "blocking_emergency": {"fine": "Rs. 10,000", "section": "194E MVA"}
+      },
+      "check_challan_online": [
+        "Visit https://echallan.parivahan.gov.in",
+        "Enter vehicle number or challan number",
+        "View pending and paid challans"
+      ],
+      "payment_methods": [
+        "Online: Parivahan portal, Puducherry Police website, UPI, debit card, net banking",
+        "Offline: Traffic police counters, RTO-authorized offices"
+      ],
+      "non_payment_consequences": [
+        "Additional penalties and late fees",
+        "Challan transferred to Virtual Court",
+        "Vehicle blacklisted on VAHAN database",
+        "Cannot sell vehicle or renew insurance/fitness",
+        "License suspension or seizure",
+        "Court summons possible"
+      ],
+      "e_challan_validity": "60 days from issue date"
+    },
+    "appointment_booking": {
+      "title": "RTO Appointment Booking",
+      "how_to_book": [
+        "Step 1: Visit https://sarathi.parivahan.gov.in or https://vahan.parivahan.gov.in",
+        "Step 2: Select your service type",
+        "Step 3: Choose available date and time slot",
+        "Step 4: Confirm booking and print receipt"
+      ],
+      "what_to_bring": [
+        "Printed appointment receipt",
+        "All required documents (originals + attested copies)",
+        "Fee payment receipt",
+        "Vehicle (for vehicle-related services)"
+      ]
+    },
+    "fee_calculator": {
+      "title": "Fee Calculator",
+      "description": "Use the Fee Calculator on our portal to estimate costs for any RTO service",
+      "services_available": [
+        "Vehicle Registration",
+        "Driving License (Fresh / Renewal / Duplicate)",
+        "RC Renewal",
+        "Transfer of Ownership",
+        "Fitness Certificate",
+        "NOC",
+        "Hypothecation"
+      ],
+      "note": "Fees may vary. Final amount shown during online application on Parivahan portal."
+    },
+    "noc": {
+      "title": "NOC for Taking Vehicle Outside Puducherry",
+      "documents_required": [
+        "Form 28 (in triplicate, quadruplicate if HP endorsed)",
+        "Rs. 2 court fee stamp",
+        "Fee Rs. 100",
+        "Original RC and Insurance Certificate",
+        "Chassis pencil print - 2 numbers",
+        "Financier consent (if hypothecated)",
+        "Current tax payment proof"
+      ],
+      "processing_time": "12 days (after Police clearance)"
+    },
+    "fitness_certificate": {
+      "title": "Fitness Certificate",
+      "applicable_to": "Transport vehicles (mandatory); non-transport vehicles (optional after 15 years)",
+      "fees": {
+        "motorcycle": "Rs. 100",
+        "lmv": "Rs. 200",
+        "mmv": "Rs. 300",
+        "hmv": "Rs. 400"
+      },
+      "validity": "As prescribed by RTO (usually 6 months for transport vehicles)"
+    },
+    "international_driving_permit": {
+      "title": "International Driving Permit (IDP)",
+      "documents_required": [
+        "Form 4a",
+        "Valid Driving License",
+        "Passport",
+        "Visa",
+        "Fee payment"
+      ],
+      "validity": "1 year from date of issue"
+    },
+    "rto_offices": {
+      "title": "RTO Offices in Puducherry",
+      "offices": [
+        {"name": "RTO Puducherry", "code": "PY-01", "address": "No. 1, Sardar Vallabhbhai Patel Salai, Puducherry - 605001"},
+        {"name": "RTO Karaikal", "code": "PY-02", "address": "Karaikal, Puducherry"},
+        {"name": "RTO Mahe", "code": "PY-03", "address": "Mahe, Puducherry"},
+        {"name": "RTO Yanam", "code": "PY-04", "address": "Yanam, Puducherry"}
+      ],
+      "working_hours": "Mon-Fri: 10:00 AM - 5:00 PM",
+      "helpline": "+91 413 222 1234",
+      "email": "tc.pon@nic.in"
+    },
+    "general_info": {
+      "title": "General RTO Information",
+      "online_portals": {
+        "sarathi": "https://sarathi.parivahan.gov.in - For all license-related services",
+        "vahan": "https://vahan.parivahan.gov.in - For all vehicle registration services",
+        "echallan": "https://echallan.parivahan.gov.in - For checking and paying traffic challans",
+        "transport_dept": "https://transport.py.gov.in - Puducherry Transport Department official website"
+      },
+      "key_rules": [
+        "Driving license is mandatory for operating any motor vehicle on public roads",
+        "Vehicle registration is mandatory before plying on public roads",
+        "Valid insurance is mandatory for all vehicles",
+        "Age 40+ license renewal requires Form 1A medical certificate",
+        "All applications can be made online through Parivahan portal",
+        "Biometric capture required at RTO office for most services"
+      ],
+      "documents_always_carry": [
+        "Driving License",
+        "Registration Certificate (RC)",
+        "Insurance Certificate",
+        "PUC (Pollution Under Control) Certificate",
+        "Aadhaar Card or other ID proof"
+      ]
+    }
+  },
+  "navigation_intents": {
+    "vehicle_registration": {"path": "/services", "hint": "Navigate to Vehicle Registration service"},
+    "driving_license": {"path": "/services", "hint": "Navigate to Driving License service"},
+    "llr": {"path": "/services", "hint": "Navigate to Learner's License service"},
+    "appointment": {"path": "/services", "hint": "Navigate to Appointment Booking"},
+    "fee_calculator": {"path": "/services", "hint": "Navigate to Fee Calculator"},
+    "track_application": {"path": "/services", "hint": "Navigate to Track Application"},
+    "challan": {"path": "/services", "hint": "Navigate to Challan Payment"},
+    "directory": {"path": "/directory", "hint": "Navigate to RTO Directory"},
+    "fares": {"path": "/fares", "hint": "Navigate to Fees & Fares"},
+    "contact": {"path": "/contact", "hint": "Navigate to Contact page"},
+    "about": {"path": "/about", "hint": "Navigate to About page"},
+    "login": {"path": "/login", "hint": "Navigate to Login page"},
+    "register": {"path": "/register", "hint": "Navigate to Register page"},
+    "dashboard": {"path": "/dashboard", "hint": "Navigate to User Dashboard"},
+    "home": {"path": "/", "hint": "Navigate to Home page"}
+  }
+}

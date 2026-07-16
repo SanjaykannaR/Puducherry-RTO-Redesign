@@ -5,6 +5,7 @@
 import { usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ChatWidget from '@/components/chatbot/ChatWidget';
 import { Toaster } from 'sonner';
 
 // ── Client-Side Layout Wrapper ──
@@ -30,6 +31,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <main id="main-content" className="flex-1" role="main">{children}</main>
       {!isAuth && <Footer />}
       <Toaster position="top-center" richColors closeButton />
+      {!isAuth && <ChatWidget />}
     </>
   );
 }

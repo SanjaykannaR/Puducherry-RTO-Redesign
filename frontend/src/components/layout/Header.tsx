@@ -66,8 +66,14 @@ export default function Header() {
             </button>
 
             <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline text-white group">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
-                <span className="text-primary font-bold text-xs sm:text-sm">RTO</span>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 bg-white/10 flex-shrink-0">
+                <img 
+                  src="/puducherry-emblem.svg" 
+                  alt="Government of Puducherry Emblem" 
+                  className="w-full h-full object-contain p-0.5"
+                  width="44"
+                  height="44"
+                />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold leading-tight">{t('site.title', locale)}</h1>
