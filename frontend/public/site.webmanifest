@@ -1,0 +1,17 @@
+{
+  "name": "Puducherry RTO - Office of the Transport Commissioner",
+  "short_name": "Puducherry RTO",
+  "description": "Official portal of the Office of the Transport Commissioner, Puducherry.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#1a3c6e",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "lang": "en",
+  "start_url": "/"
+}

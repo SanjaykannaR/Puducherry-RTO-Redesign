@@ -35,11 +35,11 @@ export default function Footer() {
           {/* ── Column 1: Brand & description ── */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-full overflow-hidden shadow-md bg-white/10 flex-shrink-0">
+              <div className="w-11 h-11 rounded-xl overflow-hidden shadow-md flex-shrink-0">
                 <img 
                   src="/puducherry-emblem.svg" 
                   alt="Government of Puducherry Emblem" 
-                  className="w-full h-full object-contain p-0.5"
+                  className="w-full h-full object-contain"
                   width="44"
                   height="44"
                 />

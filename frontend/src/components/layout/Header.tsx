@@ -66,11 +66,11 @@ export default function Header() {
             </button>
 
             <Link href="/" className="flex items-center gap-2 sm:gap-3 no-underline text-white group">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 bg-white/10 flex-shrink-0">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 flex-shrink-0">
                 <img 
                   src="/puducherry-emblem.svg" 
                   alt="Government of Puducherry Emblem" 
-                  className="w-full h-full object-contain p-0.5"
+                  className="w-full h-full object-contain"
                   width="44"
                   height="44"
                 />

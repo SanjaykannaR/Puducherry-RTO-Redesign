@@ -19,6 +19,34 @@ export const metadata: Metadata = {
   },
   description: 'Official portal of the Office of the Transport Commissioner, Puducherry. Access RTO services, book appointments, check vehicle status, and more.',
   keywords: ['RTO', 'Puducherry', 'Transport', 'Vehicle Registration', 'Driving License', 'Pondicherry'],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'Puducherry RTO - Office of the Transport Commissioner',
+    description: 'Official portal of the Office of the Transport Commissioner, Puducherry. Access RTO services, book appointments, check vehicle status, and more.',
+    images: [
+      {
+        url: '/puducherry-emblem.svg',
+        width: 400,
+        height: 380,
+        alt: 'Emblem of the Government of Puducherry',
+      },
+    ],
+    siteName: 'Puducherry RTO',
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Puducherry RTO - Office of the Transport Commissioner',
+    description: 'Official portal of the Office of the Transport Commissioner, Puducherry.',
+    images: ['/puducherry-emblem.svg'],
+  },
+  manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({
@@ -30,15 +58,12 @@ export default function RootLayout({
     // html is marked h-full + scroll-smooth for consistent full-height pages and smooth anchor scrolling
     <html lang="en" className="h-full scroll-smooth" suppressHydrationWarning>
       <head>
-            {/* ── Fonts ── */}
+        {/* ── Fonts ── */}
         {/* Preconnect to Google Fonts CDN to reduce latency; Noto Sans for Latin text, */}
         {/* Noto Sans Tamil for Tamil-locale rendering. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;700&display=swap" rel="stylesheet" />
-        {/* ── Favicon ── */}
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       {/* ── Body ── */}
       {/* min-h-full + flex-col ensures the content area (flex-1 in LayoutWrapper) expands */}
