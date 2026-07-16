@@ -5,7 +5,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install
 COPY prisma ./prisma
 RUN npx prisma generate
 COPY tsconfig.json ./
