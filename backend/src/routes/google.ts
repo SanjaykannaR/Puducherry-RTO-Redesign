@@ -24,7 +24,8 @@ const GOOGLE_USER_INFO = 'https://www.googleapis.com/oauth2/v2/userinfo';
 const CLIENT_ID     = process.env.GOOGLE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback';
-const FRONTEND_URL  = process.env.CORS_ORIGIN || 'http://localhost:3000';
+// CORS_ORIGIN is comma-separated; first entry is always the frontend
+const FRONTEND_URL  = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
 
 // ── In-memory OAuth state store (same pattern as DigiLocker route) ──
 // Prevents CSRF: we generate a random state, store it, validate on callback.

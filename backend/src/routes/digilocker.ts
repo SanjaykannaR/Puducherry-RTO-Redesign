@@ -25,7 +25,7 @@ const DIGILOCKER_USER_INFO_URL = 'https://digilocker.meripehchaan.gov.in/public/
 const CLIENT_ID     = process.env.DIGILOCKER_CLIENT_ID || '';
 const CLIENT_SECRET = process.env.DIGILOCKER_CLIENT_SECRET || '';
 const REDIRECT_URI  = process.env.DIGILOCKER_REDIRECT_URI || '';
-const FRONTEND_URL  = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const FRONTEND_URL  = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
 
 // ── Mock mode detection ──
 const IS_MOCK = !CLIENT_ID || CLIENT_ID === 'your_digilocker_client_id';
