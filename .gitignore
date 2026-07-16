@@ -17,3 +17,7 @@ nul
 frontend/public/downloads/*.pdf
 backend/backups/
 chatbot/.env
+backend/tests/*.js
+backend/tests/*.d.ts
+backend/tests/*.d.ts.map
+backend/tests/*.js.map
