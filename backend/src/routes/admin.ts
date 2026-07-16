@@ -173,10 +173,10 @@ router.get('/revenue', async (_req: AuthRequest, res: Response) => {
       }),
     ]);
 
-    const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+    const totalRevenue = completedPayments.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
     const completedCount = completedPayments.length;
     const pendingCount = pendingPayments.length;
-    const pendingAmount = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
+    const pendingAmount = pendingPayments.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
     const avgTransaction = completedCount > 0 ? Math.round(totalRevenue / completedCount) : 0;
 
     // Monthly revenue (last 6 months)
@@ -346,7 +346,7 @@ router.get('/analytics', async (_req: AuthRequest, res: Response) => {
 
     // Overall conversion rate
     const totalApps = allApps.length;
-    const totalApproved = allApps.filter((a) => a.status === 'APPROVED').length;
+    const totalApproved = allApps.filter((a: { status: string }) => a.status === 'APPROVED').length;
     const overallConversion = totalApps > 0 ? Math.round((totalApproved / totalApps) * 100) : 0;
 
     // Payment stats
@@ -354,8 +354,8 @@ router.get('/analytics', async (_req: AuthRequest, res: Response) => {
       prisma.payment.findMany({ where: { status: 'COMPLETED' }, select: { amount: true } }),
       prisma.payment.findMany({ where: { status: 'REFUNDED' }, select: { amount: true } }),
     ]);
-    const totalCollected = completedPayments.reduce((s, p) => s + p.amount, 0);
-    const totalRefunded = refundedPayments.reduce((s, p) => s + p.amount, 0);
+    const totalCollected = completedPayments.reduce((s: number, p: { amount: number }) => s + p.amount, 0);
+    const totalRefunded = refundedPayments.reduce((s: number, p: { amount: number }) => s + p.amount, 0);
 
     res.json({
       serviceUsage,
