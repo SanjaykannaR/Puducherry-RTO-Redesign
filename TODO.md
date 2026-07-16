@@ -73,16 +73,31 @@
 
 ## 📋 REMAINING TASKS
 
-### 🚀 Deployment (Tomorrow)
+### 🚀 Deployment — LIVE on Vercel + Railway (Session 13)
 
-| # | Task | Why | Effort | Status |
-|---|------|-----|--------|--------|
-| 1 | **Get a VPS server** — Oracle Cloud free tier (recommended) or DigitalOcean $4/mo | Need a server to deploy to | 15 min | ⏳ TODO |
-| 2 | **Run setup script** — `bash scripts/setup-server.sh` on the VPS | One-time server setup (Docker, Node.js, Git) | 10 min | ⏳ TODO |
-| 3 | **Configure GitHub Secrets** — DEPLOY_HOST, DEPLOY_USER, DEPLOY_KEY | Enables CD pipeline | 10 min | ⏳ TODO |
-| 4 | **First manual deploy** — `bash scripts/deploy.sh` on the VPS | Get the app running live | 10 min | ⏳ TODO |
-| 5 | **Verify live app** — Check http://your-server-ip:3000 (frontend) and :5000 (backend) | Confirm everything works | 5 min | ⏳ TODO |
-| 6 | **CD auto-deploy test** — Push to main, verify CD triggers | Confirm automation works | 5 min | ⏳ TODO |
+| # | Task | Why | Status |
+|---|------|-----|--------|
+| 1 | **Fix Google OAuth `google_error`** — Backend callback fails after Google account selection. Check Railway logs for `Google OAuth error:`. Likely: missing `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` in Railway vars, or redirect URI mismatch in Google Cloud Console | Google login broken | 🔴 TODO |
+| 2 | **Verify Railway env vars** — Ensure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `CORS_ORIGIN`, `JWT_SECRET` all set in Railway backend | OAuth + auth flow | 🔴 TODO |
+| 3 | **Verify Google Cloud Console** — Authorized redirect URI must exactly match `https://puducherry-rto-redesign-production.up.railway.app/api/auth/google/callback` | OAuth redirect | 🔴 TODO |
+| 4 | **Verify all service connections** — Frontend (Vercel) ↔ Backend (Railway) ↔ Chatbot (Railway) ↔ AI (Railway) all talking | End-to-end flow | ⏳ TODO |
+| 5 | **Docker images GHCR** — CD builds `backend` + `frontend` Docker images to GHCR | Container registry | ✅ DONE |
+| 6 | **Vercel frontend** — Root Directory = `frontend`, auto-deploys from main | Frontend hosting | ✅ DONE |
+| 7 | **Railway backend** — Dockerfile builder, Node 22-alpine, Prisma 7 + libsql | Backend hosting | ✅ DONE |
+| 8 | **Railway chatbot** — Python FastAPI, Gemini chatbot on port 5001 | Chatbot hosting | ✅ DONE |
+| 9 | **Railway AI proctoring** — Python FastAPI, OpenCV + MediaPipe on port 8000 | AI hosting | ✅ DONE |
+
+### 📱 Mobile UI Fixes
+
+| # | Task | Why | Status |
+|---|------|-----|--------|
+| 1 | **Audit all pages for mobile responsiveness** — Check every route at 375px (iPhone SE) and 414px (iPhone Plus) | Mobile users | ⏳ TODO |
+| 2 | **Fix sidebar/nav on mobile** — Hamburger menu, collapsible sidebar for admin | Navigation | ⏳ TODO |
+| 3 | **Fix tables on mobile** — Horizontal scroll or card layout for data tables | Readability | ⏳ TODO |
+| 4 | **Fix forms on mobile** — Input sizes, padding, button tap targets (min 44px) | Usability | ⏳ TODO |
+| 5 | **Fix cards/grids on mobile** — Stack columns, reduce padding, full-width cards | Layout | ⏳ TODO |
+| 6 | **Fix footer on mobile** — Stack footer columns, reduce text size | Layout | ⏳ TODO |
+| 7 | **Test all pages on real mobile device** — End-to-end walkthrough on phone | QA | ⏳ TODO |
 
 ---
 
@@ -141,6 +156,13 @@
 13. **`focus-visible` vs `focus`** — Only show focus ring on keyboard navigation, not mouse clicks.
 14. **Many "remaining" tasks were already built** — Always audit before re-implementing.
 15. **Prisma migrations must track schema changes** — `db push` alone won't create migration files for production.
+16. **Railway Nixpacks nixpkgs is outdated** — `nodejs_22` gives 22.11 (too old for Prisma 7's `^22.12`). Use Dockerfile with `node:22-alpine` from Docker Hub instead.
+17. **Railway DOCKERFILE builder context = repo root** — All COPY paths must be prefixed with the subdirectory (e.g. `backend/package.json`).
+18. **Vercel monorepo Root Directory** — Must be set in Vercel Dashboard → Settings → Root Directory = `frontend`.
+19. **Hardcoded `localhost` in frontend breaks production** — Always use `NEXT_PUBLIC_API_URL` env var via `API_BASE`.
+20. **OAuth `CORS_ORIGIN` is comma-separated** — `.split(',')[0]` to extract frontend URL for redirects.
+21. **Railway DOCKERFILE builder** — Switch from "Railpack" to "Dockerfile" in Build settings, then set Dockerfile Path (e.g. `backend/Dockerfile`).
+22. **Three Railway services, one project** — Backend, chatbot, and AI proctoring can coexist in the same Railway project.
 
 ---
 
@@ -157,3 +179,4 @@
 | 10 | 2026-07-15 | E2E sharding + rate limiting + test fixes | — |
 | 11 | 2026-07-15 | SMS/email notifications + notification bell + accessibility audit | 3fbf6a6 |
 | **12** | **2026-07-15** | **Skeletons + migration #2 + full task audit — ALL REMAINING DONE** | **2f03098** |
+| **13** | **2026-07-16** | **Deployment: Vercel + Railway (backend, chatbot, AI) + OAuth fixes + mobile UI TODO** | — |
