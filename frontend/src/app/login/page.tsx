@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn, Mail, Lock, Fingerprint, Shield } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { validators } from '@/lib/validation';
@@ -114,7 +115,7 @@ function LoginForm() {
               <Button
                 variant="outline"
                 className="w-full justify-center gap-3 h-12 text-base"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/digilocker/login?return=/dashboard'}
+                onClick={() => window.location.href = `${API_BASE}/auth/digilocker/login?return=/dashboard`}
               >
                 <Shield className="w-5 h-5 text-blue-600" />
                 <span>Sign in with <strong>DigiLocker</strong></span>
@@ -123,7 +124,7 @@ function LoginForm() {
               <Button
                 variant="outline"
                 className="w-full justify-center gap-3 h-12 text-base"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/'}
+                onClick={() => window.location.href = `${API_BASE}/auth/google/login?return=/`}
               >
                 {/* Inline Google "G" logo — no external dep needed */}
                 <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">

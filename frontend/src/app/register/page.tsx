@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check } from 'lucide-react';
+import { API_BASE } from '@/lib/api';
 import { validators, validateForm } from '@/lib/validation';
 
 // ── Register Page ──
@@ -176,7 +177,7 @@ export default function RegisterPage() {
               <Button
                 variant="outline"
                 className="gap-1.5 h-11 px-2"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/digilocker/login?return=/dashboard'}
+                onClick={() => window.location.href = `${API_BASE}/auth/digilocker/login?return=/dashboard`}
               >
                 <Shield className="w-4 h-4 text-blue-600 shrink-0" />
                 <span className="text-xs">DigiLocker</span>
@@ -185,7 +186,7 @@ export default function RegisterPage() {
               <Button
                 variant="outline"
                 className="gap-1.5 h-11 px-2"
-                onClick={() => window.location.href = 'http://localhost:5000/api/auth/google/login?return=/'}
+                onClick={() => window.location.href = `${API_BASE}/auth/google/login?return=/`}
               >
                 {/* Inline Google "G" logo */}
                 <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden="true">
