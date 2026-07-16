@@ -93,7 +93,18 @@ jobs:
       url: ${{ vars.DEPLOY_URL }}
 
     steps:
+      - name: Check deploy secrets
+        id: check
+        run: |
+          if [ -n "${{ secrets.DEPLOY_HOST }}" ]; then
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No VPS deploy secrets configured — skipping deploy step"
+          fi
+
       - name: Deploy via SSH
+        if: steps.check.outputs.has_secrets == 'true'
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -151,7 +162,7 @@ jobs:
             echo "=== Deployment Complete ==="
 
       - name: Write deployment summary
-        if: always()
+        if: always() && steps.check.outputs.has_secrets == 'true'
         run: |
           echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
