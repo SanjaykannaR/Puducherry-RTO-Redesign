@@ -1,6 +1,7 @@
 # ── Frontend Dockerfile ──
 # Multi-stage: build Next.js, then serve with minimal runtime
 FROM node:22-alpine AS builder
+RUN npm install -g npm@latest
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
