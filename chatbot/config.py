@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Google Gemini ──
-GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
+# Accepts GEMINI_API_KEY (backend convention) or GOOGLE_API_KEY
+GOOGLE_API_KEY: str = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
 GEMINI_MODEL: str = "gemini-2.0-flash"  # fast + cheap for chat
 
 # ── Server ──

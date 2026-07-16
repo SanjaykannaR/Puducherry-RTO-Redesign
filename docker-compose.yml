@@ -34,6 +34,7 @@ services:
       - "5001:5001"
     env_file:
       - ./chatbot/.env
+      - ./backend/.env.production
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/health')"]
       interval: 30s
