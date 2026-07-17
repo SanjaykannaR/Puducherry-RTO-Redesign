@@ -54,8 +54,14 @@ function LoginForm() {
       <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />
       <div className="px-4 pt-5">
         <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
-            <span className="text-white font-bold text-sm">RTO</span>
+          <div className="w-12 h-12 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 flex-shrink-0">
+            <img 
+              src="/puducherry-emblem.svg" 
+              alt="Government of Puducherry Emblem" 
+              className="w-full h-full object-contain"
+              width="48"
+              height="48"
+            />
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight text-foreground">Puducherry RTO</h1>
@@ -84,7 +90,7 @@ function LoginForm() {
                 <label htmlFor="email" className="block text-sm font-medium mb-1.5">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="pl-10" />
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="pl-10 h-12 rounded-xl" />
                   {fieldErrors.email && <p className="text-destructive text-xs mt-1">{fieldErrors.email}</p>}
                 </div>
               </div>
@@ -92,14 +98,14 @@ function LoginForm() {
                 <label htmlFor="password" className="block text-sm font-medium mb-1.5">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pl-10" />
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="pl-10 h-12 rounded-xl" />
                   {fieldErrors.password && <p className="text-destructive text-xs mt-1">{fieldErrors.password}</p>}
                 </div>
               </div>
               <div className="flex justify-end">
                 <Link href="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold" disabled={submitting}>
                 {submitting ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
@@ -108,13 +114,13 @@ function LoginForm() {
               <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground">or continue with</span></div>
             </div>
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-center gap-3 h-12 text-base" onClick={() => alert('Aadhaar OTP login coming soon')}>
+              <Button variant="outline" className="w-full justify-center gap-3 h-12 rounded-xl" onClick={() => alert('Aadhaar OTP login coming soon')}>
                 <Fingerprint className="w-5 h-5 text-orange-600" />
                 <span>Sign in with <strong>Aadhaar</strong></span>
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-center gap-3 h-12 text-base"
+                className="w-full justify-center gap-3 h-12 rounded-xl"
                 onClick={() => window.location.href = `${API_BASE}/auth/digilocker/login?return=/dashboard`}
               >
                 <Shield className="w-5 h-5 text-blue-600" />
@@ -123,7 +129,7 @@ function LoginForm() {
               {/* Google OAuth: works immediately after adding creds to .env — free, no org needed */}
               <Button
                 variant="outline"
-                className="w-full justify-center gap-3 h-12 text-base"
+                className="w-full justify-center gap-3 h-12 rounded-xl"
                 onClick={() => window.location.href = `${API_BASE}/auth/google/login?return=/`}
               >
                 {/* Inline Google "G" logo — no external dep needed */}

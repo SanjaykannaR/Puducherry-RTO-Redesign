@@ -75,10 +75,10 @@ export default function DuplicateRCPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div><label htmlFor="drc-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="drc-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
-                <div><label htmlFor="drc-name" className="block text-sm font-medium mb-1.5">Full Name (as on RC)</label><Input id="drc-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
+                <div><label htmlFor="drc-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="drc-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" className="h-12 rounded-xl" /></div>
+                <div><label htmlFor="drc-name" className="block text-sm font-medium mb-1.5">Full Name (as on RC)</label><Input id="drc-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required className="h-12 rounded-xl" /></div>
                 <div><label className="block text-sm font-medium mb-1.5">Reason</label>
-                  <select value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} required className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  <select value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} required className="flex w-full h-12 rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="">Select reason</option>
                     <option value="LOST">Lost RC</option>
                     <option value="DAMAGED">Damaged RC</option>
@@ -88,7 +88,7 @@ export default function DuplicateRCPage() {
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                   <p className="font-medium">Required: FIR copy (if stolen), ID proof, fee of ₹300</p>
                 </div>
-                <Button type="submit" className="w-full"><ArrowRight className="w-4 h-4 mr-2" />Submit Request</Button>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold"><ArrowRight className="w-4 h-4 mr-2" />Submit Request</Button>
               </form>
             </CardContent>
           </Card>

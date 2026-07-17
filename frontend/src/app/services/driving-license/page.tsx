@@ -73,20 +73,20 @@ export default function DrivingLicensePage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="dl-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="dl-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
-                  <div><label htmlFor="dl-dob" className="block text-sm font-medium mb-1.5">Date of Birth</label><Input id="dl-dob" type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label htmlFor="dl-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="dl-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required className="h-12 rounded-xl" /></div>
+                  <div><label htmlFor="dl-dob" className="block text-sm font-medium mb-1.5">Date of Birth</label><Input id="dl-dob" type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required className="h-12 rounded-xl" /></div>
                 </div>
-                <div><label htmlFor="dl-llno" className="block text-sm font-medium mb-1.5">Learner's License No.</label><Input id="dl-llno" value={form.llNo} onChange={(e) => setForm({ ...form, llNo: e.target.value })} required placeholder="e.g. PY-012025..." /></div>
+                <div><label htmlFor="dl-llno" className="block text-sm font-medium mb-1.5">Learner's License No.</label><Input id="dl-llno" value={form.llNo} onChange={(e) => setForm({ ...form, llNo: e.target.value })} required placeholder="e.g. PY-012025..." className="h-12 rounded-xl" /></div>
                 <div><label className="block text-sm font-medium mb-1.5">Vehicle Type</label>
-                  <select value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value })} required className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  <select value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value })} required className="flex w-full h-12 rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="">Select type</option>
                     <option value="MCWG">Motorcycle with Gear (MCWG)</option>
                     <option value="MCWOG">Motorcycle without Gear (MCWOG)</option>
                     <option value="LMV">Light Motor Vehicle (LMV)</option>
                   </select>
                 </div>
-                <Button type="submit" className="w-full"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
               </form>
             </CardContent>
           </Card>

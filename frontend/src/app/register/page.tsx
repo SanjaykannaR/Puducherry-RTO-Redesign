@@ -66,8 +66,14 @@ export default function RegisterPage() {
       {/* ── RTO Logo / Home Link ── */}
       <div className="px-4 pt-5">
         <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
-            <span className="text-white font-bold text-sm">RTO</span>
+          <div className="w-12 h-12 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 flex-shrink-0">
+            <img 
+              src="/puducherry-emblem.svg" 
+              alt="Government of Puducherry Emblem" 
+              className="w-full h-full object-contain"
+              width="48"
+              height="48"
+            />
           </div>
           <div>
             <h1 className="text-lg font-bold leading-tight text-foreground">Puducherry RTO</h1>
@@ -103,60 +109,60 @@ export default function RegisterPage() {
             {/* ── Registration Form ── */}
             {/* Uses two-column grid groups (Email/Mobile, Password/Confirm) to fit all 5 fields
                 into a compact card without scrolling on desktop. */}
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               {error && (
                 <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20" role="alert">
                   {error}
                 </div>
               )}
-              {/* Full Name — full-width since it's always visible first */}
+              {/* Full Name — full-width */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">Full Name</label>
+                <label htmlFor="name" className="block text-sm font-medium mb-1.5">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="John Doe" className="pl-10" />
+                  <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="John Doe" className="pl-10 h-12 rounded-xl" />
                   {fieldErrors.name && <p className="text-destructive text-xs mt-1">{fieldErrors.name}</p>}
                 </div>
               </div>
-              {/* Email + Mobile side-by-side */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Email + Mobile — side-by-side on sm+, stacked on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="reg-email" className="block text-sm font-medium mb-1">Email</label>
+                  <label htmlFor="reg-email" className="block text-sm font-medium mb-1.5">Email</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="reg-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required placeholder="you@example.com" className="pl-10" />
+                    <Input id="reg-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required placeholder="you@example.com" className="pl-10 h-12 rounded-xl" />
                     {fieldErrors.email && <p className="text-destructive text-xs mt-1">{fieldErrors.email}</p>}
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="mobile" className="block text-sm font-medium mb-1">Mobile</label>
+                  <label htmlFor="mobile" className="block text-sm font-medium mb-1.5">Mobile</label>
                   <div className="relative">
                     <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required placeholder="9876543210" className="pl-10" />
+                    <Input id="mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required placeholder="9876543210" className="pl-10 h-12 rounded-xl" />
                     {fieldErrors.mobile && <p className="text-destructive text-xs mt-1">{fieldErrors.mobile}</p>}
                   </div>
                 </div>
               </div>
-              {/* Password + Confirm side-by-side */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Password + Confirm — side-by-side on sm+, stacked on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="reg-password" className="block text-sm font-medium mb-1">Password</label>
+                  <label htmlFor="reg-password" className="block text-sm font-medium mb-1.5">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="reg-password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="••••••••" className="pl-10" />
+                    <Input id="reg-password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required placeholder="••••••••" className="pl-10 h-12 rounded-xl" />
                     {fieldErrors.password && <p className="text-destructive text-xs mt-1">{fieldErrors.password}</p>}
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="confirm-password" className="block text-sm font-medium mb-1">Confirm</label>
+                  <label htmlFor="confirm-password" className="block text-sm font-medium mb-1.5">Confirm</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="confirm-password" type="password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} required placeholder="••••••••" className="pl-10" />
+                    <Input id="confirm-password" type="password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} required placeholder="••••••••" className="pl-10 h-12 rounded-xl" />
                     {fieldErrors.confirmPassword && <p className="text-destructive text-xs mt-1">{fieldErrors.confirmPassword}</p>}
                   </div>
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={submitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold" disabled={submitting}>
                 {submitting ? 'Creating account...' : 'Create Account'}
               </Button>
             </form>

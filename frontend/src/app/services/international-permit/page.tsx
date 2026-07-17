@@ -72,18 +72,18 @@ export default function InternationalPermitPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="ip-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="ip-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
-                  <div><label htmlFor="ip-dl" className="block text-sm font-medium mb-1.5">DL No.</label><Input id="ip-dl" value={form.licenseNo} onChange={(e) => setForm({ ...form, licenseNo: e.target.value })} required /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label htmlFor="ip-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="ip-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required className="h-12 rounded-xl" /></div>
+                  <div><label htmlFor="ip-dl" className="block text-sm font-medium mb-1.5">DL No.</label><Input id="ip-dl" value={form.licenseNo} onChange={(e) => setForm({ ...form, licenseNo: e.target.value })} required className="h-12 rounded-xl" /></div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="ip-passport" className="block text-sm font-medium mb-1.5">Passport No.</label><Input id="ip-passport" value={form.passportNo} onChange={(e) => setForm({ ...form, passportNo: e.target.value })} required /></div>
-                  <div><label htmlFor="ip-countries" className="block text-sm font-medium mb-1.5">Countries to Visit</label><Input id="ip-countries" value={form.countries} onChange={(e) => setForm({ ...form, countries: e.target.value })} required placeholder="e.g. USA, Canada" /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label htmlFor="ip-passport" className="block text-sm font-medium mb-1.5">Passport No.</label><Input id="ip-passport" value={form.passportNo} onChange={(e) => setForm({ ...form, passportNo: e.target.value })} required className="h-12 rounded-xl" /></div>
+                  <div><label htmlFor="ip-countries" className="block text-sm font-medium mb-1.5">Countries to Visit</label><Input id="ip-countries" value={form.countries} onChange={(e) => setForm({ ...form, countries: e.target.value })} required placeholder="e.g. USA, Canada" className="h-12 rounded-xl" /></div>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                   <p className="font-medium">Fee: ₹1,000. Valid in 150+ countries under UN Convention.</p>
                 </div>
-                <Button type="submit" className="w-full"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
               </form>
             </CardContent>
           </Card>

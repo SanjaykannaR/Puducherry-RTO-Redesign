@@ -30,8 +30,8 @@ export default function Footer() {
     <footer className="bg-primary-dark text-white print:hidden" role="contentinfo">
       <div className="mx-auto px-4 sm:px-6 py-12">
         {/* ── 4-column grid: about → quick links → citizen services → contact ── */}
-        {/* Responsively collapses: 1 col on mobile, 2 on sm, 4 on lg */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        {/* 2 cols on mobile, 2 on sm, 4 on lg */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-12">
           {/* ── Column 1: Brand & description ── */}
           <div>
             <div className="flex items-center gap-3 mb-4">

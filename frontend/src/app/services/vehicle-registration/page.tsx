@@ -108,44 +108,44 @@ export default function VehicleRegistrationPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="vr-make" className="block text-sm font-medium mb-1.5">Make</label>
-                      <Input id="vr-make" value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required placeholder="e.g. Honda" />
+                      <Input id="vr-make" value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required placeholder="e.g. Honda" className="h-12 rounded-xl" />
                       {errors.make && <p className="text-destructive text-xs mt-1">{errors.make}</p>}
                     </div>
                     <div>
                       <label htmlFor="vr-model" className="block text-sm font-medium mb-1.5">Model</label>
-                      <Input id="vr-model" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required placeholder="e.g. Activa 6G" />
+                      <Input id="vr-model" value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required placeholder="e.g. Activa 6G" className="h-12 rounded-xl" />
                       {errors.model && <p className="text-destructive text-xs mt-1">{errors.model}</p>}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="vr-year" className="block text-sm font-medium mb-1.5">Year</label>
-                      <Input id="vr-year" type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="e.g. 2026" />
+                      <Input id="vr-year" type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required placeholder="e.g. 2026" className="h-12 rounded-xl" />
                       {errors.year && <p className="text-destructive text-xs mt-1">{errors.year}</p>}
                     </div>
                     <div>
                       <label htmlFor="vr-fuel" className="block text-sm font-medium mb-1.5">Fuel Type</label>
-                      <Input id="vr-fuel" value={form.fuelType} onChange={(e) => setForm({ ...form, fuelType: e.target.value })} required placeholder="e.g. Petrol" />
+                      <Input id="vr-fuel" value={form.fuelType} onChange={(e) => setForm({ ...form, fuelType: e.target.value })} required placeholder="e.g. Petrol" className="h-12 rounded-xl" />
                       {errors.fuelType && <p className="text-destructive text-xs mt-1">{errors.fuelType}</p>}
                     </div>
                   </div>
                   <div>
                     <label htmlFor="vr-color" className="block text-sm font-medium mb-1.5">Color</label>
-                    <Input id="vr-color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} required placeholder="e.g. Red" />
+                    <Input id="vr-color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} required placeholder="e.g. Red" className="h-12 rounded-xl" />
                     {errors.color && <p className="text-destructive text-xs mt-1">{errors.color}</p>}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="vr-chassis" className="block text-sm font-medium mb-1.5">Chassis No.</label>
-                      <Input id="vr-chassis" value={form.chassisNo} onChange={(e) => setForm({ ...form, chassisNo: e.target.value })} required placeholder="17-character VIN" />
+                      <Input id="vr-chassis" value={form.chassisNo} onChange={(e) => setForm({ ...form, chassisNo: e.target.value })} required placeholder="17-character VIN" className="h-12 rounded-xl" />
                       {errors.chassisNo && <p className="text-destructive text-xs mt-1">{errors.chassisNo}</p>}
                     </div>
                     <div>
                       <label htmlFor="vr-engine" className="block text-sm font-medium mb-1.5">Engine No.</label>
-                      <Input id="vr-engine" value={form.engineNo} onChange={(e) => setForm({ ...form, engineNo: e.target.value })} required />
+                      <Input id="vr-engine" value={form.engineNo} onChange={(e) => setForm({ ...form, engineNo: e.target.value })} required className="h-12 rounded-xl" />
                       {errors.engineNo && <p className="text-destructive text-xs mt-1">{errors.engineNo}</p>}
                     </div>
                   </div>
@@ -160,7 +160,7 @@ export default function VehicleRegistrationPage() {
                       <li>Address & ID proof</li>
                     </ul>
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold">
                     <ArrowRight className="w-4 h-4 mr-2" />
                     Submit Application
                   </Button>

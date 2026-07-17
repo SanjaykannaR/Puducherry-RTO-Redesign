@@ -126,25 +126,25 @@ export default function ContactPage() {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium mb-1">
+                      <label htmlFor="name" className="block text-sm font-medium mb-1.5">
                         Full Name <span className="text-destructive">*</span>
                       </label>
-                      <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                      <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="h-12 rounded-xl" />
                       {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium mb-1">
+                      <label htmlFor="email" className="block text-sm font-medium mb-1.5">
                         Email <span className="text-destructive">*</span>
                       </label>
-                      <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+                      <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className="h-12 rounded-xl" />
                       {errors.email && <p className="text-destructive text-xs mt-1">{errors.email}</p>}
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone</label>
-                      <Input id="phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                      <label htmlFor="phone" className="block text-sm font-medium mb-1.5">Phone</label>
+                      <Input id="phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="h-12 rounded-xl" />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium mb-1">
+                      <label htmlFor="message" className="block text-sm font-medium mb-1.5">
                         Message <span className="text-destructive">*</span>
                       </label>
                       <textarea
@@ -153,11 +153,11 @@ export default function ContactPage() {
                         value={form.message}
                         onChange={(e) => setForm({ ...form, message: e.target.value })}
                         required
-                        className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                        className="flex w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
                       />
                       {errors.message && <p className="text-destructive text-xs mt-1">{errors.message}</p>}
                     </div>
-                    <Button type="submit" className="w-full" disabled={submitting}>
+                    <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold" disabled={submitting}>
                       <Send className="w-4 h-4 mr-2" />
                       {submitting ? 'Sending...' : 'Submit'}
                     </Button>

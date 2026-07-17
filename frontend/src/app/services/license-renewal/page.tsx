@@ -72,13 +72,13 @@ export default function LicenseRenewalPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div><label htmlFor="lr-dl" className="block text-sm font-medium mb-1.5">Driving License No.</label><Input id="lr-dl" value={form.licenseNo} onChange={(e) => setForm({ ...form, licenseNo: e.target.value })} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="lr-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="lr-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required /></div>
-                  <div><label htmlFor="lr-dob" className="block text-sm font-medium mb-1.5">Date of Birth</label><Input id="lr-dob" type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required /></div>
+                <div><label htmlFor="lr-dl" className="block text-sm font-medium mb-1.5">Driving License No.</label><Input id="lr-dl" value={form.licenseNo} onChange={(e) => setForm({ ...form, licenseNo: e.target.value })} required className="h-12 rounded-xl" /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label htmlFor="lr-name" className="block text-sm font-medium mb-1.5">Full Name</label><Input id="lr-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required className="h-12 rounded-xl" /></div>
+                  <div><label htmlFor="lr-dob" className="block text-sm font-medium mb-1.5">Date of Birth</label><Input id="lr-dob" type="date" value={form.dob} onChange={(e) => setForm({ ...form, dob: e.target.value })} required className="h-12 rounded-xl" /></div>
                 </div>
-                <div><label htmlFor="lr-mobile" className="block text-sm font-medium mb-1.5">Mobile</label><Input id="lr-mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required /></div>
-                <Button type="submit" className="w-full"><ArrowRight className="w-4 h-4 mr-2" />Submit Renewal</Button>
+                <div><label htmlFor="lr-mobile" className="block text-sm font-medium mb-1.5">Mobile</label><Input id="lr-mobile" type="tel" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} required className="h-12 rounded-xl" /></div>
+                <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold"><ArrowRight className="w-4 h-4 mr-2" />Submit Renewal</Button>
               </form>
             </CardContent>
           </Card>

@@ -154,7 +154,7 @@ export default function AppointmentPage() {
                               <div className="relative">
                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-                                  className="pl-10" required />
+                                  className="pl-10 h-12 rounded-xl" required />
                               </div>
                             </div>
                             <div>
@@ -165,14 +165,14 @@ export default function AppointmentPage() {
                                   value={form.timeSlot}
                                   onChange={(e) => setForm({ ...form, timeSlot: e.target.value })}
                                   required
-                                  className="flex w-full rounded-md border border-input bg-transparent pl-10 pr-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                  className="flex w-full h-12 rounded-xl border border-input bg-transparent pl-10 pr-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                                 >
                                   <option value="">Select a time slot</option>
                                   {timeSlots.map((s) => <option key={s} value={s}>{s}</option>)}
                                 </select>
                               </div>
                             </div>
-                            <Button type="button" className="w-full" onClick={() => setStep(2)}>
+                            <Button type="button" className="w-full h-12 rounded-xl text-base font-semibold" onClick={() => setStep(2)}>
                               Continue
                               <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
@@ -192,7 +192,7 @@ export default function AppointmentPage() {
                                   value={form.purpose}
                                   onChange={(e) => setForm({ ...form, purpose: e.target.value })}
                                   required
-                                  className="flex w-full rounded-md border border-input bg-transparent pl-10 pr-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                  className="flex w-full h-12 rounded-xl border border-input bg-transparent pl-10 pr-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                                 >
                                   <option value="">Select purpose</option>
                                   {purposes.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -211,11 +211,11 @@ export default function AppointmentPage() {
                               <p>Booking fee: <strong>₹{APPOINTMENT_FEE}</strong> (non-refundable)</p>
                             </div>
                             <div className="flex gap-3">
-                              <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                              <Button type="button" variant="outline" onClick={() => setStep(1)} className="h-12 rounded-xl">
                                 <ArrowLeft className="w-4 h-4 mr-2" />
                                 Back
                               </Button>
-                              <Button type="submit" className="flex-1">
+                              <Button type="submit" className="flex-1 h-12 rounded-xl text-base font-semibold">
                                 <CheckCircle className="w-4 h-4 mr-2" />
                                 Book Appointment
                               </Button>

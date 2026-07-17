@@ -83,18 +83,18 @@ export default function TransferOwnershipPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label htmlFor="to-seller" className="block text-sm font-medium mb-1.5">Seller Name</label><Input id="to-seller" value={form.sellerName} onChange={(e) => setForm({ ...form, sellerName: e.target.value })} required placeholder="Seller's full name" /></div>
-                    <div><label htmlFor="to-buyer" className="block text-sm font-medium mb-1.5">Buyer Name</label><Input id="to-buyer" value={form.buyerName} onChange={(e) => setForm({ ...form, buyerName: e.target.value })} required placeholder="Buyer's full name" /></div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label htmlFor="to-seller" className="block text-sm font-medium mb-1.5">Seller Name</label><Input id="to-seller" value={form.sellerName} onChange={(e) => setForm({ ...form, sellerName: e.target.value })} required placeholder="Seller's full name" className="h-12 rounded-xl" /></div>
+                    <div><label htmlFor="to-buyer" className="block text-sm font-medium mb-1.5">Buyer Name</label><Input id="to-buyer" value={form.buyerName} onChange={(e) => setForm({ ...form, buyerName: e.target.value })} required placeholder="Buyer's full name" className="h-12 rounded-xl" /></div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label htmlFor="to-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="to-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" /></div>
-                    <div><label htmlFor="to-date" className="block text-sm font-medium mb-1.5">Sale Date</label><Input id="to-date" type="date" value={form.saleDate} onChange={(e) => setForm({ ...form, saleDate: e.target.value })} required /></div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label htmlFor="to-reg" className="block text-sm font-medium mb-1.5">Registration No.</label><Input id="to-reg" value={form.regNo} onChange={(e) => setForm({ ...form, regNo: e.target.value })} required placeholder="e.g. PY-01-AB-1234" className="h-12 rounded-xl" /></div>
+                    <div><label htmlFor="to-date" className="block text-sm font-medium mb-1.5">Sale Date</label><Input id="to-date" type="date" value={form.saleDate} onChange={(e) => setForm({ ...form, saleDate: e.target.value })} required className="h-12 rounded-xl" /></div>
                   </div>
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
                     <p className="font-medium">Required: Form 29 & 30, sale letter, ID proofs of both parties</p>
                   </div>
-                  <Button type="submit" className="w-full"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
+                  <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold"><ArrowRight className="w-4 h-4 mr-2" />Submit Application</Button>
                 </form>
               </CardContent>
             </Card>
