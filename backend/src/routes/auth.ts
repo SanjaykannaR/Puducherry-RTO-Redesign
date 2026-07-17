@@ -50,7 +50,22 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  if (!user) {
+    res.status(401).json({ error: 'Invalid credentials' });
+    return;
+  }
+
+  // OAuth users have no password — guide them to Google login
+  if (!user.passwordHash || user.passwordHash === '') {
+    if (user.googleId) {
+      res.status(401).json({ error: 'This account uses Google Sign-In. Please use the Google login button.' });
+      return;
+    }
+    res.status(401).json({ error: 'Invalid credentials' });
+    return;
+  }
+
+  if (!(await verifyPassword(password, user.passwordHash))) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
   }
