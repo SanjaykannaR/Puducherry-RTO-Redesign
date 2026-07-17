@@ -11,7 +11,7 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
 import prisma from '../services/prisma';
-import { generateToken } from '../services/auth';
+import { generateToken, generateRefreshToken, hashRefreshToken } from '../services/auth';
 
 const router = Router();
 
@@ -154,10 +154,14 @@ router.get('/callback', async (req: Request, res: Response) => {
       });
     }
 
-    // ── Step 4: Issue local JWT and redirect ──
+    // ── Step 4: Issue local JWT + refresh token and redirect ──
     const token = generateToken({ userId: user.id, role: user.role });
-    // Reuse the same callback page as DigiLocker — it just reads `token` + `return` from URL params
-    res.redirect(`${FRONTEND_URL}/auth/digilocker/callback?token=${token}&return=${encodeURIComponent(returnUrl)}`);
+    // Generate and store a refresh token (same pattern as register/login routes)
+    const refreshToken = generateRefreshToken();
+    const refreshTokenHash = await hashRefreshToken(refreshToken);
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: refreshTokenHash } });
+    // Redirect to frontend callback page with both tokens
+    res.redirect(`${FRONTEND_URL}/auth/digilocker/callback?token=${token}&refreshToken=${refreshToken}&return=${encodeURIComponent(returnUrl)}`);
 
   } catch (err) {
     console.error('Google OAuth error:', err);

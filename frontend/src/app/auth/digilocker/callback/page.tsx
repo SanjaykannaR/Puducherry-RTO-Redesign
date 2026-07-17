@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react';
 function CallbackHandler() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const refreshToken = searchParams.get('refreshToken');
   const returnUrl = searchParams.get('return') || '/';
 
   useEffect(() => {
@@ -19,9 +20,13 @@ function CallbackHandler() {
 
     // Store the JWT exactly like AuthContext.login() does
     localStorage.setItem('token', token);
+    // Store refresh token for automatic token rotation (same as login/register)
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
     // Redirect to the intended page (dashboard by default)
     window.location.replace(returnUrl);
-  }, [token, returnUrl]);
+  }, [token, refreshToken, returnUrl]);
 
   if (!token) {
     return (
@@ -31,7 +36,7 @@ function CallbackHandler() {
             <span className="text-2xl text-destructive">!</span>
           </div>
           <h1 className="text-xl font-bold mb-2">Authentication Failed</h1>
-          <p className="text-muted-foreground mb-4">No authentication token received from DigiLocker.</p>
+          <p className="text-muted-foreground mb-4">No authentication token received from the identity provider.</p>
           <button
             onClick={() => window.location.href = '/login'}
             className="text-primary hover:underline font-medium"
@@ -48,7 +53,7 @@ function CallbackHandler() {
       <div className="text-center">
         <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
         <h1 className="text-xl font-bold">Signing you in...</h1>
-        <p className="text-muted-foreground mt-1">Completing DigiLocker authentication</p>
+        <p className="text-muted-foreground mt-1">Completing authentication</p>
       </div>
     </div>
   );
