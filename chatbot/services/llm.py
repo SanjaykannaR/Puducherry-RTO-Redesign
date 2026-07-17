@@ -5,9 +5,17 @@ from config import GOOGLE_API_KEY, GEMINI_MODEL
 from services.knowledge import search_knowledge, get_navigation_intent
 from services.language import get_lang_name, get_greeting, get_login_suggestion
 
-# Configure Gemini
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel(GEMINI_MODEL)
+# Configure Gemini — gracefully handle missing/invalid key
+_model = None
+if GOOGLE_API_KEY:
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+        _model = genai.GenerativeModel(GEMINI_MODEL)
+    except Exception as e:
+        print(f"[chatbot] Warning: Failed to configure Gemini: {e}")
+        _model = None
+else:
+    print("[chatbot] Warning: GEMINI_API_KEY not set — chat will use fallback responses")
 
 
 SYSTEM_PROMPT_EN = """You are a helpful AI assistant for the Puducherry RTO (Regional Transport Office) portal. Your role is to help citizens with:
@@ -148,8 +156,15 @@ def generate_response(user_message: str, lang: str, chat_history: list[dict] | N
     # Build prompt and generate
     prompt = build_prompt(user_message, lang, chat_history)
 
+    if _model is None:
+        return {
+            "response": error_messages.get(lang, error_messages["en"]),
+            "navigation": nav_intent,
+            "login_suggested": False,
+        }
+
     try:
-        response = model.generate_content(
+        response = _model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
