@@ -116,6 +116,63 @@ router.delete('/users/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// ── PUT /api/admin/users/:id ──
+// Updates a user's name, email, mobile, role, and optionally password.
+router.put('/users/:id', async (req: AuthRequest, res: Response) => {
+  const id = req.params.id as string;
+  const { name, email, mobile, role, password } = req.body;
+
+  if (!name || !email || !mobile) {
+    res.status(400).json({ error: 'Name, email, and mobile are required' });
+    return;
+  }
+  if (role && !['CITIZEN', 'ADMIN'].includes(role)) {
+    res.status(400).json({ error: 'Invalid role' });
+    return;
+  }
+
+  try {
+    // Check email/mobile uniqueness against OTHER users
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail && existingEmail.id !== id) {
+      res.status(409).json({ error: 'Email already in use' });
+      return;
+    }
+    const existingMobile = await prisma.user.findUnique({ where: { mobile } });
+    if (existingMobile && existingMobile.id !== id) {
+      res.status(409).json({ error: 'Mobile already in use' });
+      return;
+    }
+
+    const updateData: any = { name, email, mobile };
+    if (role) updateData.role = role;
+    if (password && password.length >= 6) {
+      updateData.passwordHash = await hashPassword(password);
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: { id: true, email: true, mobile: true, name: true, role: true },
+    });
+
+    // Audit log
+    await prisma.auditLog.create({
+      data: {
+        action: 'USER_UPDATED',
+        targetType: 'USER',
+        targetId: id,
+        details: JSON.stringify({ updatedFields: Object.keys(updateData).filter(k => k !== 'passwordHash') }),
+        actorId: req.user!.userId,
+      },
+    });
+
+    res.json(user);
+  } catch {
+    res.status(404).json({ error: 'User not found' });
+  }
+});
+
 // ── GET /api/admin/stats ──
 // Dashboard overview counts: users, appointments, applications, challans.
 router.get('/stats', async (_req: AuthRequest, res: Response) => {

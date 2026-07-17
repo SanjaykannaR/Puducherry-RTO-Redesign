@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { api } from '@/lib/api';
 // ── Icons for promote/demote admin and delete actions ──
-import { Shield, ShieldOff, Trash2, UserPlus } from 'lucide-react';
+import { Shield, ShieldOff, Trash2, UserPlus, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AdminUser {
@@ -41,6 +41,12 @@ export default function AdminUsers() {
   const [addForm, setAddForm] = useState({ name: '', email: '', mobile: '', password: '' });
   const [addErrors, setAddErrors] = useState<Record<string, string>>({});
   const [addSubmitting, setAddSubmitting] = useState(false);
+
+  // ── Edit user form state ──
+  const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', email: '', mobile: '', role: '', password: '' });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   // ── Fetch users from API ──
   // Wrapped in useCallback so it can be safely passed as a dependency.
@@ -110,6 +116,37 @@ export default function AdminUsers() {
     }
   };
 
+  // ── Open edit dialog ──
+  const openEdit = (user: AdminUser) => {
+    setEditTarget(user);
+    setEditForm({ name: user.name, email: user.email, mobile: user.mobile, role: user.role, password: '' });
+    setEditErrors({});
+  };
+
+  // ── Update user ──
+  const updateUser = async () => {
+    if (!editTarget) return;
+    const errs: Record<string, string> = {};
+    if (!editForm.name.trim()) errs.name = 'Name is required';
+    if (!editForm.email.trim()) errs.email = 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email)) errs.email = 'Invalid email';
+    if (!editForm.mobile.trim()) errs.mobile = 'Mobile is required';
+    if (editForm.password && editForm.password.length < 6) errs.password = 'Min 6 characters';
+    if (Object.keys(errs).length > 0) { setEditErrors(errs); return; }
+    setEditErrors({});
+    setEditSubmitting(true);
+    try {
+      const updated = await api.put<AdminUser>(`/admin/users/${editTarget.id}`, editForm);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setEditTarget(null);
+      toast.success(`${updated.name} updated`);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
@@ -169,6 +206,9 @@ export default function AdminUsers() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => openEdit(user)} aria-label={`Edit user ${user.name}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => toggleRole(user.id, user.role)} aria-label={user.role === 'ADMIN' ? 'Remove admin privileges' : 'Make admin'}>
                           {user.role === 'ADMIN' ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
                           {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
@@ -211,6 +251,9 @@ export default function AdminUsers() {
                   </Badge>
                 </div>
                 <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => openEdit(user)} className="min-h-[44px] min-w-[44px]" aria-label={`Edit user ${user.name}`}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => toggleRole(user.id, user.role)} className="flex-1 min-h-[44px]" aria-label={user.role === 'ADMIN' ? 'Remove admin privileges' : 'Make admin'}>
                     {user.role === 'ADMIN' ? <ShieldOff className="h-4 w-4 mr-1" /> : <Shield className="h-4 w-4 mr-1" />}
                     {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
@@ -260,6 +303,53 @@ export default function AdminUsers() {
             <Button variant="outline" onClick={() => { setAddOpen(false); setAddErrors({}); }}>Cancel</Button>
             <Button onClick={createAdmin} disabled={addSubmitting}>
               {addSubmitting ? 'Creating...' : 'Create Admin'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Edit user dialog ── */}
+      <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) { setEditTarget(null); setEditErrors({}); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update details for <strong>{editTarget?.name}</strong>. Leave password blank to keep current.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="edit-name" className="block text-sm font-medium mb-1">Name</label>
+              <Input id="edit-name" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="h-12 rounded-xl" />
+              {editErrors.name && <p className="text-destructive text-xs mt-1">{editErrors.name}</p>}
+            </div>
+            <div>
+              <label htmlFor="edit-email" className="block text-sm font-medium mb-1">Email</label>
+              <Input id="edit-email" type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="h-12 rounded-xl" />
+              {editErrors.email && <p className="text-destructive text-xs mt-1">{editErrors.email}</p>}
+            </div>
+            <div>
+              <label htmlFor="edit-mobile" className="block text-sm font-medium mb-1">Mobile</label>
+              <Input id="edit-mobile" value={editForm.mobile} onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })} className="h-12 rounded-xl" />
+              {editErrors.mobile && <p className="text-destructive text-xs mt-1">{editErrors.mobile}</p>}
+            </div>
+            <div>
+              <label htmlFor="edit-role" className="block text-sm font-medium mb-1">Role</label>
+              <select id="edit-role" value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm">
+                <option value="CITIZEN">Citizen</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="edit-password" className="block text-sm font-medium mb-1">New Password (optional)</label>
+              <Input id="edit-password" type="password" placeholder="Leave blank to keep current" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="h-12 rounded-xl" />
+              {editErrors.password && <p className="text-destructive text-xs mt-1">{editErrors.password}</p>}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditTarget(null); setEditErrors({}); }}>Cancel</Button>
+            <Button onClick={updateUser} disabled={editSubmitting}>
+              {editSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
