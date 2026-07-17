@@ -208,13 +208,13 @@ router.get('/callback', async (req: Request, res: Response) => {
   }
 });
 
-// ── GET /api/auth/google/debug/:email ──
+// ── GET /api/auth/google/debug?email=... ──
 // Diagnostic: shows the user record for a given email (no sensitive data exposed).
-// Helps debug OAuth linking issues without touching the database directly.
-router.get('/debug/:email', async (req: Request, res: Response) => {
-  const email = req.params.email;
+// Uses query param instead of path param to avoid Express routing edge cases.
+router.get('/debug', async (req: Request, res: Response) => {
+  const email = req.query.email as string;
   if (!email) {
-    res.status(400).json({ error: 'email param required' });
+    res.status(400).json({ error: 'email query param required' });
     return;
   }
   try {
