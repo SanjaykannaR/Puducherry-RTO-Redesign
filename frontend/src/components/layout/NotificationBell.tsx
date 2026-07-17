@@ -131,8 +131,11 @@ export default function NotificationBell() {
 
       {/* ── Dropdown Panel ── */}
       {open && (
-        <div
-          className="absolute right-0 top-full mt-2 w-[min(384px,calc(100vw-2rem))] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden"
+        <>
+          {/* Mobile backdrop */}
+          <div className="fixed inset-0 bg-black/20 z-40 sm:hidden" onClick={() => setOpen(false)} />
+          <div
+            className="fixed right-4 top-16 w-[calc(100vw-2rem)] max-w-96 sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden"
           role="menu"
           aria-label="Notifications"
         >
@@ -217,6 +220,7 @@ export default function NotificationBell() {
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

@@ -90,17 +90,13 @@ export default function DashboardPage() {
                   <p className="text-blue-200 text-sm mt-0.5 truncate">{user.email} &middot; {user.role}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                {/* ── Sign Out button ── */}
-                <button
-                  onClick={() => { logout(); router.push('/'); }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-red-100 border border-red-400/30 backdrop-blur-sm px-3 sm:px-4 py-2.5 text-sm font-medium transition-all min-h-[44px]"
-                  title="Sign Out"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign Out</span>
-                </button>
-              </div>
+              <button
+                onClick={() => { logout(); router.push('/'); }}
+                className="self-start sm:self-auto inline-flex items-center gap-2 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-red-100 border border-red-400/30 backdrop-blur-sm px-4 py-2.5 text-sm font-medium transition-all min-h-[44px]"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
             </div>
 
             {/* ── Summary cards ── */}
