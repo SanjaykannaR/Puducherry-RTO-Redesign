@@ -154,4 +154,22 @@ router.post('/forgot-password', async (req: AuthRequest, res: Response) => {
   res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
 });
 
+// ── POST /api/auth/bootstrap-admin ──
+// One-time endpoint: promotes the authenticated user to ADMIN if no admins exist yet.
+// Self-destructs once an admin exists — cannot be abused after initial setup.
+router.post('/bootstrap-admin', authenticate, async (req: AuthRequest, res: Response) => {
+  const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+  if (adminCount > 0) {
+    res.status(403).json({ error: 'Admin already exists. Use the admin panel to promote users.' });
+    return;
+  }
+  const user = await prisma.user.update({
+    where: { id: req.user!.userId },
+    data: { role: 'ADMIN' },
+    select: { id: true, email: true, name: true, role: true },
+  });
+  console.log(`[bootstrap] Promoted user ${user.id} (${user.email}) to ADMIN`);
+  res.json({ message: `You (${user.email}) are now an admin.`, user });
+});
+
 export default router;
