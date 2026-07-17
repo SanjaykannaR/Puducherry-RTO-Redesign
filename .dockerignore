@@ -8,10 +8,7 @@ backend/dist
 opencode.json
 *.md
 *.pdf
-*.txt
-ai/
-chatbot/
-frontend/
+backend/
 scripts/
 .DS_Store
 Thumbs.db
