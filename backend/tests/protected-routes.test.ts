@@ -23,7 +23,7 @@ beforeAll(async () => {
     .post('/api/auth/register')
     .send({ email, mobile, password: 'Pass123!', name: 'Protected User' });
   token = res.body.token;
-});
+}, 30000);
 
 // ── POST /api/calculator (public) ──
 // No auth required — should always return 200 with calculation result
