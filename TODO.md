@@ -103,6 +103,16 @@
 4. Staff log in with their own email + password → full admin access
 5. JWT identifies who did what → audit logs track all changes
 
+### 🔧 Session 15 Tasks (2026-07-18 — TODO)
+
+| # | Task | Why | Priority |
+|---|------|-----|----------|
+| 1 | **Hero section: book button overlaps slide indicator** — Fix z-index/positioning so CTA button doesn't cover carousel dots | UI overlap bug | 🔴 HIGH |
+| 2 | **CI: E2E flaky test** — Playwright E2E fails on CI (Backend + Frontend build pass). Likely pre-existing Windows Chromium flaky test. Investigate and stabilize | CI green | 🟡 MEDIUM |
+| 3 | **Verify all service connections** — Frontend ↔ Backend ↔ Chatbot ↔ AI all talking end-to-end | Full stack verify | 🟡 MEDIUM |
+| 4 | **Mobile UI audit** — Check all pages at 375px and 414px, fix tables/forms/cards/footer | Mobile responsive | 🟡 MEDIUM |
+| 5 | **Seed default admin** — Create `admin@rto.gov.in` / `Admin@123` via "Add Admin" button in production | Default admin ready | 🟢 LOW |
+
 ### 📱 Mobile UI Fixes
 
 | # | Task | Why | Status |
@@ -196,4 +206,5 @@
 | 11 | 2026-07-15 | SMS/email notifications + notification bell + accessibility audit | 3fbf6a6 |
 | **12** | **2026-07-15** | **Skeletons + migration #2 + full task audit — ALL REMAINING DONE** | **2f03098** |
 | **13** | **2026-07-16** | **Deployment: Vercel + Railway (backend, chatbot, AI) + OAuth fixes + mobile UI TODO** | — |
-| **14** | **2026-07-17** | **Google OAuth fix (mobile constraint) + Multi-admin system (email/password) + bootstrap endpoint** | — |
+| **14** | **2026-07-17** | **Google OAuth fix (mobile constraint) + Multi-admin system (email/password) + bootstrap endpoint + admin login form + edit users** | — |
+| **15** | **2026-07-18** | **TODO: Hero overlap fix + E2E stabilize + service verify + mobile audit + seed default admin** | — |
