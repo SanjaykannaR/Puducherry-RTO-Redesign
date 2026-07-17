@@ -153,41 +153,22 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     if (!user) {
       // No existing user — create one from Google profile data
-      // Use empty string mobile with a unique suffix to avoid unique constraint collisions
-      const mobileValue = '';
+      // Google doesn't provide a mobile number. We use a unique placeholder
+      // because the `mobile` column has a UNIQUE constraint — empty string
+      // collides if another OAuth user already has mobile=''.
+      const mobileValue = `oauth_${googleId}`;
       console.log(`[google-oauth] Creating new user: email=${email}, googleId=${googleId}`);
-      try {
-        user = await prisma.user.create({
-          data: {
-            googleId,
-            name,
-            email: email || `${googleId}@google.user`,
-            mobile: mobileValue,
-            passwordHash: '',     // OAuth user — no password needed
-            role: 'CITIZEN',
-            isEmailVerified,
-          },
-        });
-      } catch (createErr: any) {
-        console.error(`[google-oauth] User create failed:`, createErr.message);
-        // If unique constraint on mobile failed (another user has mobile=''), retry with suffix
-        if (createErr.message?.includes('Unique constraint') && createErr.message?.includes('mobile')) {
-          console.log(`[google-oauth] Retrying create with suffixed mobile`);
-          user = await prisma.user.create({
-            data: {
-              googleId,
-              name,
-              email: email || `${googleId}@google.user`,
-              mobile: `oauth_${googleId.slice(-6)}`,
-              passwordHash: '',
-              role: 'CITIZEN',
-              isEmailVerified,
-            },
-          });
-        } else {
-          throw createErr;
-        }
-      }
+      user = await prisma.user.create({
+        data: {
+          googleId,
+          name,
+          email: email || `${googleId}@google.user`,
+          mobile: mobileValue,
+          passwordHash: '',     // OAuth user — no password needed
+          role: 'CITIZEN',
+          isEmailVerified,
+        },
+      });
       console.log(`[google-oauth] Created new user=${user.id}`);
     }
 
