@@ -77,15 +77,31 @@
 
 | # | Task | Why | Status |
 |---|------|-----|--------|
-| 1 | **Fix Google OAuth `google_error`** — Backend callback fails after Google account selection. Check Railway logs for `Google OAuth error:`. Likely: missing `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` in Railway vars, or redirect URI mismatch in Google Cloud Console | Google login broken | 🔴 TODO |
-| 2 | **Verify Railway env vars** — Ensure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `CORS_ORIGIN`, `JWT_SECRET` all set in Railway backend | OAuth + auth flow | 🔴 TODO |
-| 3 | **Verify Google Cloud Console** — Authorized redirect URI must exactly match `https://puducherry-rto-redesign-production.up.railway.app/api/auth/google/callback` | OAuth redirect | 🔴 TODO |
+| 1 | **Fix Google OAuth `google_error`** — Backend callback fails after Google account selection. Check Railway logs for `Google OAuth error:`. Likely: missing `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` in Railway vars, or redirect URI mismatch in Google Cloud Console | Google login broken | ✅ DONE |
+| 2 | **Verify Railway env vars** — Ensure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `CORS_ORIGIN`, `JWT_SECRET` all set in Railway backend | OAuth + auth flow | ✅ DONE |
+| 3 | **Verify Google Cloud Console** — Authorized redirect URI must exactly match `https://puducherry-rto-redesign-production.up.railway.app/api/auth/google/callback` | OAuth redirect | ✅ DONE |
 | 4 | **Verify all service connections** — Frontend (Vercel) ↔ Backend (Railway) ↔ Chatbot (Railway) ↔ AI (Railway) all talking | End-to-end flow | ⏳ TODO |
 | 5 | **Docker images GHCR** — CD builds `backend` + `frontend` Docker images to GHCR | Container registry | ✅ DONE |
 | 6 | **Vercel frontend** — Root Directory = `frontend`, auto-deploys from main | Frontend hosting | ✅ DONE |
 | 7 | **Railway backend** — Dockerfile builder, Node 22-alpine, Prisma 7 + libsql | Backend hosting | ✅ DONE |
-| 8 | **Railway chatbot** — Python FastAPI, Gemini chatbot on port 5001 | Chatbot hosting | ✅ DONE |
+| 8 | **Railway chatbot** — Merged into backend at `/api/chat` (no separate service) | Chatbot | ✅ DONE |
 | 9 | **Railway AI proctoring** — Python FastAPI, OpenCV + MediaPipe on port 8000 | AI hosting | ✅ DONE |
+
+### 👥 Multi-Admin System (Session 14)
+
+| # | Task | Why | Status |
+|---|------|-----|--------|
+| 1 | **Backend: POST /api/admin/users** — Admin-only endpoint to create new admin accounts with email+password. Hashes password, assigns ADMIN role, audit logged | Multi-user admin access | ✅ DONE |
+| 2 | **Frontend: "Add Admin" form** — Dialog on /admin/users page with name, email, mobile, password fields. Creates admin instantly, appears in user list | Add RTO staff accounts | ✅ DONE |
+| 3 | **Bootstrap admin endpoint** — POST /api/auth/bootstrap-admin promotes first user to ADMIN (one-time, self-destructs after first admin exists) | Initial admin setup | ✅ DONE |
+| 4 | **Google OAuth mobile fix** — Use `oauth_<googleId>` instead of empty string for OAuth users to avoid unique constraint collision on `mobile` column | Google login for new users | ✅ DONE |
+
+**How it works:**
+1. Register first account via email/password → bootstrap to ADMIN
+2. Login at `/login` with email + password
+3. Go to `/admin/users` → click "Add Admin" → create staff accounts
+4. Staff log in with their own email + password → full admin access
+5. JWT identifies who did what → audit logs track all changes
 
 ### 📱 Mobile UI Fixes
 
@@ -180,3 +196,4 @@
 | 11 | 2026-07-15 | SMS/email notifications + notification bell + accessibility audit | 3fbf6a6 |
 | **12** | **2026-07-15** | **Skeletons + migration #2 + full task audit — ALL REMAINING DONE** | **2f03098** |
 | **13** | **2026-07-16** | **Deployment: Vercel + Railway (backend, chatbot, AI) + OAuth fixes + mobile UI TODO** | — |
+| **14** | **2026-07-17** | **Google OAuth fix (mobile constraint) + Multi-admin system (email/password) + bootstrap endpoint** | — |

@@ -22,6 +22,57 @@ router.get('/users', async (_req: AuthRequest, res: Response) => {
   res.json({ users });
 });
 
+// ── POST /api/admin/users ──
+// Creates a new admin account with email + password.
+// Used by the super admin to add RTO staff members who log in with email/password.
+router.post('/users', async (req: AuthRequest, res: Response) => {
+  const { name, email, mobile, password } = req.body;
+  if (!name || !email || !mobile || !password) {
+    res.status(400).json({ error: 'All fields are required (name, email, mobile, password)' });
+    return;
+  }
+  if (password.length < 6) {
+    res.status(400).json({ error: 'Password must be at least 6 characters' });
+    return;
+  }
+
+  // Check if email or mobile already exists
+  const existing = await prisma.user.findFirst({
+    where: { OR: [{ email }, { mobile }] },
+  });
+  if (existing) {
+    res.status(409).json({ error: 'Email or mobile already registered' });
+    return;
+  }
+
+  const passwordHash = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      mobile,
+      passwordHash,
+      role: 'ADMIN',
+      isEmailVerified: true,
+    },
+    select: { id: true, email: true, mobile: true, name: true, role: true },
+  });
+
+  // Audit log
+  await prisma.auditLog.create({
+    data: {
+      action: 'USER_CREATED',
+      targetType: 'USER',
+      targetId: user.id,
+      details: JSON.stringify({ email, role: 'ADMIN', createdBy: req.user!.userId }),
+      actorId: req.user!.userId,
+    },
+  });
+
+  console.log(`[admin] Created admin user: ${user.email} (${user.id}) by ${req.user!.userId}`);
+  res.status(201).json(user);
+});
+
 // ── PATCH /api/admin/users/:id/role ──
 // Promotes/demotes a user between CITIZEN and ADMIN roles.
 router.patch('/users/:id/role', async (req: AuthRequest, res: Response) => {

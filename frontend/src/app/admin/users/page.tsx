@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 // ── Confirmation dialog before destructive actions ──
 import {
   Dialog,
@@ -17,7 +18,8 @@ import {
 } from '@/components/ui/dialog';
 import { api } from '@/lib/api';
 // ── Icons for promote/demote admin and delete actions ──
-import { Shield, ShieldOff, Trash2 } from 'lucide-react';
+import { Shield, ShieldOff, Trash2, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AdminUser {
   id: string;
@@ -33,6 +35,12 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+
+  // ── Add Admin form state ──
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', email: '', mobile: '', password: '' });
+  const [addErrors, setAddErrors] = useState<Record<string, string>>({});
+  const [addSubmitting, setAddSubmitting] = useState(false);
 
   // ── Fetch users from API ──
   // Wrapped in useCallback so it can be safely passed as a dependency.
@@ -77,11 +85,42 @@ export default function AdminUsers() {
     }
   };
 
+  // ── Create admin user ──
+  const createAdmin = async () => {
+    const errs: Record<string, string> = {};
+    if (!addForm.name.trim()) errs.name = 'Name is required';
+    if (!addForm.email.trim()) errs.email = 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addForm.email)) errs.email = 'Invalid email';
+    if (!addForm.mobile.trim()) errs.mobile = 'Mobile is required';
+    if (!/^\d{10}$/.test(addForm.mobile.replace(/\D/g, ''))) errs.mobile = 'Enter 10-digit mobile';
+    if (addForm.password.length < 6) errs.password = 'Min 6 characters';
+    if (Object.keys(errs).length > 0) { setAddErrors(errs); return; }
+    setAddErrors({});
+    setAddSubmitting(true);
+    try {
+      const newUser = await api.post<AdminUser>('/admin/users', addForm);
+      setUsers((prev) => [newUser, ...prev]);
+      setAddForm({ name: '', email: '', mobile: '', password: '' });
+      setAddOpen(false);
+      toast.success(`${newUser.name} added as admin`);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setAddSubmitting(false);
+    }
+  };
+
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
     <div>
-      <h1 className="text-xl sm:text-2xl font-bold text-primary mb-6">Users Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Users Management</h1>
+        <Button onClick={() => setAddOpen(true)} className="gap-2">
+          <UserPlus className="h-4 w-4" />
+          Add Admin
+        </Button>
+      </div>
       {/* ── Users table ── */}
       {/* Admin-oriented table with columns for name, email, mobile, role badge,
           and action buttons. Skeleton rows are shown during loading; an empty state
@@ -185,6 +224,46 @@ export default function AdminUsers() {
           )}
         </div>
       </div>
+
+      {/* ── Add Admin dialog ── */}
+      <Dialog open={addOpen} onOpenChange={(open) => { if (!open) { setAddOpen(false); setAddErrors({}); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Admin Account</DialogTitle>
+            <DialogDescription>
+              Create a new admin account with email and password. They can log in at /login.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="admin-name" className="block text-sm font-medium mb-1">Name</label>
+              <Input id="admin-name" placeholder="Full name" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} className="h-12 rounded-xl" />
+              {addErrors.name && <p className="text-destructive text-xs mt-1">{addErrors.name}</p>}
+            </div>
+            <div>
+              <label htmlFor="admin-email" className="block text-sm font-medium mb-1">Email</label>
+              <Input id="admin-email" type="email" placeholder="user@rto.gov.in" value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} className="h-12 rounded-xl" />
+              {addErrors.email && <p className="text-destructive text-xs mt-1">{addErrors.email}</p>}
+            </div>
+            <div>
+              <label htmlFor="admin-mobile" className="block text-sm font-medium mb-1">Mobile</label>
+              <Input id="admin-mobile" placeholder="10-digit mobile number" value={addForm.mobile} onChange={(e) => setAddForm({ ...addForm, mobile: e.target.value })} className="h-12 rounded-xl" />
+              {addErrors.mobile && <p className="text-destructive text-xs mt-1">{addErrors.mobile}</p>}
+            </div>
+            <div>
+              <label htmlFor="admin-password" className="block text-sm font-medium mb-1">Password</label>
+              <Input id="admin-password" type="password" placeholder="Min 6 characters" value={addForm.password} onChange={(e) => setAddForm({ ...addForm, password: e.target.value })} className="h-12 rounded-xl" />
+              {addErrors.password && <p className="text-destructive text-xs mt-1">{addErrors.password}</p>}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAddOpen(false); setAddErrors({}); }}>Cancel</Button>
+            <Button onClick={createAdmin} disabled={addSubmitting}>
+              {addSubmitting ? 'Creating...' : 'Create Admin'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Delete confirmation dialog ── */}
       {/* Modal that shows the user's name and warns the action is irreversible.
