@@ -2,9 +2,11 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Users, BarChart3, DollarSign, Wrench, Settings, Menu, X, FileText, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, DollarSign, Wrench, Settings, Menu, X, FileText, TrendingUp, Shield, Mail, Lock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -18,18 +20,117 @@ const sidebarLinks = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, login } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (!loading && (!user || user.role !== 'ADMIN')) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+  // ── Admin login form state ──
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginSubmitting, setLoginSubmitting] = useState(false);
 
-  if (loading || !user || user.role !== 'ADMIN') return null;
+  const handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginSubmitting(true);
+    try {
+      await login(loginEmail, loginPassword);
+    } catch (err: any) {
+      setLoginError(err.message || 'Login failed');
+    } finally {
+      setLoginSubmitting(false);
+    }
+  };
+
+  // ── After login, check if user is ADMIN ──
+  useEffect(() => {
+    if (!loading && user && user.role !== 'ADMIN') {
+      setLoginError('This account does not have admin access.');
+    }
+  }, [user, loading]);
+
+  // ── Show login form if not authenticated or not admin ──
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'ADMIN') {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />
+        <div className="flex-1 flex items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
+              <div className="p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-8 h-8 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground">Admin Panel</h1>
+                  <p className="text-muted-foreground mt-1">Sign in with your admin credentials</p>
+                </div>
+
+                {loginError && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20 mb-4" role="alert">
+                    {loginError}
+                  </div>
+                )}
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label htmlFor="admin-email" className="block text-sm font-medium mb-1.5">Email</label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="admin-email"
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
+                        placeholder="admin@rto.gov.in"
+                        className="pl-10 h-12 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="admin-password" className="block text-sm font-medium mb-1.5">Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="admin-password"
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        className="pl-10 h-12 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold" disabled={loginSubmitting}>
+                    {loginSubmitting ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                </form>
+
+                <div className="mt-4 pt-4 border-t text-center">
+                  <Link href="/login" className="text-sm text-primary hover:underline">
+                    ← Back to citizen login
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
