@@ -1,17 +1,11 @@
-"""FastAPI application entry point for the RTO AI Proctoring Service.
+"""FastAPI application entry point for the RTO AI Proctoring Service."""
 
-Initialises the FastAPI app, configures CORS for the frontend, mounts route
-modules, and exposes a health-check endpoint used by deployment infrastructure
-to verify the service is alive.
-"""
-
+import os
 from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.detect import router as detect_router
-
-# ── FastAPI application instance ──
 
 app = FastAPI(
     title="RTO AI Proctoring Service",
@@ -19,19 +13,18 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# ── CORS middleware ──
-# Only the Next.js frontend on localhost:3000 is allowed to call this API.
-# In production these origins should be scoped to the deployed frontend URL.
+# ── CORS ──
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins = [o.strip() for o in FRONTEND_URL.split(",") if o.strip()]
+allowed_origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ── Route registration ──
 
 app.include_router(detect_router)
 
