@@ -96,24 +96,21 @@ export default function Header() {
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value as 'en' | 'ta' | 'fr')}
-                className="appearance-none bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg pl-7 pr-2 sm:pl-8 sm:pr-3 py-1.5 border border-white/20 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 w-11 sm:w-auto min-h-[44px]"
+                className="appearance-none bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg pl-8 pr-3 py-1.5 border border-white/20 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 min-h-[44px]"
                 aria-label={t('select.language', locale)}
               >
-                <option value="en" className="bg-primary text-white">EN</option>
-                <option value="ta" className="bg-primary text-white">த</option>
-                <option value="fr" className="bg-primary text-white">FR</option>
+                <option value="en" className="bg-primary text-white">English</option>
+                <option value="ta" className="bg-primary text-white">தமிழ்</option>
+                <option value="fr" className="bg-primary text-white">Français</option>
               </select>
-              <Languages className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-blue-200 pointer-events-none hidden sm:block" />
+              <Languages className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-blue-200 pointer-events-none" />
             </div>
 
             {user ? (
               <Link href="/dashboard" className="no-underline">
-                <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-sm hover:shadow-md transition-all gap-1.5 sm:gap-2 px-2 sm:px-4">
+                <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-sm hover:shadow-md transition-all gap-1.5 sm:gap-2 px-3 sm:px-4">
                   <LayoutDashboard className="w-4 h-4" />
                   <span className="hidden sm:inline">Dashboard</span>
-                  <span className="sm:hidden w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                  </span>
                 </Button>
               </Link>
             ) : (

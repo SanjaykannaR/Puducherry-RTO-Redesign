@@ -99,7 +99,7 @@ export default function Home() {
 
         {/* ── Hero Text + CTAs ── */}
         {/* Positioned over the image with a max-width container so text reflows neatly on mobile */}
-        <div className="absolute inset-0 flex items-center">
+        <div className="absolute inset-0 flex items-center pb-16">
           <div className="mx-auto px-4 sm:px-6 w-full">
             <div className="max-w-3xl pl-6 md:pl-12 lg:pl-16">
               {/* Government badge — subtle backdrop blur makes it feel modern */}

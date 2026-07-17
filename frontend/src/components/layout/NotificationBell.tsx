@@ -132,7 +132,7 @@ export default function NotificationBell() {
       {/* ── Dropdown Panel ── */}
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-[min(384px,calc(100vw-2rem))] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden"
           role="menu"
           aria-label="Notifications"
         >

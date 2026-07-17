@@ -71,44 +71,47 @@ export default function SearchBar({ onToggle }: { onToggle?: (open: boolean) => 
 
   return (
     <div className="relative" ref={panelRef}>
-      {/* ── Expandable input: icon by default, full input when toggled ── */}
+      {/* ── Mobile: full-width overlay search ── */}
       {open ? (
-        <div className="flex items-center bg-white/10 rounded-lg border border-white/20">
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('search.placeholder', locale)}
-            className="bg-transparent text-white text-sm px-3 py-1.5 w-48 sm:w-56 outline-none placeholder:text-blue-200"
-            onKeyDown={(e) => {
-              // Enter key takes user to the first result as a shortcut
-              if (e.key === 'Enter' && results.length > 0) navigate(results[0].href);
-            }}
-          />
-          <button onClick={() => { setOpen(false); setQuery(''); }} className="p-1.5 text-blue-200 hover:text-white" aria-label="Close search">
-            <X className="w-4 h-4" />
-          </button>
+        <div className="fixed inset-0 z-[60] bg-primary/95 backdrop-blur-sm sm:static sm:z-auto sm:bg-transparent sm:backdrop-blur-none">
+          <div className="flex items-center h-16 px-4 sm:static sm:h-auto sm:px-0">
+            <div className="flex items-center w-full sm:w-auto bg-white/10 rounded-lg border border-white/20 sm:max-w-none">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('search.placeholder', locale)}
+                className="bg-transparent text-white text-sm px-3 py-2 flex-1 sm:w-48 sm:flex-initial outline-none placeholder:text-blue-200"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && results.length > 0) navigate(results[0].href);
+                }}
+              />
+              <button onClick={() => { setOpen(false); setQuery(''); }} className="p-2 text-blue-200 hover:text-white" aria-label="Close search">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          {/* ── Results dropdown (mobile: below the overlay bar, desktop: below search icon) ── */}
+          {results.length > 0 && (
+            <div className="sm:absolute sm:top-full sm:right-0 sm:mt-1 w-full sm:w-72 bg-white rounded-none sm:rounded-xl shadow-xl border overflow-hidden z-50 max-h-[60vh] overflow-y-auto">
+              {results.map((r) => (
+                <button
+                  key={r.href}
+                  onClick={() => navigate(r.href)}
+                  className="w-full text-left px-4 py-3 text-sm text-foreground hover:bg-primary/5 transition-colors border-b last:border-0"
+                >
+                  <p className="font-medium">{r.label}</p>
+                  <p className="text-xs text-muted-foreground">{r.href}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
-        <button onClick={() => setOpen(true)} className="p-2 text-white/80 hover:text-white transition-colors" aria-label="Open search">
+        <button onClick={() => setOpen(true)} className="p-2 text-white/80 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="Open search">
           <Search className="w-5 h-5" />
         </button>
-      )}
-      {/* ── Results dropdown: appears below the search input when there are matches ── */}
-      {results.length > 0 && (
-        <div className="absolute top-full right-0 mt-1 w-72 bg-white rounded-xl shadow-xl border overflow-hidden z-50">
-          {results.map((r) => (
-            <button
-              key={r.href}
-              onClick={() => navigate(r.href)}
-              className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-primary/5 transition-colors border-b last:border-0"
-            >
-              <p className="font-medium">{r.label}</p>
-              <p className="text-xs text-muted-foreground">{r.href}</p>
-            </button>
-          ))}
-        </div>
       )}
     </div>
   );
