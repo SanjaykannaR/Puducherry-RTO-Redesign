@@ -1,18 +1,20 @@
 # ── AI Proctoring Service Dockerfile ──
 # Face detection for RTO online exams (MediaPipe + OpenCV)
+# Build context is repo root (Railway quirk), so paths are ai/ prefixed
 
 FROM python:3.12-slim AS builder
-WORKDIR /app
 
-# System deps for OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 libglib2.0-0 && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+WORKDIR /app
+
+# Copy only what we need from ai/ subdirectory
+COPY ai/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ai/ .
 
 EXPOSE 8000
 
