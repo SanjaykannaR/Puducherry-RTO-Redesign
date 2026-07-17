@@ -113,13 +113,13 @@ export default function Footer() {
             <div className="mt-4">
               <h4 className="text-xs font-medium text-blue-300 uppercase tracking-wider mb-2">{t('footer.social', locale)}</h4>
               <div className="flex gap-2">
-                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-8 h-8 rounded-lg flex items-center justify-center transition-colors" aria-label="Facebook">
+                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center transition-colors" aria-label="Facebook">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                 </a>
-                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-8 h-8 rounded-lg flex items-center justify-center transition-colors" aria-label="X (Twitter)">
+                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center transition-colors" aria-label="X (Twitter)">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
-                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-8 h-8 rounded-lg flex items-center justify-center transition-colors" aria-label="YouTube">
+                <a href="#" className="bg-blue-700 hover:bg-blue-600 w-10 h-10 rounded-lg flex items-center justify-center transition-colors" aria-label="YouTube">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z"/></svg>
                 </a>
               </div>

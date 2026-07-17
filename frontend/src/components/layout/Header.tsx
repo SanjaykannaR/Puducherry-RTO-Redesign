@@ -96,7 +96,7 @@ export default function Header() {
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value as 'en' | 'ta' | 'fr')}
-                className="appearance-none bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg pl-7 pr-2 sm:pl-8 sm:pr-3 py-1.5 border border-white/20 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 w-9 sm:w-auto"
+                className="appearance-none bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg pl-7 pr-2 sm:pl-8 sm:pr-3 py-1.5 border border-white/20 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 w-11 sm:w-auto min-h-[44px]"
                 aria-label={t('select.language', locale)}
               >
                 <option value="en" className="bg-primary text-white">EN</option>

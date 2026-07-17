@@ -72,7 +72,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-primary">Dashboard</h1>
 
       {/* ── Stat Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -173,17 +173,17 @@ export default function AdminDashboard() {
             <div className="p-4 rounded-lg bg-gray-50">
               <p className="text-muted-foreground mb-1">Backend</p>
               <p className="font-medium">Express + Prisma</p>
-              <p className="text-xs text-muted-foreground">localhost:5000</p>
+              <p className="text-xs text-muted-foreground">Railway (production)</p>
             </div>
             <div className="p-4 rounded-lg bg-gray-50">
               <p className="text-muted-foreground mb-1">Frontend</p>
               <p className="font-medium">Next.js 16</p>
-              <p className="text-xs text-muted-foreground">localhost:3000</p>
+              <p className="text-xs text-muted-foreground">Vercel (production)</p>
             </div>
             <div className="p-4 rounded-lg bg-gray-50">
               <p className="text-muted-foreground mb-1">AI Proctoring</p>
               <p className="font-medium">FastAPI + MediaPipe</p>
-              <p className="text-xs text-muted-foreground">localhost:8000</p>
+              <p className="text-xs text-muted-foreground">Railway (production)</p>
             </div>
           </div>
         </CardContent>

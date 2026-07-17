@@ -88,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           <span className="font-semibold">Admin Panel</span>
         </header>
-        <main className="flex-1 p-6 bg-gray-50">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 bg-gray-50">{children}</main>
       </div>
     </div>
   );
