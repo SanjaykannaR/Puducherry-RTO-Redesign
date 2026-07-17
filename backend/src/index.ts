@@ -34,6 +34,7 @@ import digilockerRoutes from './routes/digilocker';
 import googleRoutes from './routes/google';
 import paymentRoutes from './routes/payments';
 import schedulerRoutes from './routes/scheduler';
+import chatRoutes from './routes/chat';
 import { sanitizeInput } from './middleware/sanitize';
 
 // ── Environment setup ──
@@ -141,6 +142,7 @@ if (!process.env.PLAYWRIGHT_TEST) {
   app.use('/api/notifications', defaultLimiter);     // 100/15min
   app.use('/api/admin', adminLimiter);               // 200/15min
   app.use('/api/admin/scheduler', adminLimiter);     // same bucket
+  app.use('/api/chat', writeLimiter);                // 80/15min — AI chat
   app.use('/api/rto', defaultLimiter);               // 100/15min
   app.use('/api', defaultLimiter);                   // global fallback
 }
@@ -173,6 +175,7 @@ app.use('/api/auth/google', googleRoutes);         // Public: Google OAuth flow
 app.use('/api/payments', paymentRoutes);            // Protected: GRAS payments
 app.use('/api/admin', adminRoutes);               // Protected + admin-only: system management
 app.use('/api/admin/scheduler', schedulerRoutes); // Protected + admin-only: scheduler
+app.use('/api', chatRoutes);                       // Public: AI chatbot (GEMINI_API_KEY required)
 
 // ── 404 fallback ──
 // Catch-all for unmatched routes — return JSON error (not HTML)

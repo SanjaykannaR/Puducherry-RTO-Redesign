@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "source": "Département des Transports de Pondichéry (transport.py.gov.in) & Loi sur les Véhicules à Moteur 1988 (amendée 2019)",
+    "last_updated": "2026-07",
+    "language": "fr"
+  },
+  "topics": {
+    "learner_license": {
+      "title": "Permis d'apprenti (LLR)",
+      "age_requirement": "16 ans pour moto sans boîte de vitesses (avec consentement parental si moins de 18 ans) ; 18 ans pour autres véhicules ; 20 ans pour véhicules de transport",
+      "documents_required": [
+        "Formulaire de demande 2",
+        "Justificatif d'âge (acte de naissance / certificat scolaire / passeport)",
+        "Justificatif de domicile (Carte d'élection / Passeport / Aadhaar)",
+        "Certificat de nationalité",
+        "Certificat médical Formulaire 1 (auto-déclaration)",
+        "Certificat médical Formulaire 1A (pour véhicules de transport ou plus de 50 ans)",
+        "Photos passeport - 2 exemplaires",
+        "Formulaire de consentement parental (si 16-18 ans)"
+      ],
+      "process": [
+        "Étape 1 : Visitez https://sarathi.parivahan.gov.in",
+        "Étape 2 : Sélectionnez l'État 'Pondichéry' et votre juridiction RTO",
+        "Étape 3 : Cliquez Services en ligne > Services Sarathi > Appliquer en ligne > Nouveau Permis d'apprenti",
+        "Étape 4 : Remplissez les détails selon les documents originaux",
+        "Étape 5 : Payez les frais prescrits en ligne",
+        "Étape 6 : Vérifiez le statut du paiement et imprimez le reçu",
+        "Étape 7 : Réservez un créneau pour le test LL",
+        "Étape 8 : Passer le test informatisé (10 questions à choix multiples, 6 correctes pour réussir)",
+        "Étape 9 : Si réussi, le LLR est imprimé immédiatement",
+        "Étape 10 : Si échoué, un nouveau test est disponible après paiement"
+      ],
+      "fees": "Environ 150 Rs (variable selon la catégorie de véhicule)",
+      "processing_time": "Le même jour",
+      "validity": "6 mois à compter de la date de délivrance",
+      "online_portal": "https://sarathi.parivahan.gov.in",
+      "notes": [
+        "Après 30 jours d'obtention du LLR, vous pouvez demander le permis de conduire permanent",
+        "Le LLR est valable 6 mois - demandez le permis avant l'expiration",
+        "L'examen préliminaire est exempté si vous possédez déjà un LLR ou un permis permanent"
+      ]
+    },
+    "driving_license": {
+      "title": "Permis de conduire (DL)",
+      "types": {
+        "fresh": "Nouveau permis de conduire (après 30+ jours de LLR)",
+        "renewal": "Renouvellement du permis existant",
+        "duplicate": "DL en double (si perdu/endommagé)",
+        "address_change": "Changement d'adresse sur le DL",
+        "additional_endorsement": "Endossement supplémentaire pour nouvelle catégorie"
+      },
+      "documents_required_fresh": [
+        "Permis d'apprenti valide (original)",
+        "Formulaire de demande 4",
+        "Justificatif d'âge",
+        "Justificatif de domicile",
+        "Certificat médical Formulaire 1 (moins de 40 ans) ou Formulaire 1A (40 ans et plus)",
+        "Photos passeport - 2 exemplaires",
+        "Reçu de paiement des frais"
+      ],
+      "documents_required_renewal": [
+        "Formulaire de demande 9 (en ligne)",
+        "Permis de conduire actuel (original)",
+        "Certificat médical Formulaire 1A (obligatoire si 40 ans et plus)",
+        "Photos passeport - 2 exemplaires",
+        "Reçu de paiement des frais"
+      ],
+      "renewal_process": [
+        "Étape 1 : Visitez https://sarathi.parivahan.gov.in",
+        "Étape 2 : Cliquez Services en ligne > Services DL > Renouvellement DL",
+        "Étape 3 : Entrez le numéro DL et la date de naissance",
+        "Étape 4 : Remplissez les détails du demandeur",
+        "Étape 5 : Téléversez le certificat médical Formulaire 1A (si 40+ ans)",
+        "Étape 6 : Payez les frais en ligne",
+        "Étape 7 : Imprimez le reçu",
+        "Étape 8 : Présentez-vous à la salle caméra pour la capture biométrique",
+        "Étape 9 : Le DL est renouvelé et envoyé à votre adresse"
+      ],
+      "renewal_fees": {
+        "normal": "550 Rs par COV (200 + 200 + 150)",
+        "late_1_year": "700 Rs (dans l'année suivant l'expiration)",
+        "late_2_years": "1000 Rs (plus d'un an après l'expiration)",
+        "with_test": "50 Rs supplémentaires par catégorie de véhicule (si expiré plus d'un an)"
+      },
+      "validity_rules": {
+        "under_30": "Valide jusqu'à 40 ans",
+        "30_to_50": "Valable 10 ans",
+        "50_to_55": "Valide jusqu'à 60 ans",
+        "above_55": "Valable 5 ans"
+      },
+      "medical_certificate_rules": {
+        "form_1": "Auto-déclaration de forme physique (pour demandeurs de moins de 40 ans, véhicules non de transport)",
+        "form_1A": "Certificat médical d'un médecin MBBS inscrit (obligatoire pour : 40+ ans, véhicules de transport, renouvellement après longue expiration)",
+        "form_1A_validity": "1 an à compter de la date de délivrance",
+        "form_1A_checks": "Test de vision, contrôle physique général, examen de l'historique médical"
+      },
+      "processing_time": "7 jours ouvrables",
+      "online_portal": "https://sarathi.parivahan.gov.in",
+      "important_notes": [
+        "Le renouvellement à 40+ ans EXIGE le certificat médical Formulaire 1A - aucune exception",
+        "Le Formulaire 1 (auto-déclaration) n'est PAS accepté pour les demandeurs de 40+ ans",
+        "Si le DL est expiré depuis plus d'un an, un LLR valide et un nouvel examen sont requis",
+        "Test DL : le véhicule doit avoir une plaque 'L', le demandeur doit porter un casque",
+        "Le résultat est communiqué sur-le-champ"
+      ]
+    },
+    "vehicle_registration": {
+      "title": "Immatriculation de véhicule",
+      "documents_required": [
+        "Formulaires 19, 20, 21, 22",
+        "Certificat de domicile (Carte d'élection photo / Passeport)",
+        "Formulaire 60 (pour trois/quatre roues) ou copie de carte PAN",
+        "Certificat d'assurance valide",
+        "Certificat de vente (Formulaire 21 du concessionnaire)",
+        "Certificat de conformité (Formulaire 22 du fabricant)"
+      ],
+      "fees": {
+        "motorcycle": "670 Rs (300 + 200 carte intelligente + 170 service)",
+        "lmv_car": "970 Rs (600 + 200 + 170)",
+        "mmv": "1270 Rs (900 + 200 + 170)",
+        "hmv_hpv": "2770 Rs (1500 + 200 + 270 + 800 FC)"
+      },
+      "online_portal": "https://vahan.parivahan.gov.in"
+    },
+    "challan": {
+      "title": "Contraventions et pénalités de circulation",
+      "common_violations": {
+        "no_helmet": {"fine": "1 000 Rs", "note": "Suspension du permis de 3 mois possible"},
+        "no_seatbelt": {"fine": "1 000 Rs"},
+        "no_license": {"fine": "5 000 Rs"},
+        "no_insurance": {"fine": "2 000 Rs première fois, 4 000 Rs récidive", "note": "3 mois de prison possibles"},
+        "overspeeding": {"fine": "1 000 Rs première fois, 2 000 Rs récidive"},
+        "dangerous_driving": {"fine": "5 000 Rs première fois, 10 000 Rs récidive"},
+        "drunk_driving": {"fine": "10 000 Rs et/ou 6 mois de prison première fois, 15 000 Rs et/ou 2 ans de prison récidive"},
+        "mobile_phone_driving": {"fine": "5 000 Rs première fois, 10 000 Rs récidive"},
+        "triple_riding": {"fine": "1 000 Rs", "note": "Suspension du permis de 3 mois"},
+        "underage_driving": {"fine": "25 000 Rs + 3 ans de prison pour le tuteur", "note": "Immatriculation du véhicule annulée"}
+      },
+      "check_challan_online": [
+        "Visitez https://echallan.parivahan.gov.in",
+        "Entrez le numéro de véhicule ou de contravention",
+        "Consultez les contraventions en attente et payées"
+      ],
+      "payment_methods": [
+        "En ligne : Portail Parivahan, UPI, carte de débit, virement bancaire",
+        "Hors ligne : Comptoirs de police routière, bureaux agréés RTO"
+      ]
+    },
+    "appointment_booking": {
+      "title": "Réservation de rendez-vous RTO",
+      "how_to_book": [
+        "Étape 1 : Visitez https://sarathi.parivahan.gov.in ou https://vahan.parivahan.gov.in",
+        "Étape 2 : Sélectionnez votre type de service",
+        "Étape 3 : Choisissez la date et le créneau horaire disponibles",
+        "Étape 4 : Confirmez la réservation et imprimez le reçu"
+      ],
+      "what_to_bring": [
+        "Reçu de réservation imprimé",
+        "Tous les documents requis (originaux + copies certifiées)",
+        "Reçu de paiement des frais",
+        "Véhicule (pour les services liés aux véhicules)"
+      ]
+    },
+    "rto_offices": {
+      "title": "Bureaux RTO à Pondichéry",
+      "offices": [
+        {"name": "RTO Pondichéry", "code": "PY-01", "address": "No. 1, Sardar Vallabhbhai Patel Salai, Pondichéry - 605001"},
+        {"name": "RTO Karaikal", "code": "PY-02", "address": "Karaikal, Pondichéry"},
+        {"name": "RTO Mahé", "code": "PY-03", "address": "Mahé, Pondichéry"},
+        {"name": "RTO Yanam", "code": "PY-04", "address": "Yanam, Pondichéry"}
+      ],
+      "working_hours": "Lun-Ven : 10h00 - 17h00",
+      "helpline": "+91 413 222 1234"
+    },
+    "general_info": {
+      "title": "Informations générales RTO",
+      "online_portals": {
+        "sarathi": "https://sarathi.parivahan.gov.in - Pour tous les services liés au permis",
+        "vahan": "https://vahan.parivahan.gov.in - Pour tous les services d'immatriculation",
+        "echallan": "https://echallan.parivahan.gov.in - Pour vérifier et payer les contraventions",
+        "transport_dept": "https://transport.py.gov.in - Site officiel du Département des Transports de Pondichéry"
+      },
+      "documents_always_carry": [
+        "Permis de conduire",
+        "Certificat d'immatriculation (RC)",
+        "Certificat d'assurance",
+        "Certificat PUC (Pollution sous contrôle)",
+        "Carte Aadhaar ou autre pièce d'identité"
+      ]
+    },
+    "navigation_intents": {
+      "vehicle_registration": {"path": "/services", "hint": "Aller au service d'immatriculation"},
+      "driving_license": {"path": "/services", "hint": "Aller au service de permis de conduire"},
+      "llr": {"path": "/services", "hint": "Aller au service de permis d'apprenti"},
+      "appointment": {"path": "/services", "hint": "Aller à la réservation de rendez-vous"},
+      "fee_calculator": {"path": "/services", "hint": "Aller au calculateur de frais"},
+      "challan": {"path": "/services", "hint": "Aller au paiement des contraventions"},
+      "directory": {"path": "/directory", "hint": "Aller à l'annuaire RTO"},
+      "fares": {"path": "/fares", "hint": "Aller aux frais et tarifs"},
+      "contact": {"path": "/contact", "hint": "Aller à la page Contact"},
+      "login": {"path": "/login", "hint": "Aller à la page de connexion"},
+      "register": {"path": "/register", "hint": "Aller à la page d'inscription"},
+      "dashboard": {"path": "/dashboard", "hint": "Aller au tableau de bord utilisateur"},
+      "home": {"path": "/", "hint": "Aller à la page d'accueil"}
+    }
+  }
+}

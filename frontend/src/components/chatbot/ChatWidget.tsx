@@ -19,7 +19,7 @@ interface ChatApiResponse {
   login_suggested?: boolean;
 }
 
-const CHATBOT_URL = process.env.NEXT_PUBLIC_CHATBOT_URL || "http://localhost:5001";
+const CHATBOT_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const WELCOME_MESSAGES: Record<string, string> = {
   en: "Hello! I'm the Puducherry RTO Assistant. I can help you with:\n\n• Driving License (new, renewal, duplicate)\n• Learner's License (LLR)\n• Vehicle Registration\n• Traffic Challans & Penalties\n• Fees & Documents\n• Navigation on this portal\n\nHow can I help you today?",
@@ -102,7 +102,7 @@ export default function ChatWidget() {
     try {
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
 
-      const res = await fetch(`${CHATBOT_URL}/api/chat`, {
+      const res = await fetch(`${CHATBOT_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, language: lang, history }),
