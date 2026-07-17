@@ -1,22 +1,42 @@
-"""Google Gemini LLM integration for the RTO chatbot."""
+"""Google Gemini LLM integration for the RTO chatbot.
 
-import google.generativeai as genai
+All imports are lazy — nothing fails at module level.
+"""
+
+import importlib
 from config import GOOGLE_API_KEY, GEMINI_MODEL
-from services.knowledge import search_knowledge, get_navigation_intent
-from services.language import get_lang_name, get_greeting, get_login_suggestion
 
-# Configure Gemini — gracefully handle missing/invalid key
+# Lazy-loaded globals
+_genai = None
 _model = None
-if GOOGLE_API_KEY:
-    try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        _model = genai.GenerativeModel(GEMINI_MODEL)
-    except Exception as e:
-        print(f"[chatbot] Warning: Failed to configure Gemini: {e}")
-        _model = None
-else:
-    print("[chatbot] Warning: GEMINI_API_KEY not set — chat will use fallback responses")
+_initialized = False
+_init_error = None
 
+
+def _ensure_init():
+    """Initialize Gemini once, on first use. Never crashes."""
+    global _genai, _model, _initialized, _init_error
+    if _initialized:
+        return
+    _initialized = True
+
+    if not GOOGLE_API_KEY:
+        _init_error = "GEMINI_API_KEY not set"
+        print(f"[chatbot] {_init_error}")
+        return
+
+    try:
+        _genai = importlib.import_module("google.generativeai")
+        _genai.configure(api_key=GOOGLE_API_KEY)
+        _model = _genai.GenerativeModel(GEMINI_MODEL)
+        print(f"[chatbot] Gemini configured: model={GEMINI_MODEL}")
+    except Exception as e:
+        _init_error = str(e)
+        print(f"[chatbot] Gemini init failed: {e}")
+        _model = None
+
+
+# ── System prompts ──
 
 SYSTEM_PROMPT_EN = """You are a helpful AI assistant for the Puducherry RTO (Regional Transport Office) portal. Your role is to help citizens with:
 
@@ -41,8 +61,6 @@ RULES:
 - If you don't know something specific, direct them to contact the RTO helpline
 - Keep responses under 300 words unless the user asks for detailed information
 - Use numbered steps for processes
-
-IMPORTANT: You have access to the official Puducherry RTO knowledge base. Use it to provide accurate information.
 """
 
 SYSTEM_PROMPT_TA = """நீங்கள் புதுச்சேரி ஆர்.டி.ஓ (பிராந்திய போக்குவரத்து அலுவலகம்) இணையதளத்திற்கான உதவியான AI உதவியாளர். உங்கள் பணி குடிமக்களுக்கு உதவுவதாகும்:
@@ -66,9 +84,9 @@ SYSTEM_PROMPT_TA = """நீங்கள் புதுச்சேரி ஆ�
 - பதில்களை 300 சொற்களுக்குள் வைத்திருங்கள்
 """
 
-SYSTEM_PROMPT_FR = """Vous êtes un assistant IA utile pour le portail RTO (Bureau des Transports Régional) de Pondichéry. Votre rôle est d'aider les citoyens avec :
+SYSTEM_PROMPT_FR = """Vous êtes un assistant IA utile pour le portail RTO de Pondichéry. Votre rôle est d'aider les citoyens avec :
 
-1. Services de permis de conduire (nouveau, renouvellement, double, changement d'adresse)
+1. Services de permis de conduire (nouveau, renouvellement, double)
 2. Informations sur le permis d'apprenti (LLR)
 3. Services d'immatriculation de véhicules
 4. Renouvellement RC
@@ -95,28 +113,24 @@ def get_system_prompt(lang: str) -> str:
 
 def build_prompt(user_message: str, lang: str, chat_history: list[dict] | None = None) -> str:
     """Build the full prompt with knowledge context."""
-    # Search knowledge base
-    kb_context = search_knowledge(user_message, lang)
+    from services.knowledge import search_knowledge, get_navigation_intent
 
-    # Check for navigation intent
+    kb_context = search_knowledge(user_message, lang)
     nav_intent = get_navigation_intent(user_message, lang)
 
-    # Build prompt
     parts = [
         f"System: {get_system_prompt(lang)}",
         f"\n--- RTO Knowledge Base Context ---\n{kb_context}\n--- End Context ---",
     ]
 
-    # Add chat history
     if chat_history:
         parts.append("\n--- Conversation History ---")
-        for msg in chat_history[-6:]:  # Last 6 messages for context
+        for msg in chat_history[-6:]:
             role = msg.get("role", "user")
             content = msg.get("content", "")
             parts.append(f"{role}: {content}")
         parts.append("--- End History ---")
 
-    # Add navigation info if detected
     if nav_intent:
         parts.append(f"\n[Navigation detected: User wants to go to {nav_intent.get('hint', '')}. Path: {nav_intent.get('path', '')}]")
 
@@ -126,14 +140,30 @@ def build_prompt(user_message: str, lang: str, chat_history: list[dict] | None =
     return "\n".join(parts)
 
 
-def generate_response(user_message: str, lang: str, chat_history: list[dict] | None = None) -> dict:
-    """Generate a response using Google Gemini.
+def get_init_status() -> dict:
+    """Return Gemini initialization status for diagnostics."""
+    _ensure_init()
+    return {
+        "initialized": _initialized,
+        "model_ready": _model is not None,
+        "api_key_set": bool(GOOGLE_API_KEY),
+        "error": _init_error,
+        "model": GEMINI_MODEL,
+    }
 
-    Returns dict with:
-    - response: the text response
-    - navigation: dict with path if navigation was detected
-    - login_suggested: bool if login was suggested
-    """
+
+def generate_response(user_message: str, lang: str, chat_history: list[dict] | None = None) -> dict:
+    """Generate a response using Google Gemini. Never raises."""
+    from services.language import get_greeting, get_login_suggestion
+
+    error_messages = {
+        "en": "I'm having trouble processing your request. Please try again or contact our helpline at +91 413 222 1234.",
+        "ta": "உங்கள் கோரிக்கையை செயலாக்குவதில் சிக்கல் உள்ளது. மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234.",
+        "fr": "J'ai du mal à traiter votre demande. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234.",
+    }
+
+    _ensure_init()
+
     # Check for greetings
     greeting_keywords = {
         "en": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
@@ -150,12 +180,10 @@ def generate_response(user_message: str, lang: str, chat_history: list[dict] | N
             "login_suggested": False,
         }
 
-    # Check navigation intent first
+    # Check navigation intent
     nav_intent = get_navigation_intent(user_message, lang)
 
-    # Build prompt and generate
-    prompt = build_prompt(user_message, lang, chat_history)
-
+    # If Gemini isn't ready, return a graceful fallback
     if _model is None:
         return {
             "response": error_messages.get(lang, error_messages["en"]),
@@ -163,10 +191,13 @@ def generate_response(user_message: str, lang: str, chat_history: list[dict] | N
             "login_suggested": False,
         }
 
+    # Build prompt and generate
+    prompt = build_prompt(user_message, lang, chat_history)
+
     try:
         response = _model.generate_content(
             prompt,
-            generation_config=genai.types.GenerationConfig(
+            generation_config=_genai.types.GenerationConfig(
                 temperature=0.3,
                 max_output_tokens=500,
                 top_p=0.8,
@@ -174,7 +205,6 @@ def generate_response(user_message: str, lang: str, chat_history: list[dict] | N
         )
         response_text = response.text.strip()
 
-        # Check if response mentions login/apply
         login_keywords = {
             "en": ["log in", "login", "sign in", "apply", "register"],
             "ta": ["உள்நுழை", "விண்ணப்பிக்க", "பதிவு"],
@@ -191,11 +221,7 @@ def generate_response(user_message: str, lang: str, chat_history: list[dict] | N
         }
 
     except Exception as e:
-        error_messages = {
-            "en": "I'm having trouble processing your request. Please try again or contact our helpline at +91 413 222 1234.",
-            "ta": "உங்கள் கோரிக்கையை செயலாக்குவதில் சிக்கல் உள்ளது. மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234.",
-            "fr": "J'ai du mal à traiter votre demande. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234.",
-        }
+        print(f"[chatbot] Gemini error: {e}")
         return {
             "response": error_messages.get(lang, error_messages["en"]),
             "navigation": None,
