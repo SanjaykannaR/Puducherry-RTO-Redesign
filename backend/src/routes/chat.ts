@@ -292,4 +292,15 @@ router.get('/chat/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'chat-api', gemini: !!model });
 });
 
+// ── Chat debug — try a Gemini call and show the error ──
+router.get('/chat/debug', async (_req: Request, res: Response) => {
+  if (!model) return res.json({ error: 'No Gemini model', keySet: !!GEMINI_KEY });
+  try {
+    const result = await model.generateContent('Say hello in one word.');
+    return res.json({ ok: true, text: result.response.text() });
+  } catch (err: any) {
+    return res.json({ error: err?.message || String(err), stack: err?.stack?.split('\n').slice(0, 5) });
+  }
+});
+
 export default router;
