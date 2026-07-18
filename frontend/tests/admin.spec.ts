@@ -56,7 +56,7 @@ test.describe.serial('Admin Panel', () => {
       // Admin layout shows inline login form — wait for it to render
       await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 15000 });
       // The "no admin access" error is set via useEffect after auth resolves — give it time
-      await expect(page.getByText(/does not have admin access|Sign in with your admin/i)).toBeVisible({ timeout: 20000 });
+      await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 20000 });
     });
   });
 

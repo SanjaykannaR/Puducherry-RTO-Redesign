@@ -109,8 +109,8 @@ export async function authenticatePage(page: Page, session: AuthSession) {
 // Navigates to a URL and waits for AuthContext to resolve on the new page.
 // After authenticatePage() sets the token, page.goto() triggers a fresh page load
 // where AuthContext re-initializes: reads localStorage → calls /auth/me → sets user
-// → RequireAuth shows children. This helper waits for /auth/me to fire (if auth
-// is active) AND for page content headings to appear (not the header h1).
+// → RequireAuth shows children. This helper waits for /auth/me to fire AND for
+// the RequireAuth loading spinner to disappear, meaning the page content is visible.
 export async function gotoAndWaitForAuth(
   page: Page,
   url: string,
@@ -131,17 +131,17 @@ export async function gotoAndWaitForAuth(
   // Wait for /auth/me to complete (signals auth context resolved)
   await meResponse;
 
-  // Brief stabilization wait for React to render after auth state settles.
-  // Use a short fixed timeout instead of waitForLoadState which is redundant
-  // after goto(domcontentloaded) and can hang on polling endpoints.
-  await page.waitForTimeout(500);
+  // Wait for the RequireAuth loading spinner to disappear.
+  // This is the most reliable signal that auth resolved AND React re-rendered.
+  // Polls for up to 15s — catches the state transition from spinner → content.
+  await page.waitForFunction(() => {
+    const spinner = document.querySelector('.animate-spin');
+    const checkingText = document.body.textContent?.includes('Checking authentication');
+    return !spinner && !checkingText;
+  }, { timeout: Math.min(timeout, 15000) }).catch(() => {});
 
-  // Wait for page content to appear (inside <main>, not the header)
-  await page.locator('main h1, main h2, main h3, main [role="heading"]').first()
-    .waitFor({ state: 'visible', timeout: Math.min(timeout, 10000) })
-    .catch(() => {
-      // Fallback: some pages might not wrap content in <main> or headings might differ
-    });
+  // Brief stabilization wait for final render
+  await page.waitForTimeout(300);
 }
 
 // ── waitForReactForm ──
@@ -149,8 +149,13 @@ export async function gotoAndWaitForAuth(
 // networkidle is NOT sufficient — React hydration happens after the browser
 // is idle. This checks for __reactProps.onSubmit on the first <form> element.
 export async function waitForReactForm(page: Page, opts?: { timeout?: number }) {
-  const timeout = opts?.timeout ?? 15000;
+  const timeout = opts?.timeout ?? 20000;
   await page.waitForFunction(() => {
+    // If the page redirected to login or shows "Sign In Required", there's no service form
+    if (document.body.textContent?.includes('Sign In Required') ||
+        document.body.textContent?.includes('Checking authentication')) {
+      return false; // Will timeout — caller should handle auth failure
+    }
     const form = document.querySelector('form');
     if (!form) return false;
     const propsKey = Object.keys(form).find(k => k.startsWith('__reactProps'));

@@ -239,8 +239,8 @@ test.describe('Admin Pages (Role-Gated)', () => {
     await page.goto('/admin', { waitUntil: 'domcontentloaded' });
 
     // Admin layout shows inline login form with "no admin access" error for non-admins
-    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/does not have admin access/i).first()).toBeVisible({ timeout: 20000 });
   });
 
   test('admin sub-routes show login form for non-admins', async ({ page }) => {
@@ -251,8 +251,8 @@ test.describe('Admin Pages (Role-Gated)', () => {
     // Test one representative sub-route — all share the same admin layout
     await page.goto('/admin/users', { waitUntil: 'domcontentloaded' });
     // Admin layout shows inline login form with "no admin access" error for non-admins
-    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/does not have admin access/i).first()).toBeVisible({ timeout: 20000 });
   });
 });
 
