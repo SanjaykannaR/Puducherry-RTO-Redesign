@@ -43,20 +43,20 @@ test.describe('Exam Page - UI States', () => {
     });
 
     test('start exam button is enabled and clickable', async ({ page }) => {
-      await page.goto('/exam', { waitUntil: "domcontentloaded" });
+      await gotoAndWaitForAuth(page, '/exam');
       // Wait for auth to resolve and exam content to render
       const startBtn = page.getByText(/start exam/i).first();
-      await startBtn.waitFor({ state: 'visible', timeout: 15000 });
+      await startBtn.waitFor({ state: 'visible', timeout: 30000 });
       await expect(startBtn).toBeEnabled();
     });
 
     test('shows camera permission warning if camera API is unavailable', async ({ page }) => {
       // In Playwright's headless browser, getUserMedia is not available by default,
       // so clicking Start should trigger a camera error state.
-      await page.goto('/exam', { waitUntil: "domcontentloaded" });
+      await gotoAndWaitForAuth(page, '/exam');
       // Wait for auth to resolve and exam content to render (RequireAuth wraps the content)
       const startBtn = page.getByText(/start exam/i).first();
-      await startBtn.waitFor({ state: 'visible', timeout: 15000 });
+      await startBtn.waitFor({ state: 'visible', timeout: 30000 });
 
       // Click Start — camera will fail in headless, showing error state
       await startBtn.click();
@@ -92,8 +92,7 @@ test.describe('Exam Page - UI States', () => {
         { timeout: 15000 }
       );
 
-      // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
-      await page.goto('/exam', { waitUntil: 'domcontentloaded' });
+      await gotoAndWaitForAuth(page, '/exam');
       // Wait for auth to resolve and Start Exam to be visible
       const startBtn2 = page.getByText(/start exam/i).first();
       await startBtn2.waitFor({ state: 'visible', timeout: 30000 });
@@ -105,8 +104,8 @@ test.describe('Exam Page - UI States', () => {
     });
 
     test('shows violation counter after camera unavailability', async ({ page }) => {
-      // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
-      await page.goto('/exam', { waitUntil: 'domcontentloaded' });
+      // Use gotoAndWaitForAuth — page returns null until auth resolves
+      await gotoAndWaitForAuth(page, '/exam');
       // Wait for auth to resolve and Start Exam to be visible
       const startBtn3 = page.getByText(/start exam/i).first();
       await startBtn3.waitFor({ state: 'visible', timeout: 30000 });

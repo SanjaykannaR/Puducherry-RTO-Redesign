@@ -73,7 +73,9 @@ test.describe.serial('Admin Applications Workflow', () => {
   test('admin applications page loads with heading', async ({ page }) => {
     await authenticatePage(page, adminSession);
     await gotoAndWaitForAuth(page, '/admin/applications');
-    await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 15000 });
+    // Admin layout has its own loading state after auth resolves — wait for sidebar first
+    await expect(page.locator('aside').first()).toBeVisible({ timeout: 25000 });
+    await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 25000 });
   });
 
   test('applications table is visible', async ({ page }) => {

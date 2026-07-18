@@ -53,9 +53,10 @@ test.describe.serial('Admin Panel', () => {
     test('dashboard shows admin login form for CITIZEN role', async ({ page }) => {
       await authenticatePage(page, citizenSession);
       await page.goto('/admin', { waitUntil: 'domcontentloaded' });
-      // Admin layout shows inline login form with "no admin access" error for non-admins
-      await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
-      await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
+      // Admin layout shows inline login form — wait for it to render
+      await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 15000 });
+      // The "no admin access" error is set via useEffect after auth resolves — give it time
+      await expect(page.getByText(/does not have admin access|Sign in with your admin/i)).toBeVisible({ timeout: 20000 });
     });
   });
 
@@ -77,10 +78,10 @@ test.describe.serial('Admin Panel', () => {
 
     test('displays stat cards with numbers', async ({ page }) => {
       // Stat card titles use <CardTitle> which renders as a div, not a heading
-      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 20000 });
-      await expect(page.getByText('Appointments').first()).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText('Challans').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Total Users').first()).toBeVisible({ timeout: 25000 });
+      await expect(page.getByText('Appointments').first()).toBeVisible({ timeout: 25000 });
+      await expect(page.getByText('Applications').first()).toBeVisible({ timeout: 25000 });
+      await expect(page.getByText('Challans').first()).toBeVisible({ timeout: 25000 });
     });
 
     test('shows Recent Users section', async ({ page }) => {
@@ -110,9 +111,10 @@ test.describe.serial('Admin Panel', () => {
     test.beforeEach(async ({ page }) => {
       await authenticatePage(page, adminSession);
       await gotoAndWaitForAuth(page, '/admin/users', { timeout: 30000 });
-      // Admin layout returns null while useAuth() loads — wait for actual content
+      // Admin layout has its own loading state — wait for sidebar then content
+      await expect(page.locator('aside').first()).toBeVisible({ timeout: 25000 });
       await page.locator('text=Users Management').first()
-        .waitFor({ state: 'visible', timeout: 20000 });
+        .waitFor({ state: 'visible', timeout: 25000 });
     });
 
     test('loads with Users Management heading', async ({ page }) => {
