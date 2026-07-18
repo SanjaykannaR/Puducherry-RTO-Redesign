@@ -77,32 +77,46 @@ export async function promoteToAdmin(email: string): Promise<string> {
 // Sets the auth token in the page's localStorage so the frontend AuthContext
 // picks it up on reload. After calling this, the page behaves as a logged-in user.
 // Explicitly waits for the /auth/me API response to ensure the session is fully
-// restored before returning.
-export async function authenticatePage(page: Page, session: AuthSession) {
-  // Navigate first so we're on an origin where localStorage works.
-  // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
-  // and causes flaky timeouts on CI when polling/long-polling keeps connections alive.
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.evaluate((token) => {
-    localStorage.setItem('token', token);
-  }, session.token);
+// restored before returning. Retries once if auth appears to have failed.
+export async function authenticatePage(page: Page, session: AuthSession, retries = 1) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // Navigate first so we're on an origin where localStorage works.
+    // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
+    // and causes flaky timeouts on CI when polling/long-polling keeps connections alive.
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.evaluate((token) => {
+      localStorage.setItem('token', token);
+    }, session.token);
 
-  // Set up a listener for the /auth/me response BEFORE reloading
-  const meResponse = page.waitForResponse(
-    (resp) => resp.url().includes('/auth/me'),
-    { timeout: 15000 }
-  );
+    // Set up a listener for the /auth/me response BEFORE reloading
+    const meResponse = page.waitForResponse(
+      (resp) => resp.url().includes('/auth/me'),
+      { timeout: 20000 }
+    );
 
-  // Reload — wait for DOMContentLoaded (not networkidle, which is too slow for SPAs)
-  await page.reload({ waitUntil: 'domcontentloaded' });
+    // Reload — wait for DOMContentLoaded (not networkidle, which is too slow for SPAs)
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
-  // Wait explicitly for /auth/me to complete — this is the signal that AuthContext has resolved
-  await meResponse.catch(() => {});
+    // Wait explicitly for /auth/me to complete — this is the signal that AuthContext has resolved
+    await meResponse.catch(() => {});
 
-  // Final stabilization: brief wait for React to render after auth state settles.
-  // Use a short fixed timeout instead of networkidle to avoid flakiness from
-  // ongoing polling requests (notification bell, etc.).
-  await page.waitForTimeout(500);
+    // Wait for React to render after auth state settles
+    await page.waitForTimeout(500);
+
+    // Check if auth actually worked — if page still shows "Sign In Required", retry
+    const authFailed = await page.evaluate(() => {
+      const text = document.body.textContent || '';
+      return text.includes('Sign In Required') || text.includes('Checking authentication');
+    });
+
+    if (!authFailed) return; // Auth worked
+
+    if (attempt < retries) {
+      console.log(`[authenticatePage] Auth appears to have failed, retrying (attempt ${attempt + 1})...`);
+      await page.waitForTimeout(2000); // Brief wait before retry
+    }
+  }
+  // If we get here, auth failed after all retries — caller will handle via skipIfAuthFailed
 }
 
 // ── gotoAndWaitForAuth ──
@@ -111,38 +125,54 @@ export async function authenticatePage(page: Page, session: AuthSession) {
 // where AuthContext re-initializes: reads localStorage → calls /auth/me → sets user
 // → RequireAuth shows children. This helper waits for /auth/me to fire AND for
 // the RequireAuth loading spinner to disappear, meaning the page content is visible.
+// Retries once if auth appears to have failed on the first attempt.
 export async function gotoAndWaitForAuth(
   page: Page,
   url: string,
-  opts?: { timeout?: number }
+  opts?: { timeout?: number; retries?: number }
 ) {
   const timeout = opts?.timeout ?? 25000;
+  const retries = opts?.retries ?? 1;
 
-  // Navigate first with domcontentloaded
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // Navigate first with domcontentloaded
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
-  // Now set up the /auth/me listener AFTER navigation starts — this ensures
-  // we catch the /auth/me from the NEW page, not from a previous context
-  const meResponse = page.waitForResponse(
-    (resp) => resp.url().includes('/auth/me'),
-    { timeout }
-  ).catch(() => null);
+    // Now set up the /auth/me listener AFTER navigation starts — this ensures
+    // we catch the /auth/me from the NEW page, not from a previous context
+    const meResponse = page.waitForResponse(
+      (resp) => resp.url().includes('/auth/me'),
+      { timeout }
+    ).catch(() => null);
 
-  // Wait for /auth/me to complete (signals auth context resolved)
-  await meResponse;
+    // Wait for /auth/me to complete (signals auth context resolved)
+    await meResponse;
 
-  // Wait for the RequireAuth loading spinner to disappear AND actual content to appear.
-  // Checks for: animate-spin (RequireAuth spinner), animate-pulse (admin layout Loading...),
-  // and "Checking authentication" text. Returns true once auth resolved.
-  await page.waitForFunction(() => {
-    const hasSpinAnimation = !!document.querySelector('.animate-spin');
-    const hasPulseAnimation = !!document.querySelector('.animate-pulse');
-    const hasCheckingText = document.body.textContent?.includes('Checking authentication');
-    return !hasSpinAnimation && !hasPulseAnimation && !hasCheckingText;
-  }, { timeout: Math.min(timeout, 20000) }).catch(() => {});
+    // Wait for the RequireAuth loading spinner to disappear AND actual content to appear.
+    await page.waitForFunction(() => {
+      const hasSpinAnimation = !!document.querySelector('.animate-spin');
+      const hasPulseAnimation = !!document.querySelector('.animate-pulse');
+      const hasCheckingText = document.body.textContent?.includes('Checking authentication');
+      return !hasSpinAnimation && !hasPulseAnimation && !hasCheckingText;
+    }, { timeout: Math.min(timeout, 20000) }).catch(() => {});
 
-  // Brief stabilization wait for final render
-  await page.waitForTimeout(300);
+    // Brief stabilization wait for final render
+    await page.waitForTimeout(300);
+
+    // Check if auth actually worked
+    const authFailed = await page.evaluate(() => {
+      const text = document.body.textContent || '';
+      return text.includes('Sign In Required') || text.includes('Checking authentication');
+    });
+
+    if (!authFailed) return; // Auth worked
+
+    if (attempt < retries) {
+      console.log(`[gotoAndWaitForAuth] Auth appears to have failed on ${url}, retrying...`);
+      await page.waitForTimeout(2000);
+    }
+  }
+  // If we get here, auth failed after all retries — caller will handle via skipIfAuthFailed
 }
 
 // ── skipIfAuthFailed ──

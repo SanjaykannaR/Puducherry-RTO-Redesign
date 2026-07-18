@@ -135,6 +135,22 @@ jobs:
           DATABASE_URL: "file:./dev.db"
           PLAYWRIGHT_TEST: "1"
 
+      # ── Warm up backend (JIT + Prisma connection pool) ──
+      - name: Warm up backend
+        run: |
+          for i in 1 2 3 4 5; do
+            curl -sf http://localhost:5000/api/health > /dev/null && echo "Health OK (attempt $i)" || echo "Health fail (attempt $i)"
+            sleep 1
+          done
+          # Hit login endpoint to warm up Prisma auth queries
+          curl -sf -X POST http://localhost:5000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"admin@rto.gov.in","password":"Admin@123"}' > /dev/null && echo "Login OK" || echo "Login fail"
+          curl -sf -X POST http://localhost:5000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"admin@rto.gov.in","password":"Admin@123"}' > /dev/null && echo "Login OK 2" || echo "Login fail 2"
+          echo "Backend warmup complete"
+
       # ── Start frontend ──
       - name: Build & start frontend
         working-directory: frontend
@@ -221,6 +237,22 @@ jobs:
           PORT: "5000"
           DATABASE_URL: "file:./dev.db"
           PLAYWRIGHT_TEST: "1"
+
+      # ── Warm up backend (JIT + Prisma connection pool) ──
+      - name: Warm up backend
+        run: |
+          for i in 1 2 3 4 5; do
+            curl -sf http://localhost:5000/api/health > /dev/null && echo "Health OK (attempt $i)" || echo "Health fail (attempt $i)"
+            sleep 1
+          done
+          # Hit login endpoint to warm up Prisma auth queries
+          curl -sf -X POST http://localhost:5000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"admin@rto.gov.in","password":"Admin@123"}' > /dev/null && echo "Login OK" || echo "Login fail"
+          curl -sf -X POST http://localhost:5000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"admin@rto.gov.in","password":"Admin@123"}' > /dev/null && echo "Login OK 2" || echo "Login fail 2"
+          echo "Backend warmup complete"
 
       # ── Start frontend ──
       - name: Build & start frontend
