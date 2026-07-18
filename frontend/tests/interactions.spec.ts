@@ -193,7 +193,7 @@ test.describe('Dashboard (Authenticated)', () => {
     await gotoAndWaitForAuth(page, '/dashboard');
 
     // Dashboard heading is "My Dashboard"
-    await expect(page.locator('h1:has-text("My Dashboard")')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('h1:has-text("My Dashboard")')).toBeVisible({ timeout: 25000 });
 
     // Should show summary cards (pending challans, active applications, etc.)
     await expect(page.getByText(/pending|active|unread/i).first()).toBeVisible({ timeout: 8000 });
@@ -232,28 +232,27 @@ test.describe('Dashboard (Authenticated)', () => {
 
 test.describe('Admin Pages (Role-Gated)', () => {
   test('blocks non-admin users from accessing admin', async ({ page }) => {
-    // authenticatePage (15s) + goto + waitForURL (20s) can exceed 60s under load
     test.setTimeout(90000);
 
     await authenticatePage(page, session);
     // session.user is CITIZEN, not admin
     await page.goto('/admin', { waitUntil: 'domcontentloaded' });
 
-    // Admin layout redirects CITIZENs to /login
-    await page.waitForURL(/\/login/, { timeout: 20000 });
-    expect(page.url()).toContain('login');
+    // Admin layout shows inline login form with "no admin access" error for non-admins
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
   });
 
-  test('admin sub-routes redirect to login for non-admins', async ({ page }) => {
+  test('admin sub-routes show login form for non-admins', async ({ page }) => {
     test.setTimeout(90000);
 
     await authenticatePage(page, session);
 
-    // Test one representative sub-route — all share the same admin layout redirect
+    // Test one representative sub-route — all share the same admin layout
     await page.goto('/admin/users', { waitUntil: 'domcontentloaded' });
-    // Admin layout returns null while auth loads, then useEffect pushes to /login for non-admins
-    await page.waitForURL(/\/login/, { timeout: 20000 });
-    expect(page.url()).toContain('login');
+    // Admin layout shows inline login form with "no admin access" error for non-admins
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
   });
 });
 

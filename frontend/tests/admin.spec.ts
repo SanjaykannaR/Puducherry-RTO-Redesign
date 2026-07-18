@@ -35,15 +35,12 @@ test.describe.serial('Admin Panel', () => {
     ];
 
     for (const pg of adminPages) {
-      test(`${pg.name} redirects to login when not authenticated`, async ({ page }) => {
+      test(`${pg.name} shows admin login form when not authenticated`, async ({ page }) => {
         // Navigate to admin page — no auth token in localStorage
-        // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
         await page.goto(pg.path, { waitUntil: 'domcontentloaded' });
-        // Admin layout returns null while auth loads, then useEffect pushes to /login.
-        // waitForURL is more reliable than toHaveURL for detecting client-side navigation.
-        // The redirect may take time because: page load → AuthContext mounts → setLoading(false) →
-        // admin layout re-renders → useEffect fires → router.push('/login')
-        await page.waitForURL(/\/login/, { timeout: 30000 });
+        // Admin layout shows inline login form instead of redirecting to /login
+        await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByPlaceholder('admin@rto.gov.in')).toBeVisible({ timeout: 5000 });
       });
     }
   });
@@ -53,10 +50,12 @@ test.describe.serial('Admin Panel', () => {
   // ══════════════════════════════════════════════
 
   test.describe('Access as CITIZEN', () => {
-    test('dashboard redirects to login for CITIZEN role', async ({ page }) => {
+    test('dashboard shows admin login form for CITIZEN role', async ({ page }) => {
       await authenticatePage(page, citizenSession);
       await page.goto('/admin', { waitUntil: 'domcontentloaded' });
-      await page.waitForURL(/\/login/, { timeout: 20000 });
+      // Admin layout shows inline login form with "no admin access" error for non-admins
+      await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
     });
   });
 

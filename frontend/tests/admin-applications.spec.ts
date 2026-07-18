@@ -51,15 +51,19 @@ test.describe.serial('Admin Applications Workflow', () => {
   // 2. ADMIN APPLICATIONS PAGE — AUTH GUARD
   // ══════════════════════════════════════════════
 
-  test('applications page redirects to login when not authenticated', async ({ page }) => {
+  test('applications page shows admin login form when not authenticated', async ({ page }) => {
     await page.goto('/admin/applications', { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(/\/login/, { timeout: 30000 });
+    // Admin layout shows inline login form instead of redirecting to /login
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByPlaceholder('admin@rto.gov.in')).toBeVisible({ timeout: 5000 });
   });
 
-  test('applications page redirects to login for CITIZEN role', async ({ page }) => {
+  test('applications page shows admin login form for CITIZEN role', async ({ page }) => {
     await authenticatePage(page, citizenSession);
     await page.goto('/admin/applications', { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(/\/login/, { timeout: 20000 });
+    // Admin layout shows inline login form with "no admin access" error for non-admins
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
   });
 
   // ══════════════════════════════════════════════

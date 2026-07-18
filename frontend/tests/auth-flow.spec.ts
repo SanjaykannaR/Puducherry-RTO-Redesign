@@ -256,30 +256,23 @@ test.describe('Protected Route Redirects', () => {
     expect(page.url()).toContain('login');
   });
 
-  test('redirects to login when accessing admin without auth', async ({ page }) => {
+  test('blocks admin access when not authenticated — shows admin login form', async ({ page }) => {
     await page.goto('/admin', { waitUntil: "domcontentloaded" });
-    await page.waitForURL('/login', { timeout: 10000 }).catch(() => {
-      // Admin layout redirects to /login via router.push
-    });
-    const url = page.url();
-    expect(url.includes('login')).toBeTruthy();
+    // Admin layout now shows an inline login form instead of redirecting to /login
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByPlaceholder('admin@rto.gov.in')).toBeVisible({ timeout: 5000 });
   });
 
-  test('redirects to login when accessing admin as non-admin user', async ({ page }) => {
+  test('blocks non-admin user from admin — shows admin login form with error', async ({ page }) => {
     const session = await registerTestUser();
     await authenticatePage(page, session);
 
-    // Try accessing admin
+    // Try accessing admin as a CITIZEN
     await page.goto('/admin', { waitUntil: "domcontentloaded" });
 
-    // Admin layout redirects non-admin users to /login
-    await page.waitForURL('/login', { timeout: 10000 }).catch(() => {
-      // May fail if the redirect is prevented — check we're not seeing admin content
-    });
-    const url = page.url();
-    const onLogin = url.includes('login');
-    const onAdmin = url.includes('/admin');
-    expect(onLogin || !onAdmin).toBeTruthy();
+    // Admin layout shows inline login form with "no admin access" error for non-admins
+    await expect(page.getByText('Admin Panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/does not have admin access/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('service pages redirect to sign-in when not authenticated', async ({ page }) => {

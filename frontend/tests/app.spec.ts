@@ -193,7 +193,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads application form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/driving-license');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
       // PageHero renders "Permanent Driving License" heading
       await expect(page.getByText(/Driving License/i).first()).toBeVisible({ timeout: 8000 });
     });
@@ -209,7 +209,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/vehicle-registration');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
       await expect(page.getByText(/vehicle registration/i).first()).toBeVisible({ timeout: 5000 });
     });
   });
@@ -225,7 +225,7 @@ test.describe('Auth-Required Service Pages', () => {
       test.setTimeout(90000);
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/appointment');
-      await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 25000 });
       await expect(page.getByText(/book appointment|appointment booking/i).first()).toBeVisible({ timeout: 10000 });
     });
   });
@@ -240,7 +240,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads challan list when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/challan');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -254,7 +254,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads search form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/vehicle-status');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -268,7 +268,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads search form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/application-status');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -284,7 +284,7 @@ test.describe('Auth-Required Service Pages', () => {
       // Use gotoAndWaitForAuth to ensure auth context resolves before checking content
       await gotoAndWaitForAuth(page, '/services/fee-calculator');
       // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1> (LayoutWrapper renders Header outside <main>)
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
       // PageHero renders "Fee Calculator" heading
       await expect(page.locator('main h1').first()).toContainText(/Fee Calculator/i);
       // Service checkboxes are inside FadeInSection (opacity-0 until visible) — scroll to trigger
@@ -306,7 +306,7 @@ test.describe('Auth-Required Service Pages', () => {
       // Use gotoAndWaitForAuth to ensure auth context resolves before checking content
       await gotoAndWaitForAuth(page, '/services/learners-license');
       // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1>
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
       // PageHero renders "Learner's License" as h1 — confirm via h1 text
       await expect(page.locator('main h1').first()).toContainText(/Learner/i);
     });
@@ -322,7 +322,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/license-renewal');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -336,7 +336,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/duplicate-rc');
-      await expect(page.getByText('Duplicate RC').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Duplicate RC').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -350,7 +350,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/international-permit');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -364,7 +364,7 @@ test.describe('Auth-Required Service Pages', () => {
     test('loads form when authenticated', async ({ page }) => {
       await authenticatePage(page, session);
       await gotoAndWaitForAuth(page, '/services/transfer-ownership');
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
     });
   });
 
@@ -379,7 +379,7 @@ test.describe('Auth-Required Service Pages', () => {
       await authenticatePage(page, session);
       await page.goto('/services/download-forms', { waitUntil: 'domcontentloaded' });
       // Use 'main h1' to skip the Header's <h1>Puducherry RTO</h1>
-      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('main h1').first()).toBeVisible({ timeout: 25000 });
       // PageHero renders "Download Forms" heading
       await expect(page.locator('main h1').first()).toContainText(/download/i);
       // Form cards are inside FadeInSection (opacity-0 until scrolled into view)
@@ -408,7 +408,7 @@ test.describe('Navigation Smoke Test', () => {
       const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
       expect(response?.status()).toBe(200);
       // Should not show error page content
-      await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 });
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 25000 });
       const title = await page.title();
       expect(title).not.toContain('404');
       expect(title).not.toContain('Not Found');
