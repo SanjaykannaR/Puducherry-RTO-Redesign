@@ -26,6 +26,22 @@ function LoginForm() {
     if (searchParams.get('registered') === 'true') {
       toast.success('Account created successfully! Please sign in.');
     }
+    // ── OAuth error feedback ──
+    // When Google/DigiLocker OAuth fails, the backend redirects to /login?error=...
+    const oauthError = searchParams.get('error');
+    if (oauthError) {
+      const detail = searchParams.get('detail') || '';
+      const messages: Record<string, string> = {
+        invalid_state: 'Authentication session expired. Please try signing in again.',
+        no_code: 'Authorization was denied. Please try again.',
+        token_exchange_failed: 'Authentication failed during token exchange.',
+        no_user_id: 'Could not retrieve user identity from the provider.',
+        google_conflict: 'This Google account is already linked to another user.',
+        google_error: detail || 'Google authentication failed.',
+        digilocker_error: detail || 'DigiLocker authentication failed.',
+      };
+      toast.error(messages[oauthError] || `Authentication error: ${oauthError}`);
+    }
   }, [searchParams]);
 
   async function handleSubmit(e: FormEvent) {
