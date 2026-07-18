@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { API_BASE } from '@/lib/api';
 
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
             {sent ? (
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto">
-                  <ShieldCheck className="w-8 h-8 text-green-500" />
+                  <CheckCircle2 className="w-8 h-8 text-green-500" />
                 </div>
                 <p className="text-muted-foreground">If an account exists with that email, we&apos;ve sent a password reset link.</p>
                 <Link href="/login" className="inline-flex items-center gap-2 text-primary hover:underline font-medium">
