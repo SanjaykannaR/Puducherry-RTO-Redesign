@@ -69,6 +69,7 @@ export default function PaymentHistoryPage() {
               ) : payments.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">No payments yet.</p>
               ) : (
+                <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -93,6 +94,7 @@ export default function PaymentHistoryPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>

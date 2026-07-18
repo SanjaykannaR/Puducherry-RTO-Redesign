@@ -58,15 +58,16 @@ export default function ApplicationStatusPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     placeholder="Enter Application ID (e.g. RTO-A1B2C3)"
                     value={appId}
                     onChange={(e) => setAppId(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     aria-label="Application ID"
+                    className="flex-1"
                   />
-                  <Button onClick={handleSearch}>
+                  <Button onClick={handleSearch} className="sm:w-auto w-full">
                     <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button>

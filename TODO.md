@@ -107,7 +107,7 @@
 
 | # | Task | Why | Priority |
 |---|------|-----|----------|
-| 1 | **Hero section: book button overlaps slide indicator** — Fix z-index/positioning so CTA button doesn't cover carousel dots | UI overlap bug | 🔴 HIGH |
+| 1 | **Hero section: book button overlaps slide indicator** — Fix z-index/positioning so CTA button doesn't cover carousel dots | UI overlap bug | ✅ DONE |
 | 2 | **CI: E2E flaky test** — Playwright E2E fails on CI (Backend + Frontend build pass). Likely pre-existing Windows Chromium flaky test. Investigate and stabilize | CI green | 🟡 MEDIUM |
 | 3 | **Verify all service connections** — Frontend ↔ Backend ↔ Chatbot ↔ AI all talking end-to-end | Full stack verify | 🟡 MEDIUM |
 | 4 | **Mobile UI audit** — Check all pages at 375px and 414px, fix tables/forms/cards/footer | Mobile responsive | 🟡 MEDIUM |
