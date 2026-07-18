@@ -20,12 +20,31 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Download Playwright Report artifact
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Download Shard 1 Report
         uses: actions/download-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-shard1
+          path: frontend/report-shard1
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Shard 2 Report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-shard2
+          path: frontend/report-shard2
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge into single report directory
+        run: |
+          mkdir -p frontend/report
+          # Copy shard2 into shard1 (both are HTML reports)
+          cp -r frontend/report-shard2/* frontend/report-shard1/ 2>/dev/null || true
+          mv frontend/report-shard1 frontend/report
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -33,7 +52,7 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: frontend/report
 
       - name: Deploy to GitHub Pages
         id: deployment

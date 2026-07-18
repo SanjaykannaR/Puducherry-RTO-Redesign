@@ -13,9 +13,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   timeout: 90000,
-  // CI: blob reporter produces mergeable .zip files for the merge-reports job.
-  // Local: HTML report for direct viewing.
-  reporter: process.env.CI ? [['blob', { outputDir: 'all-blob-reports' }]] : 'html',
+  reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
