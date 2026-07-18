@@ -79,8 +79,10 @@ export async function promoteToAdmin(email: string): Promise<string> {
 // Explicitly waits for the /auth/me API response to ensure the session is fully
 // restored before returning.
 export async function authenticatePage(page: Page, session: AuthSession) {
-  // Navigate first so we're on an origin where localStorage works
-  await page.goto('/', { waitUntil: 'networkidle' });
+  // Navigate first so we're on an origin where localStorage works.
+  // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
+  // and causes flaky timeouts on CI when polling/long-polling keeps connections alive.
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.evaluate((token) => {
     localStorage.setItem('token', token);
   }, session.token);
@@ -97,8 +99,10 @@ export async function authenticatePage(page: Page, session: AuthSession) {
   // Wait explicitly for /auth/me to complete — this is the signal that AuthContext has resolved
   await meResponse.catch(() => {});
 
-  // Final stabilization: wait for any rendering after auth state settles
-  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+  // Final stabilization: brief wait for React to render after auth state settles.
+  // Use a short fixed timeout instead of networkidle to avoid flakiness from
+  // ongoing polling requests (notification bell, etc.).
+  await page.waitForTimeout(500);
 }
 
 // ── gotoAndWaitForAuth ──
@@ -127,8 +131,10 @@ export async function gotoAndWaitForAuth(
   // Wait for /auth/me to complete (signals auth context resolved)
   await meResponse;
 
-  // Brief stabilization wait for React to render after auth state settles
-  await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
+  // Brief stabilization wait for React to render after auth state settles.
+  // Use a short fixed timeout instead of waitForLoadState which is redundant
+  // after goto(domcontentloaded) and can hang on polling endpoints.
+  await page.waitForTimeout(500);
 
   // Wait for page content to appear (inside <main>, not the header)
   await page.locator('main h1, main h2, main h3, main [role="heading"]').first()

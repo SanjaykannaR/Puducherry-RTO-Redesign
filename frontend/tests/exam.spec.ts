@@ -64,7 +64,13 @@ test.describe('Exam Page - UI States', () => {
       // Wait for either:
       // - The proctoring UI to appear (if camera somehow works)
       // - Or a camera error to show
-      await page.waitForTimeout(2000);
+      // Poll for up to 5s instead of fixed 2s timeout
+      await page.waitForFunction(() => {
+        const errorEl = document.querySelector('[class*="destructive"], [role="alert"]');
+        const proctoringBar = document.body.textContent?.includes('face detected') ||
+          document.body.textContent?.includes('No face detected');
+        return !!errorEl || proctoringBar;
+      }, { timeout: 5000 }).catch(() => {});
 
       const cameraError = page.getByText(/camera access denied|camera.*error/i);
       const proctoringBar = page.getByText(/face detected|no face detected/i);
@@ -81,20 +87,10 @@ test.describe('Exam Page - UI States', () => {
   test.describe('PROCTORING State', () => {
     test('triggers exam API call on start', async ({ page }) => {
       // Intercept the exam start API call
-      let examStarted = false;
-      await page.route('**/api/exam/start', async (route) => {
-        examStarted = true;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            questions: [
-              { id: 1, q: 'Sample question?', options: ['A', 'B', 'C', 'D'] },
-            ],
-            totalQuestions: 1,
-          }),
-        });
-      });
+      const apiResponse = page.waitForResponse(
+        (resp) => resp.url().includes('/api/exam/start'),
+        { timeout: 15000 }
+      );
 
       // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
       await page.goto('/exam', { waitUntil: 'domcontentloaded' });
@@ -102,10 +98,10 @@ test.describe('Exam Page - UI States', () => {
       const startBtn2 = page.getByText(/start exam/i).first();
       await startBtn2.waitFor({ state: 'visible', timeout: 30000 });
       await startBtn2.click();
-      await page.waitForTimeout(3000);
 
-      // The API should have been called
-      expect(examStarted).toBeTruthy();
+      // Wait for the API to be called — much more reliable than waitForTimeout
+      const response = await apiResponse.catch(() => null);
+      expect(response).toBeTruthy();
     });
 
     test('shows violation counter after camera unavailability', async ({ page }) => {
@@ -116,8 +112,12 @@ test.describe('Exam Page - UI States', () => {
       await startBtn3.waitFor({ state: 'visible', timeout: 30000 });
       await startBtn3.click();
 
-      // Wait a bit for the proctoring UI to appear with camera issue
-      await page.waitForTimeout(3000);
+      // Wait for proctoring UI or camera error to appear (polls instead of fixed timeout)
+      await page.waitForFunction(() => {
+        const text = document.body.textContent || '';
+        return text.includes('face detected') || text.includes('No face detected') ||
+          text.includes('camera') || text.includes('violation');
+      }, { timeout: 5000 }).catch(() => {});
 
       // If camera fails, the page might stay on INTRO with error or switch to proctoring
       // Either way, we should see status updates
@@ -170,7 +170,11 @@ test.describe('Exam Page - UI States', () => {
       await startBtn.click();
 
       // Camera will fail in headless — wait for either questions or proctoring UI
-      await page.waitForTimeout(3000);
+      // Poll for question content instead of fixed 3s timeout
+      await page.waitForFunction(() => {
+        const text = document.body.textContent || '';
+        return text.includes('2+2') || text.includes('face detected') || text.includes('No face detected');
+      }, { timeout: 5000 }).catch(() => {});
 
       // If the exam started, try answering and submitting
       const questionVisible = await page.getByText(/What is 2\+2\?/i).isVisible().catch(() => false);
@@ -201,7 +205,13 @@ test.describe('Exam Page - UI States', () => {
         }
       }
 
-      await page.waitForTimeout(2000);
+      // Wait for result instead of fixed timeout — poll for result indicators
+      await page.waitForFunction(() => {
+        const text = document.body.textContent || '';
+        return text.includes('exam passed') || text.includes('score') ||
+          text.includes('passed') || text.includes('failed') ||
+          text.includes('Exam Terminated') || text.includes('violation');
+      }, { timeout: 10000 }).catch(() => {});
 
       // Should show result — check for score, passed/failed badge, or page hero title
       const hasResult = await page.getByText(/exam passed|exam completed|score|passed|failed/i).first().isVisible({ timeout: 10000 }).catch(() => false);

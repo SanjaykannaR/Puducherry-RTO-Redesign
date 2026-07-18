@@ -74,8 +74,10 @@ jobs:
   # ──────────────────────────────────────────
   # JOB 3: Playwright E2E Tests
   # ──────────────────────────────────────────
-  e2e-tests:
-    name: E2E Tests (Playwright)
+  # JOB 3a: Playwright E2E Tests — Shard 1
+  # ──────────────────────────────────────────
+  e2e-shard1:
+    name: E2E Shard 1 (app + auth)
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-build]
 
@@ -143,28 +145,106 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:5000/api
 
-      # ── Run E2E ──
-      - name: Run Playwright tests
+      # ── Run E2E Shard 1 ──
+      - name: Run Playwright tests (Shard 1)
         working-directory: frontend
-        run: npx playwright test
+        run: npx playwright test --config=playwright.shard1.config.ts
         env:
           CI: "true"
 
-      # ── Upload artifacts (always, even on failure) ──
       - name: Upload Playwright Report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-shard1
           path: frontend/playwright-report/
           retention-days: 14
 
-      - name: Upload Test Results
-        if: failure()
+  # ──────────────────────────────────────────
+  # JOB 3b: Playwright E2E Tests — Shard 2
+  # ──────────────────────────────────────────
+  e2e-shard2:
+    name: E2E Shard 2 (admin + interactions + exam)
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # ── Frontend deps ──
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      # ── Backend deps + DB ──
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Setup Prisma + Seed database
+        working-directory: backend
+        run: |
+          npx prisma generate
+          npx prisma db push
+          node seed.js
+        env:
+          DATABASE_URL: "file:./dev.db"
+
+      # ── Playwright browsers ──
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      # ── Start backend ──
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          npx tsx src/index.ts &
+          npx tsx -e "
+            const http = require('http');
+            const check = () => {
+              http.get('http://localhost:5000/api/health', (res) => {
+                process.exit(res.statusCode === 200 ? 0 : 1);
+              }).on('error', () => {
+                setTimeout(check, 1000);
+              });
+            };
+            check();
+          "
+        env:
+          PORT: "5000"
+          DATABASE_URL: "file:./dev.db"
+          PLAYWRIGHT_TEST: "1"
+
+      # ── Start frontend ──
+      - name: Build & start frontend
+        working-directory: frontend
+        run: |
+          npm run build
+          npx next start -p 3000 &
+          npx -y wait-on http://localhost:3000 --timeout 60000
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:5000/api
+
+      # ── Run E2E Shard 2 ──
+      - name: Run Playwright tests (Shard 2)
+        working-directory: frontend
+        run: npx playwright test --config=playwright.shard2.config.ts
+        env:
+          CI: "true"
+
+      - name: Upload Playwright Report
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: test-results
-          path: frontend/test-results/
+          name: playwright-report-shard2
+          path: frontend/playwright-report/
           retention-days: 14
 
       # ── GitHub Step Summary ──
@@ -175,6 +255,4 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Playwright report uploaded as artifact." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**To view:** Actions tab → this run → Artifacts → playwright-report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "To view locally: \`cd frontend && npx playwright show-report\`" >> $GITHUB_STEP_SUMMARY
+          echo "**To view:** Actions tab → this run → Artifacts → playwright-report-shard2" >> $GITHUB_STEP_SUMMARY
