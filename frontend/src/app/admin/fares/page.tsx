@@ -79,8 +79,8 @@ export default function AdminFares() {
   return (
     <div>
       {/* ── Header with save button ── */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-primary">Fares Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Fares Management</h1>
         <Button onClick={saveFares} disabled={saving}>
           <Save className="h-4 w-4 mr-1" />
           {saving ? 'Saving...' : 'Save Changes'}
@@ -113,9 +113,12 @@ export default function AdminFares() {
         <p className="text-muted-foreground">No fare data available.</p>
       ) : (
         <Tabs defaultValue={categories[0]}>
-          <TabsList className="mb-6">
+          {/* ── Scrollable tabs for narrow screens ── */}
+          {/* Category labels can be long (e.g. "Vehicle Registration") so the tabs
+              list scrolls horizontally on mobile to prevent overflow. */}
+          <TabsList className="mb-6 w-full overflow-x-auto flex-nowrap justify-start">
             {categories.map((cat) => (
-              <TabsTrigger key={cat} value={cat}>
+              <TabsTrigger key={cat} value={cat} className="whitespace-nowrap">
                 {categoryLabels[cat] || cat}
               </TabsTrigger>
             ))}
