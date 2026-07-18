@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload Playwright Report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-shard1
           path: frontend/playwright-report/
@@ -241,7 +241,7 @@ jobs:
 
       - name: Upload Playwright Report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-shard2
           path: frontend/playwright-report/
@@ -256,3 +256,48 @@ jobs:
           echo "Playwright report uploaded as artifact." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**To view:** Actions tab → this run → Artifacts → playwright-report-shard2" >> $GITHUB_STEP_SUMMARY
+
+  # ──────────────────────────────────────────
+  # JOB 4: Merge Playwright Reports
+  # ──────────────────────────────────────────
+  merge-reports:
+    name: Merge E2E Reports
+    runs-on: ubuntu-latest
+    needs: [e2e-shard1, e2e-shard2]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        working-directory: frontend
+        run: npm install && npx playwright install --with-deps chromium
+
+      - name: Download Shard 1 report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-shard1
+          path: frontend/all-blob-reports/shard1
+
+      - name: Download Shard 2 report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-shard2
+          path: frontend/all-blob-reports/shard2
+
+      - name: Merge reports
+        working-directory: frontend
+        run: npx playwright merge-reports --reporter=html ./all-blob-reports
+
+      - name: Upload merged Playwright Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 14
