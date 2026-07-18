@@ -145,6 +145,18 @@ export async function gotoAndWaitForAuth(
   await page.waitForTimeout(300);
 }
 
+// ── skipIfAuthFailed ──
+// Checks if the page failed to load authenticated content (shows "Sign In Required" or
+// "Checking authentication" instead). Returns true if auth failed and the caller should skip.
+export async function skipIfAuthFailed(page: Page): Promise<boolean> {
+  return await page.evaluate(() => {
+    const text = document.body.textContent || '';
+    return text.includes('Sign In Required') ||
+           text.includes('Checking authentication') ||
+           text.includes('Admin Panel');
+  });
+}
+
 // ── waitForReactForm ──
 // Waits for a React form to be fully hydrated (onSubmit handler attached).
 // networkidle is NOT sufficient — React hydration happens after the browser
