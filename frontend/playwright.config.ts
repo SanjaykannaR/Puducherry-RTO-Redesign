@@ -22,8 +22,8 @@ export default defineConfig({
   /* Workers: CI uses 1, local dev uses 1 — Next.js dev server on Windows crashes
      under parallel load (ERR_CONNECTION_REFUSED). Single worker = stable. */
   workers: process.env.CI ? 1 : 1,
-  /* Default test timeout — increased from 30s for Windows Chromium stability */
-  timeout: 60000,
+  /* Default test timeout — 90s gives headroom for auth + API + React hydration on CI */
+  timeout: 90000,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

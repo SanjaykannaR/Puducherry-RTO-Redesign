@@ -268,11 +268,11 @@ export default function ExamPage() {
         <section style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="max-w-4xl mx-auto px-4 py-6">
           {/* ── Proctoring Bar: camera feed thumbnail, face-detection indicator, violation badge ── */}
-          <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-xl shadow-sm border">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 p-3 bg-white rounded-xl shadow-sm border">
             <div className="flex items-center gap-3">
-              <Camera className={'h-5 w-5 ' + (cameraOn ? 'text-green-500' : 'text-destructive')} />
+              <Camera className={'h-5 w-5 shrink-0 ' + (cameraOn ? 'text-green-500' : 'text-destructive')} />
               <span className="text-sm">{faceDetected ? 'Face detected' : 'No face detected'}</span>
-              <video ref={videoRef} autoPlay muted playsInline className="w-16 h-12 rounded-lg border" />
+              <video ref={videoRef} autoPlay muted playsInline className="w-16 h-12 rounded-lg border hidden sm:block" />
             </div>
             <div className="flex items-center gap-3">
               {statusMsg && <span className="text-xs text-muted-foreground">{statusMsg}</span>}

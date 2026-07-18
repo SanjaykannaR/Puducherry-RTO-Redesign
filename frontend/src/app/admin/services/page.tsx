@@ -76,9 +76,10 @@ export default function AdminServices() {
   return (
     <div>
       {/* ── Header with action buttons ── */}
-      {/* "Add Service" creates a blank card; "Save Changes" PUTs the full list. */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-primary">Services Management</h1>
+      {/* "Add Service" creates a blank card; "Save Changes" PUTs the full list.
+          Buttons stack vertically on mobile to prevent horizontal overflow. */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Services Management</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={addService}>
             <Plus className="h-4 w-4 mr-1" />

@@ -1,24 +1,16 @@
 'use client';
 
-// ── Imports ──
-
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check } from 'lucide-react';
+import { Mail, Lock, Smartphone, User, Fingerprint, Shield, Check, ShieldCheck, Clock, Users } from 'lucide-react';
 import { API_BASE } from '@/lib/api';
 import { validators, validateForm } from '@/lib/validation';
 
-// ── Register Page ──
-// Same full-viewport layout as Login but with a packed two-column form that keeps
-// the card compact enough to feel like a quick sign-up, not a long application.
-
 export default function RegisterPage() {
-  // ── Form State ──
   const [form, setForm] = useState({ name: '', email: '', mobile: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -26,9 +18,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
 
-  // ── Submit Handler ──
-  // Client-side password-match check before hitting the API so the server isn't
-  // bothered with obviously invalid submissions.
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -47,7 +36,6 @@ export default function RegisterPage() {
     try {
       await register(form.name, form.email, form.mobile, form.password);
       router.push('/login?registered=true');
-      setError('');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -55,67 +43,117 @@ export default function RegisterPage() {
     }
   }
 
-  // Benefits strip shown to encourage sign-up by listing what the user gains
-  const benefits = ['Track application status', 'Book appointments online', 'View vehicle & license details', 'Pay challans digitally'];
+  const benefits = [
+    { icon: ShieldCheck, text: 'Secure government-verified identity' },
+    { icon: Clock, text: 'Track applications in real-time' },
+    { icon: Users, text: 'Book appointments without queues' },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* ── Top Accent Bar ── */}
-      <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />
+    <div className="min-h-screen flex">
+      {/* ── Left Panel: Branding (hidden on mobile, visible lg+) ── */}
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#0a2463]">
+        <div className="absolute inset-0 opacity-[0.07]" style={{
+          backgroundImage: 'radial-gradient(circle at 25% 25%, white 1px, transparent 1px), radial-gradient(circle at 75% 75%, white 1px, transparent 1px)',
+          backgroundSize: '50px 50px',
+        }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
-      {/* ── RTO Logo / Home Link ── */}
-      <div className="px-4 pt-5">
-        <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
-          <div className="w-12 h-12 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 flex-shrink-0">
-            <img 
-              src="/puducherry-emblem.svg" 
-              alt="Government of Puducherry Emblem" 
-              className="w-full h-full object-contain"
-              width="48"
-              height="48"
-            />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight text-foreground">Puducherry RTO</h1>
-            <p className="text-xs text-muted-foreground">Office of the Transport Commissioner</p>
-          </div>
-        </Link>
-      </div>
-
-      {/* ── Registration Card ── */}
-      <div className="flex-1 flex items-center justify-center px-4 py-6">
-        <Card className="w-full max-w-md border-0 shadow-xl overflow-hidden">
-          <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark" />
-          <CardHeader className="text-center pb-2 pt-6">
-            <div className="w-14 h-14 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-3">
-              <UserPlus className="w-7 h-7 text-primary" />
+        <div className="relative z-10 flex flex-col justify-between w-full p-10 xl:p-14">
+          {/* Top: Logo */}
+          <Link href="/" className="flex items-center gap-3 no-underline group">
+            <div className="w-12 h-12 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105 bg-white/10 backdrop-blur-sm p-1">
+              <img
+                src="/puducherry-emblem.svg"
+                alt="Government of Puducherry Emblem"
+                className="w-full h-full object-contain"
+                width="48"
+                height="48"
+              />
             </div>
-            <CardTitle className="text-2xl">Get Started</CardTitle>
-            <CardDescription>Create your RTO account in seconds</CardDescription>
+            <div>
+              <h1 className="text-lg font-bold leading-tight text-white">Puducherry RTO</h1>
+              <p className="text-xs text-blue-200">Office of the Transport Commissioner</p>
+            </div>
+          </Link>
 
-            {/* ── Benefits Badge Strip ── */}
-            {/* A compact row of check-marked items that tell the user *why* they should register.
-                Positioned just below the subtitle so it's visible without scrolling. */}
-            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-4 pt-3 border-t">
-              {benefits.map((b, i) => (
-                <span key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Check className="w-3 h-3 text-primary" />
-                  {b}
-                </span>
+          {/* Middle: Features */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-3xl xl:text-4xl font-extrabold text-white leading-tight mb-4">
+                Join the Digital<br />Transport Network
+              </h2>
+              <p className="text-blue-200 text-base leading-relaxed max-w-md">
+                Create your account to access all RTO services online — license applications, vehicle registration, challan payments, and more.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {benefits.map(({ icon: Icon, text }, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0">
+                    <Icon className="w-4.5 h-4.5 text-blue-200" />
+                  </div>
+                  <p className="text-sm text-blue-100">{text}</p>
+                </div>
               ))}
             </div>
-          </CardHeader>
-          <CardContent>
-            {/* ── Registration Form ── */}
-            {/* Uses two-column grid groups (Email/Mobile, Password/Confirm) to fit all 5 fields
-                into a compact card without scrolling on desktop. */}
-            <form onSubmit={handleSubmit} className="space-y-3.5">
-              {error && (
-                <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20" role="alert">
-                  {error}
-                </div>
-              )}
-              {/* Full Name — full-width */}
+          </div>
+
+          {/* Bottom: Footer */}
+          <p className="text-xs text-blue-300/60">
+            &copy; {new Date().getFullYear()} Office of the Transport Commissioner, Puducherry
+          </p>
+        </div>
+      </div>
+
+      {/* ── Right Panel: Registration Form ── */}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile header */}
+        <div className="lg:hidden px-4 pt-5">
+          <Link href="/" className="flex items-center gap-3 no-underline w-fit mx-auto group">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all group-hover:scale-105 flex-shrink-0">
+              <img
+                src="/puducherry-emblem.svg"
+                alt="Government of Puducherry Emblem"
+                className="w-full h-full object-contain"
+                width="40"
+                height="40"
+              />
+            </div>
+            <div>
+              <h1 className="text-base font-bold leading-tight text-foreground">Puducherry RTO</h1>
+              <p className="text-[10px] text-muted-foreground">Office of the Transport Commissioner</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* Form area */}
+        <div className="flex-1 flex items-center justify-center px-4 py-8 lg:py-0">
+          <div className="w-full max-w-md">
+            {/* Form header */}
+            <div className="text-center lg:text-left mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Get Started</h2>
+              <p className="text-sm text-muted-foreground mt-1">Create your RTO account in seconds</p>
+              {/* Benefits inline (visible only on mobile — desktop shows them in the left panel) */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-1.5 mt-3">
+                {['Track applications', 'Book appointments', 'Pay challans'].map((b, i) => (
+                  <span key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Check className="w-3 h-3 text-primary" />
+                    {b}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-xl border border-destructive/20 mb-4" role="alert">
+                {error}
+              </div>
+            )}
+
+            {/* Registration Form */}
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-1.5">Full Name</label>
                 <div className="relative">
@@ -124,7 +162,6 @@ export default function RegisterPage() {
                   {fieldErrors.name && <p className="text-destructive text-xs mt-1">{fieldErrors.name}</p>}
                 </div>
               </div>
-              {/* Email + Mobile — side-by-side on sm+, stacked on mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="reg-email" className="block text-sm font-medium mb-1.5">Email</label>
@@ -143,7 +180,6 @@ export default function RegisterPage() {
                   </div>
                 </div>
               </div>
-              {/* Password + Confirm — side-by-side on sm+, stacked on mobile */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="reg-password" className="block text-sm font-medium mb-1.5">Password</label>
@@ -162,39 +198,36 @@ export default function RegisterPage() {
                   </div>
                 </div>
               </div>
-              <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold" disabled={submitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold mt-1" disabled={submitting}>
                 {submitting ? 'Creating account...' : 'Create Account'}
               </Button>
             </form>
 
-            {/* ── Divider ── */}
+            {/* Divider */}
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-3 text-muted-foreground">or register with</span></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-3 text-muted-foreground">or register with</span></div>
             </div>
 
-            {/* ── Alternative Registration Methods ── */}
-            {/* Aadhaar / DigiLocker / Google — Google works immediately with .env creds */}
-            <div className="grid grid-cols-3 gap-3">
-              <Button variant="outline" className="gap-1.5 h-11 px-2" onClick={() => alert('Aadhaar registration coming soon')}>
+            {/* OAuth buttons */}
+            <div className="grid grid-cols-3 gap-2.5">
+              <Button variant="outline" className="gap-1.5 h-11 px-2 rounded-xl" onClick={() => alert('Aadhaar registration coming soon')}>
                 <Fingerprint className="w-4 h-4 text-orange-600 shrink-0" />
                 <span className="text-xs">Aadhaar</span>
               </Button>
               <Button
                 variant="outline"
-                className="gap-1.5 h-11 px-2"
+                className="gap-1.5 h-11 px-2 rounded-xl"
                 onClick={() => window.location.href = `${API_BASE}/auth/digilocker/login?return=/dashboard`}
               >
                 <Shield className="w-4 h-4 text-blue-600 shrink-0" />
                 <span className="text-xs">DigiLocker</span>
               </Button>
-              {/* Google — real OAuth, works without org registration */}
               <Button
                 variant="outline"
-                className="gap-1.5 h-11 px-2"
+                className="gap-1.5 h-11 px-2 rounded-xl"
                 onClick={() => window.location.href = `${API_BASE}/auth/google/login?return=/`}
               >
-                {/* Inline Google "G" logo */}
                 <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden="true">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -205,15 +238,15 @@ export default function RegisterPage() {
               </Button>
             </div>
 
-            {/* ── Login Link ── */}
-            <div className="mt-4 pt-3 border-t text-center">
+            {/* Login link */}
+            <div className="mt-5 pt-4 border-t text-center">
               <p className="text-sm text-muted-foreground">
                 Already have an account?{' '}
-                <Link href="/login" className="text-primary font-medium hover:underline">Sign In</Link>
+                <Link href="/login" className="text-primary font-semibold hover:underline">Sign In</Link>
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

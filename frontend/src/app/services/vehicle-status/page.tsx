@@ -68,15 +68,16 @@ export default function VehicleStatusPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     placeholder="Enter Registration No. (e.g. PY-01-AB-1234)"
                     value={regNo}
                     onChange={(e) => setRegNo(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     aria-label="Vehicle registration number"
+                    className="flex-1"
                   />
-                  <Button onClick={handleSearch}>
+                  <Button onClick={handleSearch} className="sm:w-auto w-full">
                     <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button>

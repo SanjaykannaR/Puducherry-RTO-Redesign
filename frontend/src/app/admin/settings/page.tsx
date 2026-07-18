@@ -153,7 +153,7 @@ export default function AdminSettingsPage() {
                 placeholder="••••••••"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="new-pw" className="block text-sm font-medium mb-1">New Password</label>
                 <Input

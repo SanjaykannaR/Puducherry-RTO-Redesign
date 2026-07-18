@@ -77,7 +77,7 @@ export default function FaresPage() {
                   <CardHeader>
                     <CardTitle>{cat.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>

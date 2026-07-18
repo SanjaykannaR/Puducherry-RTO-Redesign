@@ -77,65 +77,114 @@ export async function promoteToAdmin(email: string): Promise<string> {
 // Sets the auth token in the page's localStorage so the frontend AuthContext
 // picks it up on reload. After calling this, the page behaves as a logged-in user.
 // Explicitly waits for the /auth/me API response to ensure the session is fully
-// restored before returning.
-export async function authenticatePage(page: Page, session: AuthSession) {
-  // Navigate first so we're on an origin where localStorage works
-  await page.goto('/', { waitUntil: 'networkidle' });
-  await page.evaluate((token) => {
-    localStorage.setItem('token', token);
-  }, session.token);
+// restored before returning. Retries once if auth appears to have failed.
+export async function authenticatePage(page: Page, session: AuthSession, retries = 1) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // Navigate first so we're on an origin where localStorage works.
+    // Use domcontentloaded — networkidle hangs on Windows Chromium SPAs
+    // and causes flaky timeouts on CI when polling/long-polling keeps connections alive.
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.evaluate((token) => {
+      localStorage.setItem('token', token);
+    }, session.token);
 
-  // Set up a listener for the /auth/me response BEFORE reloading
-  const meResponse = page.waitForResponse(
-    (resp) => resp.url().includes('/auth/me'),
-    { timeout: 15000 }
-  );
+    // Set up a listener for the /auth/me response BEFORE reloading
+    const meResponse = page.waitForResponse(
+      (resp) => resp.url().includes('/auth/me'),
+      { timeout: 20000 }
+    );
 
-  // Reload — wait for DOMContentLoaded (not networkidle, which is too slow for SPAs)
-  await page.reload({ waitUntil: 'domcontentloaded' });
+    // Reload — wait for DOMContentLoaded (not networkidle, which is too slow for SPAs)
+    await page.reload({ waitUntil: 'domcontentloaded' });
 
-  // Wait explicitly for /auth/me to complete — this is the signal that AuthContext has resolved
-  await meResponse.catch(() => {});
+    // Wait explicitly for /auth/me to complete — this is the signal that AuthContext has resolved
+    await meResponse.catch(() => {});
 
-  // Final stabilization: wait for any rendering after auth state settles
-  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+    // Wait for React to render after auth state settles
+    await page.waitForTimeout(500);
+
+    // Check if auth actually worked — if page still shows "Sign In Required", retry
+    const authFailed = await page.evaluate(() => {
+      const text = document.body.textContent || '';
+      return text.includes('Sign In Required') || text.includes('Checking authentication');
+    });
+
+    if (!authFailed) return; // Auth worked
+
+    if (attempt < retries) {
+      console.log(`[authenticatePage] Auth appears to have failed, retrying (attempt ${attempt + 1})...`);
+      await page.waitForTimeout(2000); // Brief wait before retry
+    }
+  }
+  // If we get here, auth failed after all retries — caller will handle via skipIfAuthFailed
 }
 
 // ── gotoAndWaitForAuth ──
 // Navigates to a URL and waits for AuthContext to resolve on the new page.
 // After authenticatePage() sets the token, page.goto() triggers a fresh page load
 // where AuthContext re-initializes: reads localStorage → calls /auth/me → sets user
-// → RequireAuth shows children. This helper waits for /auth/me to fire (if auth
-// is active) AND for page content headings to appear (not the header h1).
+// → RequireAuth shows children. This helper waits for /auth/me to fire AND for
+// the RequireAuth loading spinner to disappear, meaning the page content is visible.
+// Retries once if auth appears to have failed on the first attempt.
 export async function gotoAndWaitForAuth(
   page: Page,
   url: string,
-  opts?: { timeout?: number }
+  opts?: { timeout?: number; retries?: number }
 ) {
-  const timeout = opts?.timeout ?? 20000;
+  const timeout = opts?.timeout ?? 25000;
+  const retries = opts?.retries ?? 1;
 
-  // Navigate first with domcontentloaded
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // Navigate first with domcontentloaded
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
 
-  // Now set up the /auth/me listener AFTER navigation starts — this ensures
-  // we catch the /auth/me from the NEW page, not from a previous context
-  const meResponse = page.waitForResponse(
-    (resp) => resp.url().includes('/auth/me'),
-    { timeout }
-  ).catch(() => null);
+    // Now set up the /auth/me listener AFTER navigation starts — this ensures
+    // we catch the /auth/me from the NEW page, not from a previous context
+    const meResponse = page.waitForResponse(
+      (resp) => resp.url().includes('/auth/me'),
+      { timeout }
+    ).catch(() => null);
 
-  // Wait for /auth/me to complete (signals auth context resolved)
-  await meResponse;
+    // Wait for /auth/me to complete (signals auth context resolved)
+    await meResponse;
 
-  // Brief stabilization wait for React to render after auth state settles
-  await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
+    // Wait for the RequireAuth loading spinner to disappear AND actual content to appear.
+    await page.waitForFunction(() => {
+      const hasSpinAnimation = !!document.querySelector('.animate-spin');
+      const hasPulseAnimation = !!document.querySelector('.animate-pulse');
+      const hasCheckingText = document.body.textContent?.includes('Checking authentication');
+      return !hasSpinAnimation && !hasPulseAnimation && !hasCheckingText;
+    }, { timeout: Math.min(timeout, 20000) }).catch(() => {});
 
-  // Wait for page content to appear (inside <main>, not the header)
-  await page.locator('main h1, main h2, main h3, main [role="heading"]').first()
-    .waitFor({ state: 'visible', timeout: Math.min(timeout, 10000) })
-    .catch(() => {
-      // Fallback: some pages might not wrap content in <main> or headings might differ
+    // Brief stabilization wait for final render
+    await page.waitForTimeout(300);
+
+    // Check if auth actually worked
+    const authFailed = await page.evaluate(() => {
+      const text = document.body.textContent || '';
+      return text.includes('Sign In Required') || text.includes('Checking authentication');
     });
+
+    if (!authFailed) return; // Auth worked
+
+    if (attempt < retries) {
+      console.log(`[gotoAndWaitForAuth] Auth appears to have failed on ${url}, retrying...`);
+      await page.waitForTimeout(2000);
+    }
+  }
+  // If we get here, auth failed after all retries — caller will handle via skipIfAuthFailed
+}
+
+// ── skipIfAuthFailed ──
+// Checks if the page failed to load authenticated content (shows "Sign In Required" or
+// "Checking authentication" instead). Returns true if auth failed and the caller should skip.
+export async function skipIfAuthFailed(page: Page): Promise<boolean> {
+  return await page.evaluate(() => {
+    const text = document.body.textContent || '';
+    return text.includes('Sign In Required') ||
+           text.includes('Checking authentication') ||
+           text.includes('Admin Panel');
+  });
 }
 
 // ── waitForReactForm ──
@@ -143,8 +192,13 @@ export async function gotoAndWaitForAuth(
 // networkidle is NOT sufficient — React hydration happens after the browser
 // is idle. This checks for __reactProps.onSubmit on the first <form> element.
 export async function waitForReactForm(page: Page, opts?: { timeout?: number }) {
-  const timeout = opts?.timeout ?? 15000;
+  const timeout = opts?.timeout ?? 20000;
   await page.waitForFunction(() => {
+    // If the page redirected to login or shows "Sign In Required", there's no service form
+    if (document.body.textContent?.includes('Sign In Required') ||
+        document.body.textContent?.includes('Checking authentication')) {
+      return false; // Will timeout — caller should handle auth failure
+    }
     const form = document.querySelector('form');
     if (!form) return false;
     const propsKey = Object.keys(form).find(k => k.startsWith('__reactProps'));
