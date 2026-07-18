@@ -116,7 +116,7 @@ export async function gotoAndWaitForAuth(
   url: string,
   opts?: { timeout?: number }
 ) {
-  const timeout = opts?.timeout ?? 20000;
+  const timeout = opts?.timeout ?? 25000;
 
   // Navigate first with domcontentloaded
   await page.goto(url, { waitUntil: 'domcontentloaded' });
@@ -131,14 +131,15 @@ export async function gotoAndWaitForAuth(
   // Wait for /auth/me to complete (signals auth context resolved)
   await meResponse;
 
-  // Wait for the RequireAuth loading spinner to disappear.
-  // This is the most reliable signal that auth resolved AND React re-rendered.
-  // Polls for up to 15s — catches the state transition from spinner → content.
+  // Wait for the RequireAuth loading spinner to disappear AND actual content to appear.
+  // Checks for: animate-spin (RequireAuth spinner), animate-pulse (admin layout Loading...),
+  // and "Checking authentication" text. Returns true once auth resolved.
   await page.waitForFunction(() => {
-    const spinner = document.querySelector('.animate-spin');
-    const checkingText = document.body.textContent?.includes('Checking authentication');
-    return !spinner && !checkingText;
-  }, { timeout: Math.min(timeout, 15000) }).catch(() => {});
+    const hasSpinAnimation = !!document.querySelector('.animate-spin');
+    const hasPulseAnimation = !!document.querySelector('.animate-pulse');
+    const hasCheckingText = document.body.textContent?.includes('Checking authentication');
+    return !hasSpinAnimation && !hasPulseAnimation && !hasCheckingText;
+  }, { timeout: Math.min(timeout, 20000) }).catch(() => {});
 
   // Brief stabilization wait for final render
   await page.waitForTimeout(300);
