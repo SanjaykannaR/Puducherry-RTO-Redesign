@@ -24,6 +24,11 @@ const GOOGLE_USER_INFO = 'https://www.googleapis.com/oauth2/v2/userinfo';
 const CLIENT_ID     = process.env.GOOGLE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 const REDIRECT_URI  = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback';
+
+// ── Debug: log the exact redirect URI on startup ──
+console.log(`[google-oauth] GOOGLE_REDIRECT_URI = "${process.env.GOOGLE_REDIRECT_URI}"`);
+console.log(`[google-oauth] REDIRECT_URI = "${REDIRECT_URI}"`);
+console.log(`[google-oauth] CLIENT_ID = "${CLIENT_ID?.slice(0, 20)}..."`);
 // CORS_ORIGIN is comma-separated; first entry is always the frontend
 const FRONTEND_URL  = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',')[0].trim();
 
@@ -187,6 +192,21 @@ router.get('/callback', async (req: Request, res: Response) => {
     console.error('[google-oauth] Stack:', err.stack || 'no stack');
     res.redirect(`${FRONTEND_URL}/login?error=google_error&detail=${encodeURIComponent(err.message || 'unknown').slice(0, 200)}`);
   }
+});
+
+// ── GET /api/auth/google/config-check ──
+// Diagnostic: shows the exact OAuth config the backend is using (no secrets exposed).
+router.get('/config-check', (_req: Request, res: Response) => {
+  res.json({
+    redirect_uri: REDIRECT_URI,
+    redirect_uri_raw: process.env.GOOGLE_REDIRECT_URI,
+    client_id_prefix: CLIENT_ID?.slice(0, 25),
+    client_secret_exists: !!CLIENT_SECRET,
+    frontend_url: FRONTEND_URL,
+    has_quotes_in_value: REDIRECT_URI?.includes('"'),
+    length: REDIRECT_URI?.length,
+    chars: [...(REDIRECT_URI || '')].map(c => c.charCodeAt(0)),
+  });
 });
 
 // ── GET /api/auth/google/debug?email=... ──

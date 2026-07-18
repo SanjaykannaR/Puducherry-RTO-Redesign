@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { UserPlus, Mail, Lock, Smartphone, User, Fingerprint, Shield, Check, ShieldCheck, Clock, Users } from 'lucide-react';
+import { Mail, Lock, Smartphone, User, Fingerprint, Shield, Check, ShieldCheck, Clock, Users } from 'lucide-react';
 import { API_BASE } from '@/lib/api';
 import { validators, validateForm } from '@/lib/validation';
 
@@ -132,9 +132,6 @@ export default function RegisterPage() {
           <div className="w-full max-w-md">
             {/* Form header */}
             <div className="text-center lg:text-left mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto lg:mx-0 mb-4">
-                <UserPlus className="w-7 h-7 text-primary" />
-              </div>
               <h2 className="text-2xl font-bold text-foreground">Get Started</h2>
               <p className="text-sm text-muted-foreground mt-1">Create your RTO account in seconds</p>
               {/* Benefits inline (visible only on mobile — desktop shows them in the left panel) */}

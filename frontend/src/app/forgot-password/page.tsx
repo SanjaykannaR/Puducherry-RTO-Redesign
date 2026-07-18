@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { API_BASE } from '@/lib/api';
 
@@ -67,12 +67,6 @@ export default function ForgotPasswordPage() {
                 Don&apos;t worry — we&apos;ll send you a link to reset your password. Just enter the email address associated with your account.
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4.5 h-4.5 text-blue-200" />
-              </div>
-              <p className="text-sm text-blue-100">Secure, one-time reset link</p>
-            </div>
           </div>
 
           <p className="text-xs text-blue-300/60">
@@ -106,9 +100,6 @@ export default function ForgotPasswordPage() {
         <div className="flex-1 flex items-center justify-center px-4 py-8 lg:py-0">
           <div className="w-full max-w-md">
             <div className="text-center lg:text-left mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto lg:mx-0 mb-4">
-                <Mail className="w-7 h-7 text-primary" />
-              </div>
               <h2 className="text-2xl font-bold text-foreground">Forgot Password?</h2>
               <p className="text-sm text-muted-foreground mt-1">Enter your email and we&apos;ll send a reset link</p>
             </div>

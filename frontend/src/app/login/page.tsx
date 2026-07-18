@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LogIn, Mail, Lock, Fingerprint, Shield, ShieldCheck, Clock, Users } from 'lucide-react';
+import { Mail, Lock, Fingerprint, Shield, ShieldCheck, Clock, Users } from 'lucide-react';
 import { API_BASE } from '@/lib/api';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -152,9 +152,6 @@ function LoginForm() {
           <div className="w-full max-w-md">
             {/* Form header */}
             <div className="text-center lg:text-left mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center mx-auto lg:mx-0 mb-4">
-                <LogIn className="w-7 h-7 text-primary" />
-              </div>
               <h2 className="text-2xl font-bold text-foreground">Welcome Back</h2>
               <p className="text-sm text-muted-foreground mt-1">Sign in to your RTO account</p>
             </div>
