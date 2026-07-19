@@ -119,6 +119,150 @@ function searchKnowledge(query: string, lang: string): string {
     .join('\n\n') || 'No specific RTO topic found for this query.';
 }
 
+// ── Format knowledge base topic into readable text ──
+function formatTopicForUser(topic: any, lang: string): string {
+  const lines: string[] = [];
+  const title = topic.title || '';
+  if (title) lines.push(`**${title}**`, '');
+
+  if (topic.age_requirement) lines.push(`Age requirement: ${topic.age_requirement}`, '');
+  if (topic.validity) lines.push(`Validity: ${topic.validity}`, '');
+  if (topic.when_required) lines.push(`When required: ${topic.when_required}`, '');
+  if (topic.processing_time) lines.push(`Processing time: ${topic.processing_time}`, '');
+
+  // Documents
+  const docs = topic.documents_required || topic.documents_required_fresh || topic.documents_required_renewal;
+  if (docs && docs.length) {
+    lines.push('Documents required:');
+    docs.forEach((d: string, i: number) => lines.push(`  ${i + 1}. ${d}`));
+    lines.push('');
+  }
+
+  // Process steps
+  const process = topic.process || topic.renewal_process;
+  if (process && process.length) {
+    lines.push('Process:');
+    process.forEach((s: string) => lines.push(`  ${s}`));
+    lines.push('');
+  }
+
+  // Fees
+  if (topic.fees) {
+    if (typeof topic.fees === 'string') {
+      lines.push(`Fees: ${topic.fees}`, '');
+    } else if (typeof topic.fees === 'object') {
+      lines.push('Fees:');
+      for (const [k, v] of Object.entries(topic.fees)) {
+        lines.push(`  ${k.replace(/_/g, ' ')}: ${v}`);
+      }
+      lines.push('');
+    }
+  }
+
+  // Road tax
+  if (topic.road_tax_two_wheeler) {
+    lines.push('Road tax (two-wheeler):');
+    for (const [k, v] of Object.entries(topic.road_tax_two_wheeler)) {
+      lines.push(`  ${k.replace(/_/g, ' ')}: ${v}`);
+    }
+    lines.push('');
+  }
+  if (topic.road_tax_four_wheeler) {
+    lines.push('Road tax (four-wheeler):');
+    for (const [k, v] of Object.entries(topic.road_tax_four_wheeler)) {
+      lines.push(`  ${k.replace(/_/g, ' ')}: ${v}`);
+    }
+    lines.push('');
+  }
+
+  // Validity rules
+  if (topic.validity_rules && typeof topic.validity_rules === 'object') {
+    lines.push('Validity rules:');
+    for (const [k, v] of Object.entries(topic.validity_rules)) {
+      lines.push(`  ${k.replace(/_/g, ' ')}: ${v}`);
+    }
+    lines.push('');
+  }
+
+  // Medical rules
+  if (topic.medical_certificate_rules && typeof topic.medical_certificate_rules === 'object') {
+    lines.push('Medical certificate:');
+    for (const [k, v] of Object.entries(topic.medical_certificate_rules)) {
+      lines.push(`  ${k.replace(/_/g, ' ')}: ${v}`);
+    }
+    lines.push('');
+  }
+
+  // Notes
+  const notes = topic.notes || topic.important_notes;
+  if (notes && notes.length) {
+    lines.push('Important notes:');
+    notes.forEach((n: string) => lines.push(`  - ${n}`));
+    lines.push('');
+  }
+
+  // Portal
+  if (topic.online_portal) lines.push(`Online portal: ${topic.online_portal}`);
+
+  return lines.join('\n').trim();
+}
+
+// ── Search knowledge and return formatted text for display ──
+function searchKnowledgeFormatted(query: string, lang: string): string {
+  const data = loadKnowledge(lang);
+  const topics = data.topics || {};
+  const queryLower = query.toLowerCase();
+
+  const scored: { score: number; key: string; topic: any }[] = [];
+
+  for (const [key, topic] of Object.entries(topics) as [string, any][]) {
+    let score = 0;
+    const title = (topic.title || '').toLowerCase();
+    const topicStr = JSON.stringify(topic).toLowerCase();
+
+    for (const word of queryLower.split(/\s+/)) {
+      if (word.length < 3) continue;
+      if (title.includes(word) || key.includes(word)) score += 2;
+      if (topicStr.includes(word)) score += 0.5;
+    }
+
+    const intentKeywords: Record<string, string[]> = {
+      license: ['license', 'licence', 'dl', 'llr', 'driving'],
+      vehicle: ['vehicle', 'registration', 'rc', 'car', 'bike', 'motorcycle'],
+      renewal: ['renew', 'renewal', 'expire', 'expired', 'validity'],
+      documents: ['document', 'form', 'paper', 'proof', 'required'],
+      fees: ['fee', 'cost', 'price', 'charge', 'pay', 'payment', 'rupees', 'rs'],
+      challan: ['challan', 'fine', 'penalty', 'violation', 'traffic'],
+      appointment: ['appointment', 'slot', 'book', 'visit'],
+      medical: ['medical', 'form 1a', 'form 1', 'health', 'doctor', 'fitness', 'age 40', '40+'],
+      transfer: ['transfer', 'ownership', 'sell', 'buy', 'second hand'],
+      noc: ['noc', 'no objection', 'outside state'],
+      helpline: ['contact', 'phone', 'help', 'office', 'address'],
+    };
+
+    for (const [intent, keywords] of Object.entries(intentKeywords)) {
+      for (const kw of keywords) {
+        if (queryLower.includes(kw)) {
+          if (key.includes(intent) || keywords.slice(0, 2).some((k) => topicStr.includes(k))) {
+            score += 1;
+          }
+        }
+      }
+    }
+
+    if (score > 0) scored.push({ score, key, topic });
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+
+  if (scored.length === 0) return '';
+
+  return scored
+    .slice(0, 3)
+    .map(({ topic }) => formatTopicForUser(topic, lang))
+    .join('\n\n---\n\n');
+}
+
 // ── Navigation intent detection ──
 function getNavigationIntent(query: string, lang: string): { path: string; hint: string } | null {
   const data = loadKnowledge(lang);
@@ -244,14 +388,14 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     // If no Gemini, try knowledge base fallback instead of error
     if (!model) {
-      const kbFallback = searchKnowledge(message, lang);
-      const fallbackResponse = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
-        ? kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim() || GREETINGS[lang]
+      const kbResponse = searchKnowledgeFormatted(message, lang);
+      const fallbackResponse = kbResponse
+        ? kbResponse
         : lang === 'ta'
           ? 'மன்னிக்கவும், AI உதவியாளர் தற்போது கிடைக்கவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234'
           : lang === 'fr'
             ? "L'assistant IA n'est pas disponible pour le moment. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234"
-            : "I'm currently unable to use AI, but here's what I found in our knowledge base. Please try again later or contact our helpline: +91 413 222 1234";
+            : "I couldn't find specific information for your question. Please try rephrasing, or contact our helpline: +91 413 222 1234";
       return res.json({
         response: fallbackResponse,
         language: lang,
@@ -300,10 +444,7 @@ router.post('/chat', async (req: Request, res: Response) => {
     }
     if (!responseText) {
       // All models failed — return knowledge base fallback
-      const kbFallback = searchKnowledge(message, lang);
-      responseText = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
-        ? `Here's what I found:\n\n${kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim()}`
-        : ERROR_MSGS[lang];
+      responseText = searchKnowledgeFormatted(message, lang) || ERROR_MSGS[lang];
     }
 
     // Check login suggestion
@@ -326,14 +467,11 @@ router.post('/chat', async (req: Request, res: Response) => {
     const message = req.body?.message || '';
 
     // Try knowledge base fallback before returning error
-    const kbFallback = searchKnowledge(message, lang);
-    const fallbackText = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
-      ? kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim()
-      : '';
+    const kbResponse = searchKnowledgeFormatted(message, lang);
 
-    if (fallbackText) {
+    if (kbResponse) {
       return res.json({
-        response: `Here's what I found:\n\n${fallbackText}`,
+        response: kbResponse,
         language: lang,
         navigation: getNavigationIntent(message, lang),
         login_suggested: false,
