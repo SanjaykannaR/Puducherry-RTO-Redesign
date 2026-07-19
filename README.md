@@ -2,141 +2,186 @@
 
 A comprehensive digital transformation of the Office of the Transport Commissioner, Puducherry — built with Next.js 16, Express + Prisma, and AI-powered proctoring.
 
+## Live Deployments
+
+| Service | URL | Platform |
+|---------|-----|----------|
+| **Frontend** | [puducherry-rto-redesign.vercel.app](https://puducherry-rto-redesign.vercel.app) | Vercel |
+| **Backend API** | [puducherry-rto-redesign-production.up.railway.app](https://puducherry-rto-redesign-production.up.railway.app) | Railway |
+| **AI Proctoring** | [ai-production-0b0f.up.railway.app](https://ai-production-0b0f.up.railway.app) | Railway |
+
 ## Tech Stack
 
-| Layer | Technology | Port |
-|-------|-----------|------|
-| **Frontend** | Next.js 16 + TypeScript + Tailwind CSS v4 + shadcn/ui + Lucide Icons | 3000 |
-| **Backend** | Express + TypeScript + Prisma ORM (PostgreSQL) | 5000 |
-| **AI Proctoring** | Python FastAPI + OpenCV + MediaPipe | 8000 |
-| **Font** | Noto Sans + Noto Sans Tamil (GIGW 3.0 bilingual) | — |
-| **Standards** | GIGW 3.0, WCAG 2.1 Level AA, DBIM Blue #0B3D91 | — |
-| **Test Framework** | Jest (backend), Vitest + React Testing Library (frontend), pytest (AI) | — |
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Lucide Icons, Recharts |
+| **Backend** | Express.js 5, TypeScript, Prisma ORM, Turso (SQLite cloud), bcryptjs, JWT |
+| **AI Proctoring** | Python FastAPI, TensorFlow Lite (BlazeFace), pytest |
+| **Chatbot** | Google Gemini AI (`@google/generative-ai`) with local knowledge base fallback |
+| **Auth** | Email/password + Google OAuth + DigiLocker OAuth (via Supabase) |
+| **Database** | Turso (edge-hosted SQLite) with Prisma ORM |
+| **CI/CD** | GitHub Actions, Docker multi-stage builds |
+| **Standards** | GIGW 3.0, WCAG 2.1 Level AA |
 
 ## Architecture
 
-The project is a monorepo with **3 independent sub-projects**, each runnable in its own VS Code window:
+Three independently deployed services:
 
 ```
-D:\rto\
-├── frontend\          # Next.js portal — open in VS Code Window 1
-├── backend\           # Express API server — open in VS Code Window 2
-├── ai\                # Python FastAPI proctoring — open in VS Code Window 3
-├── docs\              # Project documentation
-├── puzzle
-  ├── packages.json
-  ├── dbim.pdf / dbim.txt
-  ├── pdf1.pdf / pdf1.txt   # AI proctoring PDF spec
-  └── pdf2.pdf / pdf2.txt   # Audit/blueprint PDF
+Browser (User)
+     |
+     v
+[Vercel] Frontend (Next.js 16)
+  |          \
+  |           \--> [Railway] AI Proctoring (FastAPI)
+  |                   - /api/detect-face
+  |                   - BlazeFace TFLite model
+  |
+  v
+[Railway] Backend API (Express.js 5)
+  |--- /api/auth/*       (register, login, OAuth)
+  |--- /api/admin/*      (users, applications, stats)
+  |--- /api/exam/*       (learner license quiz)
+  |--- /api/chat         (Gemini AI chatbot + KB fallback)
+  \--- Prisma ORM --> Turso (SQLite cloud)
+```
+
+### Project Structure
+
+```
+rto/
++-- frontend/          # Next.js 16 app (Vercel)
+|   +-- src/app/       # Pages (App Router)
+|   +-- src/components/
+|   +-- tests/         # Playwright E2E tests
++-- backend/           # Express.js API (Railway)
+|   +-- src/routes/    # API routes
+|   +-- src/middleware/ # Auth, admin guards
+|   +-- src/services/  # Prisma client, OAuth
+|   +-- tests/         # Jest + Supertest (101 tests)
++-- ai/                # FastAPI AI Proctoring (Railway)
+|   +-- routes/        # /api/detect-face
+|   +-- services/      # BlazeFace detection
+|   +-- tests/         # pytest (7 tests)
++-- Dockerfile         # Root Dockerfile (used by Railway)
++-- docker-compose.yml
++-- .github/workflows/ # CI pipeline
 ```
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js >= 18 (v25.2.1 used)
-- Python >= 3.10 (3.14.0 used)
-- PostgreSQL (for Prisma — or use SQLite for dev)
+- Node.js >= 18
+- Python >= 3.10
 
 ### Run Everything at Once
 ```bash
-npm install            # Install root deps (concurrently)
+npm install            # Install root deps
 npm run dev            # Starts frontend + backend + AI together
 ```
 
-| Command | What it runs |
-|---------|-------------|
-| `npm run dev` | All 3 services (frontend + backend + AI) |
-| `npm run dev:frontend` | Frontend only → http://localhost:3000 |
-| `npm run dev:backend` | Backend only → http://localhost:5000 |
-| `npm run dev:ai` | AI proctoring only → http://localhost:8000 |
-
 ### Run Individually
 
-#### 1. Frontend
+#### Frontend
 ```bash
 cd frontend
 npm install
-npm run dev        # → http://localhost:3000
+npm run dev        # -> http://localhost:3000
 ```
 
-#### 2. Backend
+#### Backend
 ```bash
 cd backend
 npm install
 npx prisma generate
 npx prisma db push
-npm run dev        # → http://localhost:5000
+npm run dev        # -> http://localhost:5000
 ```
 
-#### 3. AI Proctoring
+#### AI Proctoring
 ```bash
 cd ai
 pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000
-# → http://localhost:8000
 ```
 
-## Project Structure
+## Features
 
-### Frontend (30+ pages)
+### Citizen Portal
+- Online vehicle registration and driving license applications
+- Learner license application with AI-proctored exam
+- Challan (traffic fine) lookup and payment
+- Fee calculators and fare structure lookup
+- Office directory with contact information
+- Multi-language support (English, Tamil, French)
 
+### AI Chatbot
+- Google Gemini AI integration with 3-model fallback chain (`gemini-2.0-flash` -> `1.5-flash` -> `1.5-flash-8b`)
+- Local knowledge base fallback when all Gemini models are unavailable
+- Covers 15+ RTO topics: licenses, registration, fees, documents, transfer, etc.
+- Navigation intent detection
+- Formatted, readable responses in English, Tamil, and French
+
+### AI-Proctored Learner License Exam
+- Camera-based face detection using TensorFlow Lite (BlazeFace model)
+- Violation tracking: no face, multiple faces, tab switches, fullscreen exits
+- Auto-termination at violation limit (5 violations)
+- 5 theory questions with 60% pass threshold (Indian RTO standards)
+
+### Admin Panel
+- Inline admin login form (no redirect to citizen login)
+- Dashboard with real-time statistics
+- Application management: view, approve, reject with notifications
+- **Staff & Admin account management** (create, edit, role assignment)
+- Fare structure and service catalog management
+- Office directory management
+- **Settings page**: two-column layout with email/password change + account creation form
+
+## Staff & Admin Management (Recent Work)
+
+The admin panel supports a three-role system (ADMIN, STAFF, CITIZEN):
+
+- **STAFF role** added to authentication system with appropriate access
+- Admin users page shows only ADMIN/STAFF users with role badges
+- Settings page redesigned with two-column layout + "Create Account" form
+- AdminOnly middleware allows both ADMIN and STAFF roles
+- `POST /admin/users` creates staff/admin accounts with role selection
+
+## Chatbot Implementation
+
+The chatbot uses a layered approach for reliability:
+
+1. **Gemini AI**: Primary model (`gemini-2.0-flash`) with automatic fallback to `1.5-flash` and `1.5-flash-8b`
+2. **Knowledge Base**: 15+ RTO topics with word-overlap scoring and intent matching
+3. **Formatted Answers**: `formatTopicForUser()` renders clean, readable text
+
+## CI/CD Pipeline
+
+- **Trigger**: Push to `main` branch
+- **Backend**: `npm install` -> `prisma generate` -> Jest (101 tests)
+- **Frontend E2E**: Playwright tests in 2 shards against live Vercel/Railway
+- **Deploy**: Auto-deploy to Vercel (frontend) and Railway (backend + AI)
+
+## Testing
+
+```bash
+# Backend (Jest) - 101 tests, 12 suites
+cd backend && npm test
+
+# AI (pytest) - 7 tests
+cd ai && python -m pytest tests/ -v
+
+# Frontend E2E (Playwright) - requires dev servers
+cd frontend && npx playwright test
 ```
-src/app/
-├── page.tsx                    # Home
-├── about/page.tsx              # About Us
-├── contact/page.tsx            # Contact + form
-├── directory/page.tsx          # RTO office directory
-├── fares/page.tsx              # Fee structure tables
-├── services/page.tsx           # Services listing
-├── services/vehicle-registration/page.tsx
-├── services/driving-license/page.tsx
-├── services/appointment/page.tsx
-├── services/fee-calculator/page.tsx
-├── services/application-status/page.tsx
-├── services/challan/page.tsx   # Traffic challan payment
-├── services/vehicle-status/page.tsx
-├── login/page.tsx              # Auth
-├── register/page.tsx
-├── dashboard/page.tsx          # Citizen dashboard
-├── dashboard/vehicles/page.tsx
-├── dashboard/licenses/page.tsx
-├── dashboard/applications/page.tsx
-├── dashboard/notifications/page.tsx
-├── exam/page.tsx               # AI-proctored exam
-```
 
-### Backend (14 route modules)
+| Component | Framework | Tests | Status |
+|-----------|-----------|-------|--------|
+| Backend API | Jest + Supertest | 101 tests, 12 suites | ALL PASSING |
+| AI Proctoring | pytest | 7 tests | ALL PASSING |
+| Frontend E2E | Playwright | ~50 tests | PASSING on CI |
 
-```
-src/
-├── index.ts                    # Express app entry
-├── routes/
-│   ├── info.ts                 # About + FAQ
-│   ├── directory.ts            # Office directory
-│   ├── fares.ts                # Fee structure
-│   ├── services.ts             # Services catalog
-│   ├── auth.ts                 # Register, login, JWT
-│   ├── appointments.ts         # CRUD appointments
-│   ├── applications.ts         # Application tracking
-│   ├── calculator.ts           # Fee calculator
-│   ├── challan.ts              # Challan payment
-│   ├── notifications.ts        # Lifecycle alerts
-│   ├── exam.ts                 # Exam Q&A + scoring
-│   └── payments.ts             # GRAS payment flow
-├── middleware/auth.ts           # JWT middleware
-├── services/auth.ts            # Password hashing, tokens
-└── prisma/schema.prisma        # 8 database models
-```
-
-### AI Proctoring
-
-```
-routes/detect.py         # POST /api/detect-face (threshold 0.60)
-services/face_utils.py   # MediaPipe face detection
-main.py                  # FastAPI app (port 8000)
-```
-
-## AI Proctoring — Violation State Machine
+## AI Proctoring Violation State Machine
 
 | Event | Points | Condition |
 |-------|--------|-----------|
@@ -144,57 +189,17 @@ main.py                  # FastAPI app (port 8000)
 | 3 consecutive face mismatches | +2 | Accumulated |
 | No face for 3+ frames | +2 | Accumulated |
 | Multiple faces detected | +3 | Immediate |
-| **Termination** | ≥5 | **Auto-fail** |
+| **Termination** | >= 5 | **Auto-fail** |
 
-- Frames sent every **3 seconds** to `ai:8000/api/detect-face`
+- Frames sent every **3 seconds** to AI service
 - Detection confidence threshold: **0.60**
-
-## Testing
-
-```bash
-# Backend (Jest)
-cd backend && npm test
-
-# Frontend (Vitest)
-cd frontend && npx vitest run
-
-# AI (pytest)
-cd ai && pytest -v
-```
-
-## Code Documentation Convention
-
-Every source file has a companion `*.doc.md` file explaining:
-- Why the file was created
-- What problem it solves
-- Key decisions made
-- Dependencies and related files
-
-## Agent System
-
-Built with OpenCode multi-agent orchestration:
-- **Athena-god** — Meta-agent (default)
-- **backend** — API + Prisma + .doc.md
-- **frontend** — UI components + .doc.md
-- **testing** — Tests + .doc.md
-- **explore** — Codebase research
-- **hermes** — General tasks
-
-## Sitemap Overview
-
-- **11 Public pages**: Home, About, Contact, Directory, Fares, Services, Vehicle Status, etc.
-- **9 Auth pages**: Login, Register, Dashboard + sub-pages
-- **7 Admin pages**: (Phase 6)
-- **4 API/Doc pages**: API reference, sitemap
-
-## Standards Compliance
-
-- **GIGW 3.0**: Language switcher, skip-to-content, semantic HTML, keyboard navigation
-- **WCAG 2.1 Level AA**: Color contrast (4.5:1+), focus indicators, ARIA labels, heading hierarchy
-- **DBIM Blue**: Primary color #0B3D91, accent #E8A317
 
 ## Branch Strategy
 
-- `main` — Production-ready code
-- `sanjay` — Active development branch (default for now)
-- Feature branches → PR to `sanjay` → merge to `main` when stable
+- `main` — Production-ready code (auto-deploys to Vercel + Railway)
+- `sanjay` — Active development branch
+- Feature branches -> PR to `sanjay` -> merge to `main` when stable
+
+## License
+
+Government of Puducherry — Transport Department
