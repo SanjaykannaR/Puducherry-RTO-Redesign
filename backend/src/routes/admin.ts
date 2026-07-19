@@ -14,19 +14,20 @@ const router = Router();
 router.use(authenticate, adminOnly);
 
 // ── GET /api/admin/users ──
-// Lists all registered users. Passwords are excluded from the response.
+// Lists only admin and staff users. Citizens are managed separately.
 router.get('/users', async (_req: AuthRequest, res: Response) => {
   const users = await prisma.user.findMany({
+    where: { role: { in: ['ADMIN', 'STAFF'] } },
     select: { id: true, email: true, mobile: true, name: true, role: true },
   });
   res.json({ users });
 });
 
 // ── POST /api/admin/users ──
-// Creates a new admin account with email + password.
+// Creates a new admin or staff account with email + password.
 // Used by the super admin to add RTO staff members who log in with email/password.
 router.post('/users', async (req: AuthRequest, res: Response) => {
-  const { name, email, mobile, password } = req.body;
+  const { name, email, mobile, password, role } = req.body;
   if (!name || !email || !mobile || !password) {
     res.status(400).json({ error: 'All fields are required (name, email, mobile, password)' });
     return;
@@ -35,6 +36,8 @@ router.post('/users', async (req: AuthRequest, res: Response) => {
     res.status(400).json({ error: 'Password must be at least 6 characters' });
     return;
   }
+
+  const userRole = (role === 'STAFF') ? 'STAFF' : 'ADMIN';
 
   // Check if email or mobile already exists
   const existing = await prisma.user.findFirst({
@@ -52,7 +55,7 @@ router.post('/users', async (req: AuthRequest, res: Response) => {
       email,
       mobile,
       passwordHash,
-      role: 'ADMIN',
+      role: userRole,
       isEmailVerified: true,
     },
     select: { id: true, email: true, mobile: true, name: true, role: true },
@@ -64,22 +67,22 @@ router.post('/users', async (req: AuthRequest, res: Response) => {
       action: 'USER_CREATED',
       targetType: 'USER',
       targetId: user.id,
-      details: JSON.stringify({ email, role: 'ADMIN', createdBy: req.user!.userId }),
+      details: JSON.stringify({ email, role: userRole, createdBy: req.user!.userId }),
       actorId: req.user!.userId,
     },
   });
 
-  console.log(`[admin] Created admin user: ${user.email} (${user.id}) by ${req.user!.userId}`);
+  console.log(`[admin] Created ${userRole} user: ${user.email} (${user.id}) by ${req.user!.userId}`);
   res.status(201).json(user);
 });
 
 // ── PATCH /api/admin/users/:id/role ──
-// Promotes/demotes a user between CITIZEN and ADMIN roles.
+// Promotes/demotes a user between CITIZEN, ADMIN, and STAFF roles.
 router.patch('/users/:id/role', async (req: AuthRequest, res: Response) => {
   const id = req.params.id as string;
   const { role } = req.body;
-  if (!role || !['CITIZEN', 'ADMIN'].includes(role)) {
-    res.status(400).json({ error: 'Invalid role. Must be "CITIZEN" or "ADMIN"' });
+  if (!role || !['CITIZEN', 'ADMIN', 'STAFF'].includes(role)) {
+    res.status(400).json({ error: 'Invalid role. Must be "CITIZEN", "ADMIN", or "STAFF"' });
     return;
   }
   try {

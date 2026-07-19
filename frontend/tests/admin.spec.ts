@@ -123,7 +123,7 @@ test.describe.serial('Admin Panel', () => {
     });
 
     test('loads with Users Management heading', async ({ page }) => {
-      await expect(page.getByText('Users Management').first()).toBeVisible({ timeout: 20000 });
+      await expect(page.getByText('Staff & Admin Accounts').first()).toBeVisible({ timeout: 20000 });
     });
 
     test('displays a table with users', async ({ page }) => {
@@ -273,7 +273,7 @@ test.describe.serial('Admin Panel', () => {
 
       const sidebar = page.locator('aside');
       await expect(sidebar.getByText('Dashboard')).toBeVisible();
-      await expect(sidebar.getByText('Users')).toBeVisible();
+      await expect(sidebar.getByText('Staff & Admin')).toBeVisible();
       await expect(sidebar.getByText('Reports')).toBeVisible();
       await expect(sidebar.getByText('Fares')).toBeVisible();
       await expect(sidebar.getByText('Services')).toBeVisible();
@@ -289,9 +289,9 @@ test.describe.serial('Admin Panel', () => {
       const sidebarVisible = await sidebar.isVisible({ timeout: 10000 }).catch(() => false);
       test.skip(!sidebarVisible, 'Admin sidebar did not render — auth may have failed on CI');
 
-      await sidebar.getByText('Users').click();
+      await sidebar.getByText('Staff & Admin').click();
       await expect(page).toHaveURL(/\/admin\/users/);
-      await expect(page.getByText('Users Management')).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText('Staff & Admin Accounts')).toBeVisible({ timeout: 15000 });
     });
 
     test('clicking Settings link navigates to settings page', async ({ page }) => {
