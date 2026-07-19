@@ -9,12 +9,27 @@ const router = Router();
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
 let genAI: GoogleGenerativeAI | null = null;
 let model: ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null = null;
+const MODEL_FALLBACKS = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
 
 if (GEMINI_KEY) {
   try {
     genAI = new GoogleGenerativeAI(GEMINI_KEY);
-    model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    console.log('[chat] Gemini configured OK');
+    // Try models in order until one works
+    const testModels = async () => {
+      for (const modelName of MODEL_FALLBACKS) {
+        try {
+          const testModel = genAI!.getGenerativeModel({ model: modelName });
+          await testModel.generateContent('hi');
+          model = testModel;
+          console.log(`[chat] Gemini configured OK — model: ${modelName}`);
+          return;
+        } catch (e: any) {
+          console.warn(`[chat] Model ${modelName} unavailable: ${e?.message?.slice(0, 80)}`);
+        }
+      }
+      console.error('[chat] All Gemini models failed — will use knowledge base fallback');
+    };
+    testModels();
   } catch (e) {
     console.error('[chat] Gemini init failed:', e);
   }
@@ -265,9 +280,31 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     prompt += `\nUser: ${message}\nAssistant:`;
 
-    // Generate response
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text().trim();
+    // Generate response — try active model, fall back to others on 429
+    let responseText = '';
+    const allModelNames = MODEL_FALLBACKS;
+    for (const modelName of allModelNames) {
+      try {
+        const m = genAI!.getGenerativeModel({ model: modelName });
+        const result = await m.generateContent(prompt);
+        responseText = result.response.text().trim();
+        // Update active model for future requests
+        if (modelName !== MODEL_FALLBACKS[0]) {
+          model = m;
+          console.log(`[chat] Switched to working model: ${modelName}`);
+        }
+        break;
+      } catch (modelErr: any) {
+        console.warn(`[chat] Model ${modelName} failed: ${modelErr?.message?.slice(0, 80)}`);
+      }
+    }
+    if (!responseText) {
+      // All models failed — return knowledge base fallback
+      const kbFallback = searchKnowledge(message, lang);
+      responseText = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
+        ? `Here's what I found:\n\n${kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim()}`
+        : ERROR_MSGS[lang];
+    }
 
     // Check login suggestion
     const loginKeywords: Record<string, string[]> = {
