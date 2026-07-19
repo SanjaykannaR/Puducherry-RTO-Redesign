@@ -87,14 +87,25 @@ describe('GET /api/admin/users', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns users array for ADMIN', async () => {
+  it('returns only admin/staff users (no citizens)', async () => {
+    // Create a staff user via the API to test both the create endpoint and the filter
+    const staffRes = await request(app)
+      .post('/api/admin/users')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Test Staff', email: `staff_misc_${Date.now()}@test.com`, mobile: `830000${Math.floor(Math.random() * 9999)}`, password: 'Staff123!', role: 'STAFF' });
+    expect(staffRes.status).toBe(201);
+
     const res = await request(app)
       .get('/api/admin/users')
       .set('Authorization', `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('users');
     expect(Array.isArray(res.body.users)).toBe(true);
+    // Should have at least admin + staff (citizens filtered out)
     expect(res.body.users.length).toBeGreaterThanOrEqual(2);
+    // No CITIZEN role in results
+    const roles = res.body.users.map((u: any) => u.role);
+    expect(roles).not.toContain('CITIZEN');
   });
 
   it('users have expected fields', async () => {
