@@ -11,6 +11,7 @@ RUN npx prisma generate
 COPY backend/tsconfig.json ./
 COPY backend/src ./src
 RUN npx tsc
+RUN mkdir -p /app/dist/data && cp src/data/*.json dist/data/
 
 # ── Stage 2: Production ──
 FROM node:22-alpine AS runner
