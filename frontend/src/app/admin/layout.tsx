@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/users', label: 'Staff & Admin', icon: Users },
   { href: '/admin/applications', label: 'Applications', icon: FileText },
   { href: '/admin/reports', label: 'Reports', icon: BarChart3 },
   { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp },
@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // ── After login, check if user is ADMIN ──
   useEffect(() => {
-    if (!loading && user && user.role !== 'ADMIN') {
+    if (!loading && user && user.role !== 'ADMIN' && user.role !== 'STAFF') {
       setLoginError('This account does not have admin access.');
     }
   }, [user, loading]);
@@ -60,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'STAFF')) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <div className="h-2 bg-gradient-to-r from-primary via-primary-light to-primary-dark shrink-0" />

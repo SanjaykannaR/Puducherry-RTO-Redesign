@@ -1,58 +1,49 @@
 'use client';
 
-// ── React hooks for data fetching and state management ──
+// ── Admin Users — Manage Admin & Staff accounts only ──
 import { useEffect, useState, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-// ── Confirmation dialog before destructive actions ──
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 import { api } from '@/lib/api';
-// ── Icons for promote/demote admin and delete actions ──
-import { Shield, ShieldOff, Trash2, UserPlus, Pencil } from 'lucide-react';
+import { Shield, Trash2, UserPlus, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface AdminUser {
+interface StaffUser {
   id: string;
   name: string;
   email: string;
   mobile: string;
-  role: string;
+  role: 'ADMIN' | 'STAFF';
 }
 
 export default function AdminUsers() {
-  // ── State: user list, loading/error, and the user pending deletion ──
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [users, setUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<StaffUser | null>(null);
 
-  // ── Add Admin form state ──
+  // ── Add form ──
   const [addOpen, setAddOpen] = useState(false);
+  const [addRole, setAddRole] = useState<'ADMIN' | 'STAFF'>('ADMIN');
   const [addForm, setAddForm] = useState({ name: '', email: '', mobile: '', password: '' });
   const [addErrors, setAddErrors] = useState<Record<string, string>>({});
   const [addSubmitting, setAddSubmitting] = useState(false);
 
-  // ── Edit user form state ──
-  const [editTarget, setEditTarget] = useState<AdminUser | null>(null);
+  // ── Edit form ──
+  const [editTarget, setEditTarget] = useState<StaffUser | null>(null);
   const [editForm, setEditForm] = useState({ name: '', email: '', mobile: '', role: '', password: '' });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const [editSubmitting, setEditSubmitting] = useState(false);
 
-  // ── Fetch users from API ──
-  // Wrapped in useCallback so it can be safely passed as a dependency.
   const fetchUsers = useCallback(async () => {
     try {
-      const data = await api.get<{ users: AdminUser[] }>('/admin/users');
+      const data = await api.get<{ users: StaffUser[] }>('/admin/users');
       setUsers(data.users);
     } catch (err: any) {
       setError(err.message);
@@ -63,36 +54,8 @@ export default function AdminUsers() {
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-  // ── Toggle admin role ──
-  // Optimistic update: immediately flip the role in local state, then send the PATCH.
-  // If the API call fails, the error is surfaced via alert (could be replaced with toast).
-  const toggleRole = async (id: string, currentRole: string) => {
-    const newRole = currentRole === 'ADMIN' ? 'CITIZEN' : 'ADMIN';
-    try {
-      await api.patch<AdminUser>(`/admin/users/${id}/role`, { role: newRole });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
-      );
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
-
-  // ── Delete user ──
-  // Removes the user both from the database and from the local list after confirmation.
-  const deleteUser = async () => {
-    if (!deleteTarget) return;
-    try {
-      await api.delete(`/admin/users/${deleteTarget.id}`);
-      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
-      setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
-
-  // ── Create admin user ──
-  const createAdmin = async () => {
+  // ── Create user ──
+  const createUser = async () => {
     const errs: Record<string, string> = {};
     if (!addForm.name.trim()) errs.name = 'Name is required';
     if (!addForm.email.trim()) errs.email = 'Email is required';
@@ -104,11 +67,11 @@ export default function AdminUsers() {
     setAddErrors({});
     setAddSubmitting(true);
     try {
-      const newUser = await api.post<AdminUser>('/admin/users', addForm);
+      const newUser = await api.post<StaffUser>('/admin/users', { ...addForm, role: addRole });
       setUsers((prev) => [newUser, ...prev]);
       setAddForm({ name: '', email: '', mobile: '', password: '' });
       setAddOpen(false);
-      toast.success(`${newUser.name} added as admin`);
+      toast.success(`${newUser.name} added as ${addRole === 'STAFF' ? 'Staff' : 'Admin'}`);
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -116,11 +79,17 @@ export default function AdminUsers() {
     }
   };
 
-  // ── Open edit dialog ──
-  const openEdit = (user: AdminUser) => {
-    setEditTarget(user);
-    setEditForm({ name: user.name, email: user.email, mobile: user.mobile, role: user.role, password: '' });
-    setEditErrors({});
+  // ── Delete user ──
+  const deleteUser = async () => {
+    if (!deleteTarget) return;
+    try {
+      await api.delete(`/admin/users/${deleteTarget.id}`);
+      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+      setDeleteTarget(null);
+      toast.success(`${deleteTarget.name} deleted`);
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   // ── Update user ──
@@ -136,7 +105,7 @@ export default function AdminUsers() {
     setEditErrors({});
     setEditSubmitting(true);
     try {
-      const updated = await api.put<AdminUser>(`/admin/users/${editTarget.id}`, editForm);
+      const updated = await api.put<StaffUser>(`/admin/users/${editTarget.id}`, editForm);
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
       setEditTarget(null);
       toast.success(`${updated.name} updated`);
@@ -147,24 +116,39 @@ export default function AdminUsers() {
     }
   };
 
+  const openAdd = (role: 'ADMIN' | 'STAFF') => {
+    setAddRole(role);
+    setAddForm({ name: '', email: '', mobile: '', password: '' });
+    setAddErrors({});
+    setAddOpen(true);
+  };
+
+  const openEdit = (user: StaffUser) => {
+    setEditTarget(user);
+    setEditForm({ name: user.name, email: user.email, mobile: user.mobile, role: user.role, password: '' });
+    setEditErrors({});
+  };
+
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-primary">Users Management</h1>
-        <Button onClick={() => setAddOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Add Admin
-        </Button>
+        <h1 className="text-xl sm:text-2xl font-bold text-primary">Staff & Admin Accounts</h1>
+        <div className="flex gap-2">
+          <Button onClick={() => openAdd('STAFF')} variant="outline" className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Add Staff
+          </Button>
+          <Button onClick={() => openAdd('ADMIN')} className="gap-2">
+            <Shield className="h-4 w-4" />
+            Add Admin
+          </Button>
+        </div>
       </div>
-      {/* ── Users table ── */}
-      {/* Admin-oriented table with columns for name, email, mobile, role badge,
-          and action buttons. Skeleton rows are shown during loading; an empty state
-          is shown when no users exist. Each row has "Make Admin/Remove Admin" and
-          "Delete" buttons, the latter triggering a confirmation dialog. */}
+
+      {/* ── Desktop: Table ── */}
       <div className="rounded-lg border bg-white overflow-x-auto">
-        {/* ── Desktop: Table view (sm+) ── */}
         <div className="hidden sm:block">
           <Table>
             <TableHeader>
@@ -181,39 +165,33 @@ export default function AdminUsers() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     {Array.from({ length: 5 }).map((_, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
+                      <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No users found.
+                    No admin or staff accounts found.
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.mobile}</TableCell>
+                users.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-medium">{u.name}</TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell>{u.mobile}</TableCell>
                     <TableCell>
-                      <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
-                        {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                      <Badge variant={u.role === 'ADMIN' ? 'destructive' : 'default'}>
+                        {u.role === 'ADMIN' ? 'Admin' : 'Staff'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openEdit(user)} aria-label={`Edit user ${user.name}`}>
+                        <Button variant="outline" size="sm" onClick={() => openEdit(u)} aria-label={`Edit ${u.name}`}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => toggleRole(user.id, user.role)} aria-label={user.role === 'ADMIN' ? 'Remove admin privileges' : 'Make admin'}>
-                          {user.role === 'ADMIN' ? <ShieldOff className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
-                          {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(user)} aria-label={`Delete user ${user.name}`}>
+                        <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(u)} aria-label={`Delete ${u.name}`}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -225,7 +203,7 @@ export default function AdminUsers() {
           </Table>
         </div>
 
-        {/* ── Mobile: Card view (<sm) ── */}
+        {/* ── Mobile: Cards ── */}
         <div className="sm:hidden divide-y">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
@@ -236,29 +214,25 @@ export default function AdminUsers() {
               </div>
             ))
           ) : users.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No users found.</p>
+            <p className="text-center text-muted-foreground py-8">No admin or staff accounts found.</p>
           ) : (
-            users.map((user) => (
-              <div key={user.id} className="p-4 space-y-3">
+            users.map((u) => (
+              <div key={u.id} className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-sm">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                    <p className="text-xs text-muted-foreground">{user.mobile}</p>
+                    <p className="font-medium text-sm">{u.name}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                    <p className="text-xs text-muted-foreground">{u.mobile}</p>
                   </div>
-                  <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'} className="text-[10px]">
-                    {user.role === 'ADMIN' ? 'Admin' : 'User'}
+                  <Badge variant={u.role === 'ADMIN' ? 'destructive' : 'default'} className="text-[10px]">
+                    {u.role === 'ADMIN' ? 'Admin' : 'Staff'}
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEdit(user)} className="min-h-[44px] min-w-[44px]" aria-label={`Edit user ${user.name}`}>
+                  <Button variant="outline" size="sm" onClick={() => openEdit(u)} className="min-h-[44px] min-w-[44px]" aria-label={`Edit ${u.name}`}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => toggleRole(user.id, user.role)} className="flex-1 min-h-[44px]" aria-label={user.role === 'ADMIN' ? 'Remove admin privileges' : 'Make admin'}>
-                    {user.role === 'ADMIN' ? <ShieldOff className="h-4 w-4 mr-1" /> : <Shield className="h-4 w-4 mr-1" />}
-                    {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(user)} className="min-h-[44px] min-w-[44px]" aria-label={`Delete user ${user.name}`}>
+                  <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(u)} className="min-h-[44px] min-w-[44px]" aria-label={`Delete ${u.name}`}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -268,51 +242,51 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* ── Add Admin dialog ── */}
+      {/* ── Add Account dialog ── */}
       <Dialog open={addOpen} onOpenChange={(open) => { if (!open) { setAddOpen(false); setAddErrors({}); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Admin Account</DialogTitle>
+            <DialogTitle>Create {addRole === 'STAFF' ? 'Staff' : 'Admin'} Account</DialogTitle>
             <DialogDescription>
-              Create a new admin account with email and password. They can log in at /login.
+              New {addRole === 'STAFF' ? 'staff' : 'admin'} will be able to log in at /login with email &amp; password.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <label htmlFor="admin-name" className="block text-sm font-medium mb-1">Name</label>
-              <Input id="admin-name" placeholder="Full name" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} className="h-12 rounded-xl" />
+              <label htmlFor="add-name" className="block text-sm font-medium mb-1">Name</label>
+              <Input id="add-name" placeholder="Full name" value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} className="h-12 rounded-xl" />
               {addErrors.name && <p className="text-destructive text-xs mt-1">{addErrors.name}</p>}
             </div>
             <div>
-              <label htmlFor="admin-email" className="block text-sm font-medium mb-1">Email</label>
-              <Input id="admin-email" type="email" placeholder="user@rto.gov.in" value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} className="h-12 rounded-xl" />
+              <label htmlFor="add-email" className="block text-sm font-medium mb-1">Email</label>
+              <Input id="add-email" type="email" placeholder="user@rto.gov.in" value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} className="h-12 rounded-xl" />
               {addErrors.email && <p className="text-destructive text-xs mt-1">{addErrors.email}</p>}
             </div>
             <div>
-              <label htmlFor="admin-mobile" className="block text-sm font-medium mb-1">Mobile</label>
-              <Input id="admin-mobile" placeholder="10-digit mobile number" value={addForm.mobile} onChange={(e) => setAddForm({ ...addForm, mobile: e.target.value })} className="h-12 rounded-xl" />
+              <label htmlFor="add-mobile" className="block text-sm font-medium mb-1">Mobile</label>
+              <Input id="add-mobile" placeholder="10-digit mobile number" value={addForm.mobile} onChange={(e) => setAddForm({ ...addForm, mobile: e.target.value })} className="h-12 rounded-xl" />
               {addErrors.mobile && <p className="text-destructive text-xs mt-1">{addErrors.mobile}</p>}
             </div>
             <div>
-              <label htmlFor="admin-password" className="block text-sm font-medium mb-1">Password</label>
-              <Input id="admin-password" type="password" placeholder="Min 6 characters" value={addForm.password} onChange={(e) => setAddForm({ ...addForm, password: e.target.value })} className="h-12 rounded-xl" />
+              <label htmlFor="add-password" className="block text-sm font-medium mb-1">Password</label>
+              <Input id="add-password" type="password" placeholder="Min 6 characters" value={addForm.password} onChange={(e) => setAddForm({ ...addForm, password: e.target.value })} className="h-12 rounded-xl" />
               {addErrors.password && <p className="text-destructive text-xs mt-1">{addErrors.password}</p>}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setAddOpen(false); setAddErrors({}); }}>Cancel</Button>
-            <Button onClick={createAdmin} disabled={addSubmitting}>
-              {addSubmitting ? 'Creating...' : 'Create Admin'}
+            <Button onClick={createUser} disabled={addSubmitting}>
+              {addSubmitting ? 'Creating...' : `Create ${addRole === 'STAFF' ? 'Staff' : 'Admin'}`}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ── Edit user dialog ── */}
+      {/* ── Edit dialog ── */}
       <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) { setEditTarget(null); setEditErrors({}); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>Edit Account</DialogTitle>
             <DialogDescription>
               Update details for <strong>{editTarget?.name}</strong>. Leave password blank to keep current.
             </DialogDescription>
@@ -336,8 +310,8 @@ export default function AdminUsers() {
             <div>
               <label htmlFor="edit-role" className="block text-sm font-medium mb-1">Role</label>
               <select id="edit-role" value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="w-full h-12 rounded-xl border border-input bg-background px-3 text-sm">
-                <option value="CITIZEN">Citizen</option>
                 <option value="ADMIN">Admin</option>
+                <option value="STAFF">Staff</option>
               </select>
             </div>
             <div>
@@ -355,24 +329,18 @@ export default function AdminUsers() {
         </DialogContent>
       </Dialog>
 
-      {/* ── Delete confirmation dialog ── */}
-      {/* Modal that shows the user's name and warns the action is irreversible.
-          Prevents accidental deletions by requiring explicit confirmation. */}
+      {/* ── Delete dialog ── */}
       <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Delete Account</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={deleteUser}>
-              Delete
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={deleteUser}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

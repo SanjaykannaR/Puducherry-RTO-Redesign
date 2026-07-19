@@ -14,7 +14,7 @@ export async function adminOnly(req: AuthRequest, res: Response, next: NextFunct
   }
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId }, select: { role: true } });
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'ADMIN' && user?.role !== 'STAFF') {
       res.status(403).json({ error: 'Admin access required' });
       return;
     }
