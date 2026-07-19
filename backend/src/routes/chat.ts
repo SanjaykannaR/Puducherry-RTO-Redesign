@@ -286,6 +286,23 @@ router.post('/chat', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('[chat] Error:', err?.message || err);
     const lang = detectLanguage(req.body?.message || '');
+    const message = req.body?.message || '';
+
+    // Try knowledge base fallback before returning error
+    const kbFallback = searchKnowledge(message, lang);
+    const fallbackText = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
+      ? kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim()
+      : '';
+
+    if (fallbackText) {
+      return res.json({
+        response: `Here's what I found:\n\n${fallbackText}`,
+        language: lang,
+        navigation: getNavigationIntent(message, lang),
+        login_suggested: false,
+      });
+    }
+
     return res.json({
       response: ERROR_MSGS[lang],
       language: lang,
