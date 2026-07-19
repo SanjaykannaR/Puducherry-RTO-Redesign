@@ -227,10 +227,18 @@ router.post('/chat', async (req: Request, res: Response) => {
     // Navigation intent
     const navigation = getNavigationIntent(message, lang);
 
-    // If no Gemini, return fallback
+    // If no Gemini, try knowledge base fallback instead of error
     if (!model) {
+      const kbFallback = searchKnowledge(message, lang);
+      const fallbackResponse = kbFallback && kbFallback !== 'No specific RTO topic found for this query.'
+        ? kbFallback.replace(/---.*?---\n/g, '').replace(/\{[\s\S]*?\}/g, '').trim() || GREETINGS[lang]
+        : lang === 'ta'
+          ? 'மன்னிக்கவும், AI உதவியாளர் தற்போது கிடைக்கவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234'
+          : lang === 'fr'
+            ? "L'assistant IA n'est pas disponible pour le moment. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234"
+            : "I'm currently unable to use AI, but here's what I found in our knowledge base. Please try again later or contact our helpline: +91 413 222 1234";
       return res.json({
-        response: ERROR_MSGS[lang],
+        response: fallbackResponse,
         language: lang,
         navigation,
         login_suggested: false,

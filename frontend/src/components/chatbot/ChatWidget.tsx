@@ -108,7 +108,18 @@ export default function ChatWidget() {
         body: JSON.stringify({ message: msg, language: lang, history }),
       });
 
-      if (!res.ok) throw new Error("Chat API error");
+      if (!res.ok) {
+        // Try to parse backend error response
+        try {
+          const errData = await res.json();
+          if (errData?.response) {
+            const assistantMsg: ChatMessage = { role: "assistant", content: errData.response, timestamp: new Date(), navigation: errData.navigation || null, loginSuggested: errData.login_suggested || false };
+            setMessages((prev) => [...prev, assistantMsg]);
+            return;
+          }
+        } catch {}
+        throw new Error(`Chat API error: ${res.status}`);
+      }
 
       const data: ChatApiResponse = await res.json();
 
@@ -126,15 +137,24 @@ export default function ChatWidget() {
       if (data.language && data.language !== lang) {
         setLang(data.language);
       }
-    } catch {
+    } catch (err: any) {
+      console.error('[ChatWidget] Error:', err);
+      // Network error vs API error
+      const isNetwork = err?.message?.includes('fetch') || err?.name === 'TypeError';
       const errorMsg: ChatMessage = {
         role: "assistant",
         content:
-          lang === "ta"
-            ? "மன்னிக்கவும், ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234"
-            : lang === "fr"
-              ? "Désolé, une erreur s'est produite. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234"
-              : "Sorry, something went wrong. Please try again or contact our helpline: +91 413 222 1234",
+          isNetwork
+            ? (lang === "ta"
+              ? "சேவையை அணுக முடியவில்லை. உங்கள் இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+              : lang === "fr"
+                ? "Impossible d'accéder au service. Vérifiez votre connexion Internet et réessayez."
+                : "Unable to reach the chat service. Please check your internet connection and try again.")
+            : (lang === "ta"
+              ? "மன்னிக்கவும், ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும் அல்லது எங்கள் ஹெல்ப்லைனை தொடர்பு கொள்ளவும்: +91 413 222 1234"
+              : lang === "fr"
+                ? "Désolé, une erreur s'est produite. Veuillez réessayer ou contacter notre assistance : +91 413 222 1234"
+                : "Sorry, something went wrong. Please try again or contact our helpline: +91 413 222 1234"),
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
