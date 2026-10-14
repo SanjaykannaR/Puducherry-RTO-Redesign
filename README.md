@@ -2,6 +2,38 @@
 
 A comprehensive digital transformation of the Office of the Transport Commissioner, Puducherry — built with Next.js 16, Express + Prisma, and AI-powered proctoring.
 
+## Live Demo
+
+**Try it live:** [puducherry-rto-redesign.vercel.app](https://puducherry-rto-redesign.vercel.app)
+
+## Screenshots
+
+> Screenshots captured from the live Vercel deployment (1280×800) for recruiters / reviewers.
+
+### 1. Home — Hero, Stats & Quick Services
+![Home](docs/screenshots/01-home.png)
+
+### 2. Services Catalog
+![Services](docs/screenshots/02-services.png)
+
+### 3. Learner's License Application
+![Learner's License](docs/screenshots/03-learners-license.png)
+
+### 4. AI Assistant (Gemini + Knowledge-Base fallback)
+![AI Assistant](docs/screenshots/04-ai-assistant.png)
+
+### 5. Fee Calculator
+![Fee Calculator](docs/screenshots/05-fee-calculator.png)
+
+### 6. Challan Lookup & Payment
+![Challan](docs/screenshots/06-challan.png)
+
+### 7. Appointment Booking
+![Appointment](docs/screenshots/07-appointment.png)
+
+### 8. Login (Email + Google + DigiLocker + Aadhaar)
+![Login](docs/screenshots/08-login.png)
+
 ## Live Deployments
 
 | Service | URL | Platform |
